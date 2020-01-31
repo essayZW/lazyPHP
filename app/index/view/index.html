@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    {if condition="isset($LazyRequest['get']['get'])"}
+    <div>{$LazyRequest['url']}?get={$LazyRequest['get']['get']}</div>
+    {endif/}
+    {volist name="LazyRequest['get']" id="items"}
+        <div>{$items}</div>
+
+    {/volist}
+</body>
+</html>

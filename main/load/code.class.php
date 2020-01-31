@@ -1,0 +1,36 @@
+<?php
+/**
+ * 关于PHP源代码层面的操作，比如函数原型，代码，类原型，代码及其所属文件信息
+ * version:1.0
+ */
+
+namespace lazy\code;
+
+
+/**
+ * 继承原有的ReflectionFunction
+ * 新增方法：
+ *      1.根据函数的参数列表匹配参数调用
+ */
+class PHPCodeMethod extends \ReflectionMethod{
+
+
+    /**
+     * 对指定函数调用，并匹配对应的参数值
+     * @param  array  $params       需要赋值的参数列表
+     * @return [type]               [description]
+     */
+    public function callMethod($params = [], $class){
+        $paramList = $this->getParameters();
+        $res = array();
+        foreach ($paramList as $key => $value) {
+            if(array_key_exists($value->name, $params)){
+                $res[$key] = $params[$value->name];
+            }
+            else{
+                $res[$key] = null;
+            }
+        }
+        return call_user_func_array(array($class, $this->name), $res);
+    }
+}
