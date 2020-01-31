@@ -27,6 +27,7 @@ require_once(__LOAD_PATH__ . '/common.php');
 lazy\requireAllFileFromDir(__LOAD_PATH__, [
         'view.class.php'    => 'controller.class.php',      //controller依赖于view
         'mysqlDB.class.php' => 'model.class.php',           //model依赖于mysqlDB
+        'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
     ]
 );
 //导入配置文件
@@ -35,7 +36,7 @@ lazy\LAZYConfig::load();
 //根据__APP_DEBUG__ 开启或者关闭应用调试模式
 (new lazy\debug\AppDebug())->getHandler(lazy\LAZYConfig::get('app_debug'))
                            ->errorRun(lazy\LAZYConfig::get('app_error_run'));
-
+// 设置报错日志存储
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
 

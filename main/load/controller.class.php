@@ -10,12 +10,16 @@
 
 namespace lazy\controller;
 use lazy\view\View;
-
+use lazy\validate\Validate;
 class Controller extends View{
-
+    protected $validate;
     private $pageCode = '<!DOCTYPE html><html><head><title>{$title}</title><meta charset="utf-8"><script type="text/javascript">window.onload=function(){let endTime={$time};let now=0;let url="{$url}";let block=document.querySelector("#time");let jump=function(){now++;show(endTime-now,block);if(now<endTime){setTimeout(jump,1000)}else{window.location.href=url}};show(endTime,block);setTimeout(jump,1000);function show(num,position){position.innerHTML="还有"+num+"s跳转到:   "+url}};</script><style type="text/css">*{margin:0px;padding:0px}a,a:hover{text-decoration:none}html,body{width:100%;height:100%}h1{padding-left:20px;font-family:simhei,宋体;margin-top:50px;margin-bottom:10px}#time,#click,pre{display:block;padding-left:20px;margin-bottom:10px}#click{width:200px;}pre{width:90%;min-height:200px;border:1px solid black;border-radius:10px;margin-left:20px;margin-top:10px;max-width:300px;}#info-title{padding-left:20px}</style></head><body><h1>{$word}</h1><div id="time"></div><a href="{$url}"id="click">点击立即跳转!</a>{if condition="$info != """}<div id="info-title">信息:</div><pre>{$info}</pre>{endif/}</body></html>';
 
-
+    public function __construct(){
+        // 实例化一个验证器
+        $this->validate = new Validate();
+        $this->validate->setObject($this);
+    }
     /**
      * 调用一个其余模块的控制器的方法
      * @param  string $module     模块名
@@ -118,5 +122,7 @@ class Controller extends View{
         $res->load(require(__DATABASE_CONFIG__));
         return $res;
     }
-
+    
+    // 因为验证器的原因所以使用了validate里面提供的接口
+    use \lazy\validate\Check;
 }

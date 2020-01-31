@@ -34,3 +34,26 @@ class PHPCodeMethod extends \ReflectionMethod{
         return call_user_func_array(array($class, $this->name), $res);
     }
 }
+
+/**
+ * 继承class的反射
+ * 新增方法:
+ *      1.得到制定类中的
+ */
+class PHPCodeClass extends \ReflectionClass{
+    /**
+     * 得到指定类中的所有public属性以及其值
+     * @param  object $object    类名
+     * @param  array  $uninclude 排除某些属性
+     * @return array            包含所用公用属性的数组
+     */
+    public static function getAllProtype($object, $uninclude = []){
+        $arr = get_object_vars($object);
+        foreach ($arr as $key => $value) {
+            if(array_search($key, $uninclude) !== false){
+                unset($arr[$key]);
+            }
+        }
+        return $arr;
+    }
+}

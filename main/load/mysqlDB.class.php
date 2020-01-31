@@ -30,13 +30,6 @@ class MysqlDB{
     ];
 
     /**
-     * 初始化
-     * @return [type] [description]
-     */
-    public function __construct(){
-        $this->load($this->config);
-    }
-    /**
      * 导入数据库配置
      * @param  array  $config 配置数组
      * @return [type]         [description]
