@@ -6,6 +6,7 @@
  *      1.提供基本的变量验证
  *      2.可以自己自定义验证规则
  *      3.提供自定义的验证错误信息
+ *      4.提供部分自带的简单验证规则
  */
 
  namespace lazy\validate;
@@ -234,5 +235,54 @@
         $min = (int)$min;
         $max = (int)$max;
         return $value >= $min && $value <= $max;
+    }
+    /**
+     * 验证是否相等
+     *
+     * @param mixed $value
+     * @param mixed $value2
+     * @return void
+     */
+    public function equal($value, $value2){
+        return $value == $value2;
+    }
+
+    /**
+     * 验证一个字符串的长度是否在指定范围内
+     *
+     * @param string $str
+     * @param integer $min
+     * @param integer $max
+     * @return void
+     */
+    public function lenBetween($str, $min, $max){
+        $len = strlen($str);
+        return $len >= $min && $len <= $max;
+    }
+
+    /**
+     * 判断$str2是不是$str1的子串
+     *
+     * @param string $str1
+     * @param string $str2
+     * @return void
+     */
+    public function in($str1, $str2){
+        return strstr($str1, $str2);
+    }
+
+    /**
+     * 验证某个值不在范围内
+     *
+     * @param [type] $value
+     * @param [type] $min
+     * @param [type] $max
+     * @return void
+     */
+    public function nowBetween($value, $min, $max){
+        if($value > $max && $value < $min){
+            return true;
+        }
+        return false;
     }
  }
