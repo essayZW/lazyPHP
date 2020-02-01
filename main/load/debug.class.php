@@ -131,7 +131,7 @@ class AppDebug{
             $this->environment['_FILES'] = $_FILES;
         if(!isset($this->environment['_COOKIES']))
             $this->environment['_COOKIE'] = $_COOKIE;
-        if(!isset($this->environment['_SESSION']))
+        if(!isset($this->environment['_SESSION']) && isset($_SESSION))
             $this->environment['_SESSION'] = $_SESSION;
         foreach ($this->environment as $key => $value) {
             if(array_search($key, $this->uninclude) !== false){

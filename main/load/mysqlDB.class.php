@@ -458,7 +458,6 @@ class MysqlDB{
         $res = $this->execute($stmt);
         // 关闭
         $this->close();
-
         return $this->affectedRowNum > 0;
     }
 
