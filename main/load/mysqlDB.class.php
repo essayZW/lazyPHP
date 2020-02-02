@@ -21,6 +21,9 @@ class MysqlDB{
     private $isCon;                     // MySQL是否连接
     private $affectedRowNum = 0;        // 受影响行数
 
+    // 如果与log接口则使用接口
+    use \lazy\logMethod;
+
     // SQL数据类型的定义
     private $typeList = [
         'string'  => 's',
@@ -124,6 +127,10 @@ class MysqlDB{
      * @return [type] [description]
      */
     public function assign($sql_template, $dataArr){
+        if(method_exists($this, 'sqlLog')){
+            // 存在日志接口
+            $this->sqlLog($sql_template, $dataArr);
+        }
         $stmt = mysqli_prepare($this->con, $sql_template);
         if(!$stmt){
             // sql预处理错误
@@ -187,6 +194,10 @@ class MysqlDB{
      * @return [type]      [description]
      */
     public function query($sql){
+        if(method_exists($this, 'sqlLog')){
+            // 存在日志接口
+            $this->sqlLog($sql);
+        }
         //连接
         $this->connect();
         $mysqli_res = mysqli_query($this->con, $sql);

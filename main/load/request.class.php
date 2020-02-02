@@ -147,6 +147,36 @@ class Request{
         return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
     }
     /**
+     * 判断是不是IP地址
+     *
+     * @param [type] $str
+     * @return boolean
+     */
+    public static function is_ip($str){
+        $ip=explode('.',$str);
+        for($i=0;$i<count($ip);$i++){  
+            if($ip[$i]>255){  
+                return false;  
+            }  
+        }  
+        return preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',$str);  
+    }
+    /**
+     * 得到请求者的IP地址
+     *
+     * @return void
+     */
+    public static function ip(){
+        $ip = 'Unknowm IP Address!';
+        if(!empty($_SERVER['HTTP_CLIENT_IP'])){
+            return self::is_ip($_SERVER['HTTP_CLIENT_IP'])?$_SERVER['HTTP_CLIENT_IP']:$ip;
+        }elseif(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+            return self::is_ip($_SERVER['HTTP_X_FORWARDED_FOR'])?$_SERVER['HTTP_X_FORWARDED_FOR']:$ip;
+        }else{
+            return self::is_ip($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:$ip;
+        }
+    }
+    /**
      * 得到请求头
      * @return array 含有请求头的信息
      */

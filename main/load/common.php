@@ -49,4 +49,78 @@ namespace lazy{
         // 关闭文件夹
         closedir($handler);
     }
+
+    trait fileOperation{
+        /**
+         * 删除文件夹及其下面所有的文件
+         *
+         * @param [type] $dir
+         * @return void
+         */
+        public static function deldir($dir) {
+            //先删除目录下的文件：
+            $dh = opendir($dir);
+            while ($file = readdir($dh)) {
+                if($file != "." && $file!="..") {
+                    $fullpath = $dir."/".$file;
+                    if(!is_dir($fullpath)) {
+                        unlink($fullpath);
+                    } else {
+                        self::deldir($fullpath);
+                    }
+                }
+            }
+            closedir($dh);
+            
+            //删除当前文件夹：
+            if(rmdir($dir)) {
+                return true;
+            } else {
+                return false;
+            }
+
+        }
+    }
+
+
+    trait logMethod{
+        /**
+         * 系统error log接口
+         *
+         * @param [type] $info
+         * @param string $type
+         * @return void
+         */
+        protected function errorLog($error_no, $error_msg, $error_file, $error_line){
+            if($error_no == E_ERROR || $error_no == E_USER_ERROR){
+                log\Log::error($error_msg. ' in '. $error_file. ' on line'. $error_line);
+            }
+            else if($error_no == E_WARNING || $error_no == E_USER_WARNING){
+                log\Log::warn($error_msg. ' in '. $error_file. ' on line'. $error_line);
+            }
+            else if($error_no == E_NOTICE || $error_no == E_USER_NOTICE){
+                log\Log::notice($error_msg. ' in '. $error_file. ' on line'. $error_line);
+            }
+            else{
+                log\Log::info($error_msg. ' in '. $error_file. ' on line'. $error_line);
+            }
+            // 日志写入内存
+            log\Log::save();
+        }
+        /**
+         * 系统S数据库日志记录接口
+         *
+         * @param [type] $sql
+         * @return void
+         */
+        protected function sqlLog($sql, $data = []){
+            if($data){
+                log\Log::sql('[prepare] ' . $sql . "\r\n" . var_export($data, true));
+            }
+            else{
+                log\Log::sql($sql);
+            }
+        }
+    }
+    
 }

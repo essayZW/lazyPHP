@@ -38,9 +38,18 @@ lazy\LAZYConfig::load();
 // 设置报错日志存储
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
-
+// 设置日志类的存储位置
+\lazy\log\Log::init(lazy\LAZYConfig::get('log_file_path'), lazy\LAZYConfig::get('log_file_autoclear'), lazy\LAZYConfig::get('log_max_time'));
 //引入用户自定义函数文件
 require_once(__USER_COMMON__);
+
 foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
     require_once($value);
 }
+
+// 写入日志开头
+\lazy\log\Log::info("[". date('Y年m月d日H时i分s秒') ."] Loaded Config:\r\n" . json_encode(lazy\LAZYConfig::get(), JSON_PRETTY_PRINT));
+// 写入请求者信息
+\lazy\log\Log::info('User IP: '. \lazy\request\Request::ip());
+\lazy\log\Log::info('Request Method: '. \lazy\request\Request::getMethod());
+\lazy\log\Log::info('Referer: '. (\lazy\request\Request::referer() ? \lazy\request\Request::referer() : 'None'));

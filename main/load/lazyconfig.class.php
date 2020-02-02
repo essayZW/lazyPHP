@@ -13,6 +13,9 @@ class LAZYConfig{
      * @return [type]       [description]
      */
     public static function get($name = ''){
+        if($name == ''){
+            return self::$config;
+        }
         if(array_key_exists($name, self::$config)){
             return self::$config[$name];
         }

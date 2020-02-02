@@ -11,6 +11,9 @@
 namespace lazy\debug;
 
 class AppDebug{
+    // 使用框架提供的log接口记录日志
+    use \lazy\logMethod;
+
     // 不显示变量列表
     public $uninclude = ['errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
     private $levelTips;
@@ -31,6 +34,10 @@ class AppDebug{
         if($debug == false){
             //开启了debug模式
             set_error_handler(function ($error_no, $error_msg, $error_file, $error_line) {
+                if(method_exists($this, 'errorLog')){
+                    // 如果该类存在日志记录功能
+                    $this->errorLog($error_no, $error_msg, $error_file, $error_line);
+                }
                 $this->throwError("<!DOCTYPE html><head><title>Error!</title><meta charset=\"UTF-8\"><head><body><h1>Error!</h1><div>网页有错误发生！</div></body>");
                 return true;
             }, E_ALL | E_STRICT);
@@ -38,6 +45,10 @@ class AppDebug{
         }
         // 未开启debug模式
         set_error_handler(function ($error_no, $error_msg, $error_file, $error_line, $env_info) {
+            if(method_exists($this, 'errorLog')){
+                // 如果该类存在日志记录功能
+                $this->errorLog($error_no, $error_msg, $error_file, $error_line);
+            }
             $this->setLevel($error_no)
                 ->setErrorMsg($error_msg)
                 ->setErrorFile($error_file)
@@ -131,8 +142,6 @@ class AppDebug{
             $this->environment['_FILES'] = $_FILES;
         if(!isset($this->environment['_COOKIES']))
             $this->environment['_COOKIE'] = $_COOKIE;
-        if(!isset($this->environment['_SESSION']) && isset($_SESSION))
-            $this->environment['_SESSION'] = $_SESSION;
         foreach ($this->environment as $key => $value) {
             if(array_search($key, $this->uninclude) !== false){
                 unset($this->environment[$key]);

@@ -155,7 +155,7 @@ class View{
         $code = preg_replace_callback($pattern, function($matches){
             $includeCode = $this->load($matches[1]);
             // 添加引入注释信息
-            $includeCode = "{--Include from:$matches[1];Include Start--}" . $includeCode . '{--Include End!--}';
+            $includeCode = "\r\n{--Include from:$matches[1];Include Start--}\r\n" . $includeCode . "\r\n{--Include End!--}\r\n";
             return $includeCode;
         }, $code);
         return $code;
@@ -282,7 +282,7 @@ class View{
         //生成文件名
         $filename = md5(__MODULE__ . __CONTROLLER__ . $path) . '.php';
         //生成头文件信息
-        $code = '<?php /*@MD5:' . $key . '@*/ ?>' . $code;
+        $code = "<?php /*@MD5:" . $key . "@*/ ?>\r\n" . $code;
         file_put_contents(__TEMP_PATH__ . $filename, $code);
         return __TEMP_PATH__ . $filename;
     }
