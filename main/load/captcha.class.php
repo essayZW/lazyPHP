@@ -5,15 +5,20 @@
 namespace lazy\captcha;
 class Captcha{
     // 验证码图片的宽，单位:px
-    private $imgWidth = 80;
+    private $imgWidth;
     // 验证码图片的高，单位:px
-    private $imgHeight = 20;
+    private $imgHeight;
     // 验证码内容的长度
     private $strLen = 5;
     // 保存验证码字符串的session名
     private $sessionName = 'captcha';
     // 验证码验证的时候是否区分大小写,默认不区分
     private $changeFlag = true;
+
+    public function __construct($width = 80, $height = 20){
+        $this->imgHeight = $height;
+        $this->imgWidth = $width;
+    }
     /**
      * 设置验证码的宽度
      *
@@ -172,7 +177,7 @@ class Captcha{
         if($this->isInterferenceLine){
             // 需要设置干扰线
             // 随机产生几条干扰线
-            $end = rand(8, 15);
+            $end = rand(8, 18);
             for($i = 0; $i < $end; $i ++){
                 $line = imagecolorallocate($imgHandle, rand(0, 255), rand(0, 255), rand(0, 255));
                 imageline($imgHandle, rand(0, $this->imgWidth), rand(0, $this->imgWidth), rand(0, $this->imgHeight), rand(0, $this->imgHeight), $line);
@@ -182,9 +187,11 @@ class Captcha{
         if($this->isInterferencePoint){
             // 需要设置干扰点
             // 随机生成数目的干扰点
-            $end = rand(100, 300);
-            $point = imagecolorallocate($imgHandle, rand(0, 255), rand(0, 255), rand(0, 255));
-            imagesetpixel($imgHandle, rand(0, $this->imgWidth), rand(0, $this->imgHeight), $point);
+            $end = rand(400, 800);
+            for($i = 0; $i < $end; $i ++){
+                $point = imagecolorallocate($imgHandle, rand(0, 255), rand(0, 255), rand(0, 255));
+                imagesetpixel($imgHandle, rand(0, $this->imgWidth), rand(0, $this->imgHeight), $point);
+            }
         }
 
         // 填充背景颜色
@@ -193,7 +200,7 @@ class Captcha{
         $last = 0;
         $len = strlen($str);
         for($i = 0; $i < $len; $i ++){
-            $last = rand($last + 5, $last + (int)($this->imgWidth / $len));
+            $last = rand($last + 6, $last + (int)($this->imgWidth / $len));
             imagestring($imgHandle, 28, $last, rand(0, (int)($this->imgHeight / 2) - 3), $str{$i}, $txtColor);
         }
         // 清空缓存区

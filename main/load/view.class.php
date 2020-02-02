@@ -2,19 +2,20 @@
 
 /**
  * 模板操作相关类
- * version:2.1
+ * version:2.2
  * Update Info:
  *      1.新增条件结构渲染
  *      2.支持循环结构嵌套渲染
  *      3.新增缓存文件机制
  *      4.新增渲染添加函数支持
- *      5.修复一些bug
+ *      5.新增模板引入功能
+ *      6.修复一些bug
  */
 namespace lazy\view;
 
 class View{
     private $list;                  //需要渲染的变量即对应值列表
-    private $useCache;              //渲染时是否实用缓存
+    private $useCache = true;              //渲染时是否实用缓存
     public function __construct(){
         $this->list = [];   //初始化
         $this->useCache = true;
@@ -80,6 +81,8 @@ class View{
         $path .= '.html';
         //加载模板代码
         $code = $this->load($path);
+        // 先渲染模板引入部分
+        $code = $this->assignInclude($code);
         //得到模板代码MD5
         $key = md5($code);
         //查找是否有缓存文件
@@ -141,7 +144,22 @@ class View{
         $code = $this->assignCondition($code);
         return $code;
     }
-
+    /**
+     * 渲染模板引入的部分，将引入的代码加载进去
+     *
+     * @param string $code
+     * @return void
+     */
+    private function assignInclude($code){
+        $pattern = '/\{include +?file="(.+?) *?"\}/';
+        $code = preg_replace_callback($pattern, function($matches){
+            $includeCode = $this->load($matches[1]);
+            // 添加引入注释信息
+            $includeCode = "{--Include from:$matches[1];Include Start--}" . $includeCode . '{--Include End!--}';
+            return $includeCode;
+        }, $code);
+        return $code;
+    }
     /**
      * 过滤模板中所有的PHP代码
      * @param  string $code     需要处理的代码

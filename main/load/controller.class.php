@@ -1,11 +1,12 @@
 <?php
 /**
  * 控制器的相关操作类
- * version:1.0
+ * version:1.1
  * Update Info:
  *      1.新增调用任意模块\控制器\方法
  *      2.新增实例化一个指定的model
  *      3.新增跳转页面
+ *      4.修复BUG
  */
 
 namespace lazy\controller;
@@ -72,6 +73,9 @@ class Controller extends View{
      * @param  integer $time 页面停留时间
      */
     protected function success($info = '', $url = false, $time = 3){
+        if($url == false){
+            $url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : $_SERVER['HTTP_HOST'];
+        }
         $this->assign([
             'title'=> 'Success',
             'info' => $info,
@@ -92,6 +96,9 @@ class Controller extends View{
      * @param  integer $time 页面停留时间
      */
     protected function error($info = '', $url = false, $time = 3){
+        if($url === false){
+            $url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'http://' . $_SERVER['HTTP_HOST'];
+        }
         $this->assign([
             'title'=> 'Error',
             'info' => $info,

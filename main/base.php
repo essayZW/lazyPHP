@@ -20,7 +20,6 @@ define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件�
 define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
 //加载核心函数库，以及类
 // 先加载通用方法文件
-
 require_once(__LOAD_PATH__ . '/common.php');
 
 //引入其他核心函数库、类文件
@@ -42,3 +41,6 @@ ini_set('error_log', __LOG_PATH__ . '/error.log');
 
 //引入用户自定义函数文件
 require_once(__USER_COMMON__);
+foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
+    require_once($value);
+}
