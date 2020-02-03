@@ -21,5 +21,13 @@ return [
     //模板中是否允许执行任意PHP代码
     //修改此项之后需要对模板中任意地方修改以使重新编译才可生效
     'fetch_allow_code'              => false,
+    // 扩展函数文件，已经有app/common.php，如要继续添加，需要在下面配置
+    'extra_file_list'               => [],
+    // 日志文件存放路径
+    'log_file_path'                 => __LOG_PATH__,
+    // 日志文件是否自动清理
+    'log_file_autoclear'            => true,
+    // 日志文件最长保留时间,单位：月,只有开启自动清理该项才有效
+    'log_max_time'                  => 3
 ];
 

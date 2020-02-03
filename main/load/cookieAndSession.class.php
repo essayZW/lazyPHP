@@ -51,7 +51,7 @@ namespace lazy\cookie{
          */
         public static function clear(){
             foreach ($_COOKIE as $key => $value) {
-                $this->delete($key);
+                self::delete($key);
             }
         }
     }
@@ -135,7 +135,7 @@ namespace lazy\session{
          */
         public static function close(){
             self::start();
-            if($this->startFlag)
+            if(self::startFlag)
                 session_destroy();
         }
     }

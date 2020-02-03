@@ -9,7 +9,7 @@ class Log{
 
     private static $autoClearFlag;
     private static $maxMounth;
-
+    private static $clearFlag = false;
     use \lazy\fileOperation;
 
     /**
@@ -23,7 +23,12 @@ class Log{
         $now = (int)date('Ym');
         while(($filename = readdir($dirhandler)) !== false){
             if($filename == '.' || $filename == '..' || !is_dir(self::$logPath . '/' . $filename)) continue;
-            if($now - (int)$filename >= self::$maxMounth){
+            $nm = $now % 100;
+            $ny = ($now - $nm) / 100;
+            $m = (int)$filename % 100;
+            $y = ((int)$filename - $m) / 100;
+            $num = ($ny - $y) * 12 + ($nm - $m);
+            if($num >= self::$maxMounth){
                 self::deldir(self::$logPath . '/' . $filename);
             }
         }
@@ -71,8 +76,9 @@ class Log{
             mkdir(self::$logPath . '/' . $dirname);
         }
         file_put_contents($path, $content, FILE_APPEND);
-        if(self::$autoClearFlag){
+        if(self::$autoClearFlag && !self::$clearFlag){
             // 开启了自动清理
+            self::$clearFlag = true;
             self::autoClear();
         }
     }
@@ -87,8 +93,9 @@ class Log{
             self::write($value['info'], $value['type']);
             unset(self::$log[$key]);
         }
-        if(self::$autoClearFlag){
+        if(self::$autoClearFlag && !self::$clearFlag){
             // 开启了自动清理
+            self::$clearFlag = true;
             self::autoClear();
         }
     }

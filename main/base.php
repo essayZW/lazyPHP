@@ -48,7 +48,7 @@ foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
 }
 
 // 写入日志开头
-\lazy\log\Log::info("[". date('Y年m月d日H时i分s秒') ."] Loaded Config:\r\n" . json_encode(lazy\LAZYConfig::get(), JSON_PRETTY_PRINT));
+\lazy\log\Log::info("[". date('Y年m月d日H时i分s秒') ."] App Start!");
 // 写入请求者信息
 \lazy\log\Log::info('User IP: '. \lazy\request\Request::ip());
 \lazy\log\Log::info('Request Method: '. \lazy\request\Request::getMethod());
