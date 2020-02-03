@@ -49,6 +49,22 @@ namespace lazy{
         // 关闭文件夹
         closedir($handler);
     }
+    
+    /**
+     * 加载指定的第三方类库
+     *
+     * @return void
+     */
+    function Vendor($name, $objectName = ''){
+        $name = str_replace('.', '/', $name) . '.php';
+        log\Log::info('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
+        require_once(__EXTEND_PATH__ . $name);
+        if($objectName !== ''){
+            log\Log::info('Extend Use Class: ' . $objectName);
+            $object = new $objectName;
+            return $object;
+        }
+    }
 
     trait fileOperation{
         /**

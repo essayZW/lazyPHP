@@ -11,13 +11,13 @@ define("__CSS__", __STATIC_PATH__ . '/css/');                   //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                     //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');               //image目录
 define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
-define("__DEFAULT_PATH_INFO__", '/index/index/index');          //默认的模块，控制器，方法
 define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件路径
 define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件目录
 define("__DATABASE_CONFIG__", __APP_PATH__ . '/database.php');  //用户数据库配置文件
 define("__USER_COMMON__", __APP_PATH__ . '/common.php');        //用户公用函数文件
 define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件目录
 define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
+define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库目录
 //加载核心函数库，以及类
 // 先加载通用方法文件
 require_once(__LOAD_PATH__ . '/common.php');

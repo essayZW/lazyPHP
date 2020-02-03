@@ -164,4 +164,14 @@ class Log{
     public static function warn($info){
         self::record($info, 'warn');
     }
+
+    /**
+     * 写入带有时间的日志
+     *
+     * @param [type] $info
+     * @return void
+     */
+    public static function time($info){
+        self::record($info, date('Y-m-d-h-i-s'));
+    }
 }
