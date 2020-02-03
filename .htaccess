@@ -9,5 +9,5 @@
   RewriteRule ^main/(.*)$ index.php/main/$1 [QSA,PT,L]
   RewriteRule ^runtime/(.*)$ index.php/runtime/$1 [QSA,PT,L]
   RewriteRule ^app/(.*)$ index.php/app/$1 [QSA,PT,L]
-  RewriteRule ^plugins/(.*)$ index.php/plugins/$1 [QSA,PT,L]
+  RewriteRule ^extend/(.*)$ index.php/extend/$1 [QSA,PT,L]
 </IfModule>
