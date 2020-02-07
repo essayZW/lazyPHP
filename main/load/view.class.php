@@ -176,6 +176,10 @@ class View{
      * @return string           模板源代码
      */
     private function load($filename){
+        if(!\file_exists(__VIEW_PATH__ . $filename)){
+            \trigger_error('View ' . __VIEW_PATH__ . $filename . ' Not Exists!', E_USER_ERROR);
+            return;
+        }
         return file_get_contents(__VIEW_PATH__ . $filename);
     }
 
