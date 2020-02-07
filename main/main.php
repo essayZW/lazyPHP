@@ -67,7 +67,6 @@ define("__MODULE__", $module);
 define("__CONTROLLER__", $controller);
 define("__METHOD_", $method);
 //开始执行对应的方法并输出结果
-
 print_r(controller\Controller::callMethod($module, $controller, $method));
 // 保存内存中所有日志
 log\Log::save();

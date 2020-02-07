@@ -57,12 +57,19 @@ class Controller extends View{
         //实例化一个控制器
         $appController = new $controller;
         if(!method_exists($appController, $method)){
-            //方法不存在
-            trigger_error("Method $method Not Exists!", E_USER_ERROR);
+            // 当请求方法不存在时，尝试调用默认方法
+            if(!method_exists($appController, \lazy\LAZYConfig::get('error_default_method'))){
+                //方法不存在
+                trigger_error("Method $method Not Exists!", E_USER_ERROR);
+            }
+            else{
+                $method = \lazy\LAZYConfig::get('error_default_method');
+                define(__METHOD_, $method);
+            }
         }
         //得到表单参数列表
-        //调用并将结果输出
         $LAZYCode = new \lazy\code\PHPCodeMethod($appController, $method);
+        //调用并将结果返回
         return $LAZYCode->callMethod(\lazy\request\Request::params(), $appController);
     }
 
