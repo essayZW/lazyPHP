@@ -109,16 +109,16 @@ namespace lazy{
          */
         protected function errorLog($error_no, $error_msg, $error_file, $error_line){
             if($error_no == E_ERROR || $error_no == E_USER_ERROR){
-                log\Log::error($error_msg. ' in '. $error_file. ' on line'. $error_line);
+                log\Log::error($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_WARNING || $error_no == E_USER_WARNING){
-                log\Log::warn($error_msg. ' in '. $error_file. ' on line'. $error_line);
+                log\Log::warn($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_NOTICE || $error_no == E_USER_NOTICE){
-                log\Log::notice($error_msg. ' in '. $error_file. ' on line'. $error_line);
+                log\Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else{
-                log\Log::info($error_msg. ' in '. $error_file. ' on line'. $error_line);
+                log\Log::info($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             // 日志写入内存
             log\Log::save();
