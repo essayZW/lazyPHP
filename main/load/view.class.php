@@ -55,6 +55,7 @@ class View{
             '__JS__'            => __JS__,
             '__IMAGE__'         => __IMAGE__,
             '__STATIC_PATH__'   => __STATIC_PATH__,
+            '__ROOT_PATH__'     => __ROOT_PATH__,
             'LazyRequest'       => [
                 'get'       => \lazy\request\Request::get(),
                 'post'      => \lazy\request\Request::post(),
