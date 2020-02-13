@@ -13,12 +13,11 @@ if(LAZYConfig::get('url_route_on')){
     // 记录日志
     log\Log::log('Router On');
     $routerList = require_once(__ROUTER__);
-    $LAZYRouter = new router\Router();                  //实例化路由类
-    $LAZYRouter->importFromArray($routerList);          //将已经有配置文件中的路由列表导入
-    $rule = $LAZYRouter->getRule($pathinfo);            //得到对应的记录
+    router\Router::importFromArray($routerList);          //将已经有配置文件中的路由列表导入
+    $rule = router\Router::getRule($pathinfo);            //得到对应的记录
     // 记录日志
     log\Log::info('Matched Router: '. ($rule ? $rule : 'None'));
-    $accpetMethod = $LAZYRouter->getMethod($pathinfo);  //得到支持的方法
+    $accpetMethod = router\Router::getMethod($pathinfo);  //得到支持的方法
     if($rule != false) $pathinfo = $rule;               //若存在记录则替换为记录的规则
     if($accpetMethod == false) $accpetMethod = 'ALL';   //若路由中不存在则支持所有方法
 }
