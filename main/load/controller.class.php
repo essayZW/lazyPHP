@@ -64,7 +64,7 @@ class Controller extends View{
             }
             else{
                 $method = \lazy\LAZYConfig::get('error_default_method');
-                define(__METHOD_, $method);
+                \lazy\request\Request::$method = $method;
             }
         }
         //得到表单参数列表
@@ -124,13 +124,16 @@ class Controller extends View{
      * @param  string $name model名称
      * @return [type]       [description]
      */
-    protected function model($name = __CONTROLLER__){
+    protected function model($name = ''){
+        if(!$name){
+            $name = \lazy\request\Request::controller();
+        }
         if(!file_exists(__MODEL__PATH_ . $name . '.php')){
             //模型不存在
             trigger_error("Model $name Not Exists!", E_USER_ERROR);
         }
         require_once(__MODEL__PATH_ . $name . '.php');
-        $model = 'app\\' . __MODULE__ . '\model\\' . $name;
+        $model = 'app\\' . \lazy\request\Request::module() . '\model\\' . $name;
         $res = new $model;
         //加载配置
         $res->load(require(__DATABASE_CONFIG__));

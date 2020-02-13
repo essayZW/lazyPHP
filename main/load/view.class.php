@@ -12,7 +12,7 @@
  *      6.修复一些bug
  */
 namespace lazy\view;
-
+use lazy\request\Request;
 class View{
     private $list;                  //需要渲染的变量即对应值列表
     private $useCache = true;              //渲染时是否实用缓存
@@ -74,7 +74,7 @@ class View{
     protected function fetch($path = false){
         if($path == false && gettype($path) != gettype('')){
             //参数错误,采用默认参数
-            $path = __CONTROLLER__;
+            $path = Request::controller();
         }
         //导入预设环境变量
         $this->loadSystem();
@@ -284,7 +284,7 @@ class View{
      */
     private function build($code, $path, $key){
         //生成文件名
-        $filename = md5(__MODULE__ . __CONTROLLER__ . $path) . '.php';
+        $filename = md5(Request::module() . Request::controller(). $path) . '.php';
         //生成头文件信息
         $code = "<?php /*@MD5:" . $key . "@*/ ?>\r\n" . $code;
         file_put_contents(__TEMP_PATH__ . $filename, $code);
@@ -318,7 +318,7 @@ class View{
      * @return [type]       [description]
      */
     private function getTempFileName($path){
-        return __TEMP_PATH__ . md5(__MODULE__ . __CONTROLLER__ . $path) . '.php';
+        return __TEMP_PATH__ . md5(Request::module() . Request::controller(). $path) . '.php';
     }
 
 

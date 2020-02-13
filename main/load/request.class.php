@@ -10,6 +10,10 @@
 namespace lazy\request;
 class Request{
     public static $pathParamStr;
+
+    public static $module;
+    public static $controller;
+    public static $method;
     /**
      * 返回本次请求的请求方法
      * @return string 请求方法，若没有则返回false
@@ -175,6 +179,23 @@ class Request{
         }else{
             return self::is_ip($_SERVER['REMOTE_ADDR'])?$_SERVER['REMOTE_ADDR']:$ip;
         }
+    }
+
+    /**
+     * 本次请求的模块
+     *
+     * @return void
+     */
+    public static function module(){
+        return self::$module;
+    }
+
+    
+    public static function controller(){
+        return self::$controller;
+    }
+    public static function method(){
+        return self::$method;
     }
     /**
      * 得到请求头

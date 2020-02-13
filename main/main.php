@@ -63,9 +63,9 @@ define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器�
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
 //保存本次请求中的模型，控制器，方法信息
-define("__MODULE__", $module);
-define("__CONTROLLER__", $controller);
-define("__METHOD_", $method);
+request\Request::$module = $module;
+request\Request::$controller = $controller;
+request\Request::$method = $method;
 //开始执行对应的方法并输出结果
 print_r(controller\Controller::callMethod($module, $controller, $method));
 // 保存内存中所有日志
