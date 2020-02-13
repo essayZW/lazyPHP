@@ -4,16 +4,32 @@ use lazy\model\Model;
 
 class index extends Model{
     public function index(){
-        $res = $this->getPrimaryKey('info');
-        // $res = $this->table('info')
+        // $res = $this->connect([
+        //                 'database' => 'test',
+        //                 'username' => 'root',
+        //                 'password' => 'beihai'
+        //             ])->getPrimaryKey('info');
+        // $res = $this->connect([
+        //     'database' => 'test',
+        //     'username' => 'root',
+        //     'password' => 'beihai'
+        // ])->table('info')
         //          ->where('name', '=', '123')
         //          ->where('id', '>=', 0)
         //          ->field(['id', 'name', 'num'])
         //          ->order('id', 'DESC')
         //          ->limit(5)
         //          ->select();
-        // $res = $this->prepareAndExecute('SELECT * FROM info WHERE `name`=?', ['张三']);
-        // $res = $this->query('DELETE FROM info WHERE num=999999');
+        // $res = $this->connect([
+        //     'database' => 'test',
+        //     'username' => 'root',
+        //     'password' => 'beihai'
+        // ])->prepareAndExecute('SELECT * FROM info WHERE `name`=?', ['张三']);
+        // $res = $this->connect([
+        //     'database' => 'test',
+        //     'username' => 'root',
+        //     'password' => 'beihai'
+        // ])->query('DELETE FROM info WHERE num=999999');
         // echo $this->affectedRows();
         // $res = $this->table('info')
         //          ->insert([

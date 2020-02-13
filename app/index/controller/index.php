@@ -1,21 +1,39 @@
 <?php
 namespace app\index\controller;
-use lazy\controller\Controller;
 
+use lazy\captcha\Captcha;
+use lazy\controller\Controller;
+use lazy\view\View;
 class index extends Controller{
-    public function index(){
-        // $this->validate->rule('name', 'integer|max:20|min:10|between:13,19');
-        // $this->validate->rule('xss', 'integer');
-        // $this->validate->msg([
-        //     'name.integer' => 'name不是一个整数',
-        //     'name.max'     => '不能大于20',
-        //     'name.min'     => '不能小于10',
-        //     'name.between' => '必须在13和19之间',
-        //     'integer'  => '必须是一个整数',
-        // ]); 
-        // var_dump($this->validate->batch()->check(['name' => (float)(\lazy\request\Request::get('get')), 'xss' => '1']));
-        // var_dump($this->validate->getErrorMsg());
-        return $this->fetch();
+
+    public function index($name){
+        $captcha = new Captcha(100, 30);
+        $image = $captcha->set($captcha->str(5));
+        $view = new View(); 
+        $view->assign('imageSrc', $image);
+        return $view->fetch();
     }
 
+    public function check($code = ''){
+        $captcha = new Captcha();
+        if($captcha->check($code)){
+            $this->success('验证码正确');
+        }
+        else{
+            $this->error('验证码错误');
+        }
+    }
+
+    public function answer(){
+        return \lazy\request\Request::get('id');
+    }
+
+    public function extend(){
+        $a = \lazy\Vendor('demo.demo', 'demo');
+        return $a->say_hello();
+    }
+
+    public function _Error(){
+        return 'Error!';
+    }
 }

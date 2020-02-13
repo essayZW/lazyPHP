@@ -1,3 +1,5 @@
-runtime/
-extend/demo/
-app/index/controller/*
+
+app/index/controller/index.php
+app/index/model/index.php
+app/index/view/code.html
+app/index/view/index.html

@@ -2,14 +2,26 @@
 <html>
 <head>
     <title></title>
+    <style>
+        *{
+            margin:0px;
+            padding: 0px;
+        }
+        input{
+            height:30px;
+            vertical-align: bottom;
+        }
+        img{
+            border: 1px solid black;
+            vertical-align: bottom;
+        }
+
+    </style>
 </head>
 <body>
-    {if condition="isset($LazyRequest['get']['get'])"}
-    <div>{$LazyRequest['url']}?get={$LazyRequest['get']['get']}</div>
-    {endif/}
-    {volist name="LazyRequest['get']" id="items"}
-        <div>{$items}</div>
-
-    {/volist}
+    <form action="./index/index/check" method="POST">
+        <input type="text" name="code" required="required">
+        {include file="code.html"}
+    </form>
 </body>
 </html>
