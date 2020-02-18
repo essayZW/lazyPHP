@@ -373,3 +373,234 @@ protected function error($info = '', $url = false, $time = 3){};
 
 如果要获取本次请求的相关请求信息，如请求路径，请求参数等，可以使用`lazy\request\Request`类，该类的所有方法支持静态调用。
 
+例如：
+
+```php
+$request = new \lazy\request\Request();
+// 获得本次的请求方法
+echo 'Request method: '. $request->getMethod(). '<br>';
+// 得到名为test的GET表单值
+echo 'Get param test value: ' . $request->get('test') . '<br>';
+// 得到请求的URL
+echo 'Request url : '. $request->url() . '<br>';
+// 得到请求的域名
+echo 'Request host: ' . $request->host() . '<br>';
+// 获得请求的pathinfo信息
+echo 'Path info: '. $request->path() . '<br>';
+// 得到请求的路径参数
+echo 'Param in path: '. $request->pathParam() . '<br>';
+// 得到USER_AGENT头
+echo 'HTTP User Agent : ' . $request->getRequestHead('user-agent') . '<br>';
+// 得到请求信息中的referer信息
+echo 'HTTP Referer: ' . $request->referer() . '<br>';
+// 得到请求着的IP地址
+echo 'Requester ip address: '. $request->ip() . '<br>';
+// 得到本次请求的模块名
+echo 'Request Module Name: '. $request->module() . '<br>';
+// 得到本次请求的控制器名
+echo 'Request Controller Name : ' . $request->controller() . '<br>';
+// 得到请求的控制器方法名
+echo 'Request Method Name: '. $request->method() . '<br>';
+
+```
+
+这样使用`Postman`访问`http://serverName/index/index/index/test/123`得到以下输出
+
+```
+Request method: GET
+Get param test value: 123
+Request url : /index/index/index/test/123
+Request host: serverName
+Path info: /index/index/index/test/123
+Param in path: /test/123
+HTTP User Agent : PostmanRuntime/7.22.0
+HTTP Referer: 127.0.0.1
+Requester ip address: 127.0.0.1
+Request Module Name: index
+Request Controller Name : index
+Request Method Name: index
+```
+
+> 目前`Request`类就提供这些有限的功能，后期将会继续添加内容
+
+# 六. 数据库
+
+框架内置了`lazy\DB\MysqlDB`类，提供了简单的对MySQL数据库的增删改查操作，支持用户自定义语句、模板语句执行，内置的增删改查主要通过预处理模板方式，以防止SQL注入。
+
+## 1. 数据库连接
+
+数据库默认有一个配置文件在`project\app\database.php`中，文件内容如下。
+
+```php
+return [
+    // 服务器地址
+    'hostname'          => '127.0.0.1',
+    // 数据库名
+    'database'          => '',
+    // 用户名
+    'username'          => '',
+    // 密码
+    'password'          => '',
+    // 端口
+    'hostport'          => 3306
+];
+```
+
+可以配置数据库地址、端口、用户名、密码、项目数据库信息。
+
+在数据库操作函数中会自动根据配置连接数据库然后关闭。
+
+> 注意：该配置文件只有在用户模型继承了框架中`lazy\model\Model`类自动生效，自己实例化`lazy\DB\MysqlDB`类需要手动导入配置
+
+所以可以使用`lazy\DB\MysqlDB->load()`函数主动加载配置信息，参数是一个键值数组，这样之后的所有数据库操作都将会使用该配置。
+
+另外，还可以使用`lazy\DB\MysqlDB->connect()`主动连接数据库，并通过参数自定义本次连接的配置,如：
+
+```php
+$db = new \lazy\DB\MysqlDB();
+$db->load($configArr);		//  在这里$configArr是上文中那个配置文件中的数组
+$db->connect([
+    'username' : 'test',
+    'password' : 'pass'
+]);
+```
+
+  这样就可以使用新的用户名和密码**临时**连接数据库，并且将在一次数据库操作之后使用原来的配置。
+
+## 2. 查询
+
+该类提供了`lazy\DB\MysqlDB->select()` 方法进行数据库查询的操作。
+
+同时需要其他方法对查询范围进行约束。
+
+一个简单的查询写法如下：
+
+```php
+// $DB是一个已经实例化的类，下文中的也是如此
+$DB->table('demo')->where('id', '=', '1')->select();
+```
+
+> `select`  方法查询不到信息的时候返回`false`
+
+这样执行的语句相当于:
+
+```sql
+SELECT * FROM `demo` WHERE `id`=1
+```
+
+> 还支持`find`方法，其只返回一条数据，而`select`返回所有的数据
+
+* 可以使用`field`函数限定查询的字段范围
+
+```php
+$DB->table('demo')->field('name')->where('id', '=', '1')->select();
+```
+
+其SQL语句相当于:
+
+```sql
+SELECT `name` FROM `demo` WHERE `id`=1
+```
+
+可以使用数组指定多个字段或者多次调用
+
+```php
+field(['name', 'num']);
+```
+
+与 
+
+```PHP
+field('name')->field('num');
+```
+
+效果是一样的。
+
+* 同时可以使用`order` 函数对查询结果进行排序
+
+```php
+$DB->table('demo')->order('num', 'DESC')->select();	// 通过num字段降序排序
+```
+
+默认使用升序排序。
+
+* 可以使用`limit`函数限定查询条数
+
+```php
+$DB->table('demo')->limit(5, 2)->select();
+```
+
+上例代表从第**3**条开始选取5条数据
+
+## 3. 添加
+
+ 使用`lazy\DB\MysqlDB->insert()`方法插入新的数据。返回为布尔值代表操作是否成功
+
+```php
+$DB->table('demo')->insert([
+						'name' => '张三',
+						'num'  => '2019'
+ 					]);
+```
+
+其sql语句为:
+
+``` sql
+INSERT INTO `demo`  (`name`, `num`)  VALUES  ('张三', '2019');
+```
+
+## 4.  删除
+
+使用`lazy\DB\MysqlDB->delete()` 更新数据。返回值为布尔值。
+
+同样使用`where`函数限定范围。
+
+```php
+$DB->table('demo')->where('id', '>', 3)->delete();
+```
+
+其SQL语句为：
+
+```sql
+DELETE FROM `demo` WHERE `id`>3
+```
+
+## 5. 更新
+
+使用`lazy\DB\MysqlDB->update()`函数对数据进行更新，返回布尔值。
+
+```php
+$DB->table('demo')->where('id', '=', '2')->update([
+    										'name' => 'essay',
+    										'num'  => '123'
+										]);
+```
+
+其SQL语句为：
+
+```sql
+UPDATE `demo` SET `name`='essay', `num`='123'  WHERE `id`=2
+```
+
+## 6. 自定义语句
+
+由于类中提供的功能比较基础、薄弱，所以提供方法供用户执行自定义的SQL语句或者模板。
+
+使用`lazy\DB\MysqlDB->query()` 执行一句SQL语句，并将结果返回，若是查询语句返回结果数组，其他语句返回布尔值代表语句是否执行成功。
+
+使用`lazy\DB\MysqlDB->prepareAndExecute()`  执行一个SQL模板。
+
+```php
+// 执行一句SQL语句
+$DB->query('SELECT * FOMR demo');
+// 执行模板语句，保证第二个参数中的数组要与模板中的占位符相对应
+$DB->prepareAndExecute('SELECT * FROM demo WHERE id=?', ['id' => 1]);
+```
+
+## 8. 受影响行数
+
+使用`lazy\DB\MysqlDB->affectedRows()`获得上次SQL操作的受影响行数。
+
+## 9. 主键
+
+使用`lazy\DB\MysqlDB->getPrimaryKey()` 获得指定表的主键
