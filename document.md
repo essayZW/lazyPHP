@@ -1,0 +1,375 @@
+# 一. 基础
+
+## 1. 框架说明
+
+本框架是仿写的think PHP框架，采用MVC设计模式
+
+连文档都是仿照think PHP5.0看云的文档写的……
+
+目前版本：**1.0.0**
+
+使用`cloc`代码统计工具结果
+
+```
+      25 text files.
+classified 25 files
+      25 unique files.                              
+      15 files ignored.
+
+github.com/AlDanial/cloc v 1.80  T=0.50 s (46.0 files/s, 5982.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+PHP                             22            181           1127           1681
+Markdown                         1              1              0              1
+-------------------------------------------------------------------------------
+SUM:                            23            182           1127           1682
+-------------------------------------------------------------------------------
+```
+
+> **框架是通过`PATH_INFO`得到请求的模块控制器方法的，所以需要保证服务器支持`	$_SERVER['PATH_INFO']`变量，最好支持URL重写功能**
+
+## 2. 目录结构
+
+
+```
+project
+│  .htaccess							URL重写文件
+│  favicon.ico							默认站标
+│  index.php							应用入口文件
+│  
+├─app									应用目录
+│  │  common.php						用户公用函数文件
+│  │  config.php						应用配置文件
+│  │  database.php						应用数据库配置文件
+│  │  router.php						应用路由配置文件
+│  │  
+│  └─index								默认的index模块
+│      ├─controller						模块中的控制器目录
+│      │      index.php					index控制器文件
+│      │      
+│      ├─model							模型目录
+│      └─view							模板目录
+├─extend
+├─main
+│  │  base.php							应用基础环境加载以及debug注册文件
+│  │  main.php							控制路径的解析以及路由的转发以及
+│  │  
+│  └─load								框架核心类
+│          captcha.class.php			验证码相关类
+│          code.class.php				扩展PHP反射相关类
+│          common.php					框架公用函数文件
+│          controller.class.php			控制器类
+│          cookieAndSession.class.php	cookie以及session相关操作类
+│          debug.class.php				框架调试类
+│          lazyconfig.class.php			框架配置相关类
+│          log.class.php				日志操作相关类
+│          model.class.php				模型类
+│          mysqlDB.class.php			框架MySQL数据库操作类
+│          request.class.php			请求参数相关类
+│          router.class.php				路由解析转发相关类
+│          validate.class.php			验证器相关类
+│          view.class.php				模板类
+│          
+├─runtime								日志以及临时文件缓存存放目录
+│  ├─log								日志目录
+│  └─temp								临时文件存放目录
+└─static								静态资源存放目录
+```
+
+**默认除static以外的目录请求都会被重写以保护目录**
+
+## 3. 框架流程
+
+1. 入口文件
+
+入口文件是`project/index.php`文件，其负责定义应用根目录常量，并尝试捕获`E_PARSE`和`E_ERROR`的错误处理
+
+```php
+define("__ROOT_PATH__", dirname(__FILE__)); //根目录
+
+try {
+    require_once("./main/main.php");
+}catch (\Error $error) {
+    if(!class_exists('\lazy\debug\AppDebug')){
+        echo $error->getMessage() . ' at' . $error->getFile() . ' on line ' . $error->getLine();
+        return;
+    }
+    $debug = new \lazy\debug\AppDebug();
+    $debug->throwError($debug->setLevel(E_ERROR)
+          ->setErrorEnv(get_defined_vars())
+          ->setErrorFile($error->getFile())
+          ->setErrorLine($error->getLine())
+          ->setErrorMsg($error->getMessage())
+          ->setErrorTrace($error->getTraceAsString())
+          ->build());
+}
+```
+
+2. 变量注册
+
+```php
+namespace lazy;         //顶级命名空间
+define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
+require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量加载，环境设置文件
+```
+
+处在顶级命名空间`lazy`之下，并加载`base.php`注册变量
+
+```php
+//全局变量定义
+define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
+define("__STATIC_PATH__", './static/');         //静态资源目录
+define("__CSS__", __STATIC_PATH__ . '/css/');                   //css目录
+define("__JS__", __STATIC_PATH__ . '/js/');                     //js目录
+define("__IMAGE__", __STATIC_PATH__ . '/image/');               //image目录
+define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
+define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件路径
+define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件目录
+define("__DATABASE_CONFIG__", __APP_PATH__ . '/database.php');  //用户数据库配置文件
+define("__USER_COMMON__", __APP_PATH__ . '/common.php');        //用户公用函数文件
+define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件目录
+define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
+define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库目录
+```
+
+3. 核心文件引入
+
+根据依赖关系依次引入框架核心文件
+
+```php
+// 先加载通用方法文件
+require_once(__LOAD_PATH__ . '/common.php');
+
+//引入其他核心函数库、类文件
+lazy\requireAllFileFromDir(__LOAD_PATH__, [
+        'view.class.php'    => 'controller.class.php',      //controller依赖于view
+        'mysqlDB.class.php' => 'model.class.php',           //model依赖于mysqlDB
+        'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
+    ]
+);
+```
+
+4. 配置加载
+
+导入配置文件
+
+```php
+//导入配置文件
+lazy\LAZYConfig::load();
+```
+
+5. 注册错误以及异常机制
+
+通过`lazy\debug\AppDebug`注册错误处理，并根据配置文件配置处理机制，并设置错误日志存储
+
+```php
+//根据__APP_DEBUG__ 开启或者关闭应用调试模式
+(new lazy\debug\AppDebug())->getHandler(lazy\LAZYConfig::get('app_debug'))
+                           ->errorRun(lazy\LAZYConfig::get('app_error_run'));
+// 设置报错日志存储
+ini_set('log_errors', true);
+ini_set('error_log', __LOG_PATH__ . '/error.log');
+```
+
+6. 加载路由列表
+
+加载应用定义的路由列表，根据`PATH_INFO`匹配并解析新的URL
+
+7. 解析URL
+
+对请求的URL进行解析，得到请求的模块、控制器、方法，检测请求方法是否合法
+
+```php
+lazy\controller\Controller::callMethod($module, $controller, $method)
+```
+
+同时定义新的变量
+
+```php
+//定义相关常量
+define("__MODULE_PATH__", __APP_PATH__ . $module);                  //模块目录
+define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器目录
+define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
+define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
+//保存本次请求中的模型，控制器，方法信息
+define("__MODULE__", $module);
+define("__CONTROLLER__", $controller);
+define("__METHOD_", $method)
+```
+
+8. 响应输出
+
+控制器的方法返回的值将被`print_r`函数输出
+
+# 二. 配置
+
+应用配置文件必须在`project\app\config.php`中以`return`形式返回，暂不支持在应用生命周期内动态更改配置项，可以自定义非框架配置项
+
+## 1. 应用读取配置
+
+使用`lazy\LAZYConfig::get($config_name)` 可以读取到`$config_name`的配置值
+
+## 2.  数据库配置文件
+
+数据库配置文件在`project/app/database.php`中，支持在应用中动态改变，详情在`模型`中会提到
+
+# 三. 路由
+
+## 1. 路由模式
+
+该框架的路由可以开启或者关闭
+
+配置项名为`url_route_on`，默认为`true`，开启之后应用解析URL之前先在路由列表中匹配并将匹配结果作为新的请求URL， 当该值设为`false`之后直接进行URL解析。
+
+## 2. 路由规则
+
+路由规则定义在`/project/app/router.php`中，以键值数组形式定义，键为路由的匹配模式，值为其匹配结果。
+路由完全以**正则表达式**形式进行匹配，因此，键名必须是一个**完整的正则表达式**，即必须以`/`包裹，并且特殊字符需要使用`\`转义，使用`preg_replace`函数进行匹配，因此可以在值中使用如同`$1 $2 ……`这样的获取到匹配的相关信息，比如
+
+现有路由规则：`    '/^\/answer\/(\d+)/'=>'/index/index/answer/id/$1'`
+
+当访问：
+
+`http://serverName/answer/5`
+
+会自动解析到：
+
+`http://serverName/index/index/index/id/5`
+
+URL多余的部分`/id/5`会被作为GET表单参数传入，该部分将在后面的**URL 解析**中具体说明
+
+>  同时路由还支持请求类型的定义
+
+当需要指定某URL的请求方法时，将路由定义中的对应规则的值改为一个数组，第一项时匹配结果串，后面几项是其支持的请求方法的字符串，不区分大小写，当使用错误的请求方法请求该URL时会触发一个`E_USER_ERROR`，比如
+
+在上面的路由规则这样修改
+
+`    '/^\/answer\/(\d+)/'=>['/index/index/answer/id/$1', 'POST']`
+
+表明`http://serverName/answer/5`这样的URL只支持POST方法
+
+**默认情况的路由规则是支持所有的请求方法的**
+
+同时路由也可以调用函数进行绑定，如:`lazy\router\Router::bind('/^\/answer\/(\d+)/','/index/index/answer/id/$1');`可以绑定一个一个路由规则。
+
+路由类提供了以下表所示的绑定函数
+
+**但是这必须再解析路由之前定义,可以定义在`router.php`文件中返回数组的上册，也可以在后续版本提供的插件接口中定义**
+
+| 方法名 |        说明        |
+| :----: | :----------------: |
+|  bind  | 支持任何方法的路由 |
+|  get   |   只支持GET请求    |
+|  post  |   只支持POST请求   |
+| delete |  只支持delete方法  |
+|  put   |   只支持put方法    |
+
+## 3. URL解析规则
+
+通过`$_SERVER['PATH_INFO']`获取到请求的具体URL，之后通过`/`分割URL，按顺序依次作为模块，控制器，方法名，[参数1，值1，……]
+
+比如：`http://serverName/index/demo/test/name/essay`
+
+会被解析为：模块:index，控制器：demo，方法：test，GET参数：name=essay
+
+但是由于具体的项目需求，将后面的参数部分会存储起来，可以通过`lazy\request\Request::$pathParamStr`获取到进行自定义的解析。
+
+> 通过URL获得的参数优先级较高，会覆盖`$_GET `中已经有的同名参数值
+
+> 另外，框架不会对`PATH_INFO`信息进行大小写转化处理
+
+框架默认的模块名，控制器名，方法名都为`index`
+
+```php
+	//默认模块
+    'default_module'                => 'index',
+    //默认控制器
+    'default_controller'            => 'index',
+    //默认方法名
+    'default_method'                => 'index',
+    // 当请求方法不存在时候的执行方法名
+    'error_default_method'          => '_Error',
+```
+
+可以在`project\app\config.php`修改，`error_default_method`在后面的**控制器\空操作**部分详细说明 
+
+# 四. 控制器
+
+## 1. 控制器定义
+
+控制器必须放在`project\app\模块名\cotroller\`下，并且控制器文件名必须与文件中的类名保持一致，控制器文件名为控制器名。
+
+一个典型的控制器类定义如下:
+
+```php
+namespace app\index\controller;
+
+class index{
+    public function index(){
+        return 'Index!';
+    }
+}
+```
+
+其中，`app\index\controller`是命名空间，`index`是模块名，该命名空间的申明是**必须**的，控制器可以不继承任何类，当然也可以继承`lazy\controller\Controller`类，这样就可以使用`Controller`类提供的一些API。控制器方法中返回的返回值会被作为输出用`print_r`函数输出。
+
+## 2. 控制器初始化
+
+由于控制器实际上是一个类，于是可以通过PHP的`__construct`魔术方法初始化
+
+## 3. 跳转与重定向
+
+`lazy\controller\Controller`中内置了两个跳转方法`success`和`error`，用于页面跳转提示，使用此方法需要控制器继承`lazy\controller\Controller`
+
+比如：
+
+```php
+namespace app\index\controller;
+
+use lazy\captcha\Captcha;
+use lazy\controller\Controller;
+class index extends Controller{
+
+    public function check($code = ''){
+        $captcha = new Captcha();
+        if($captcha->check($code)){
+            $this->success('验证码正确');
+        }
+        else{
+            $this->error('验证码错误');
+        }
+    }
+}
+```
+
+该例子中验证了验证码，并进行了跳转，默认跳转到`$_SERVER['HTTP_REFERER']`倘若不存在，则跳转到域名根目录下，默认的等待时间是**3秒**。
+
+函数原型是：
+
+```php
+protected function success($info = '', $url = false, $time = 3){};
+protected function error($info = '', $url = false, $time = 3){};
+```
+
+可以指定跳转到的地址，以及等待时间
+
+跳转页面的模板代码在`lazy\controller\Controller::$pageCode`中存储，可以渲染`$info, $url, $time`三个变量
+
+## 4. 空操作
+
+当请求的方法不存在的时候，可以自定义执行一个默认的方法，其在配置文件中配置默认方法名
+
+```php
+	// 当请求方法不存在时候的执行方法名
+    'error_default_method'          => '_Error',
+```
+
+这样可以优化方法名找不到时候的错误页面显示。
+
+> 框架暂时不支持空控制器的设置
+
+# 五. 请求
+
+如果要获取本次请求的相关请求信息，如请求路径，请求参数等，可以使用`lazy\request\Request`类，该类的所有方法支持静态调用。
+
