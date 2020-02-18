@@ -247,7 +247,7 @@ class MysqlDB{
      * @return [type]             [description]
      */
     public function table($table_name){
-        $this->tableName = $table_name;
+        $this->tableName = $this->fieldConcersion($table_name);
         return $this;
     }
 
@@ -271,10 +271,7 @@ class MysqlDB{
      */
     private function fieldConcersion($name){
         $name = str_replace(' ', '', $name);
-        if(preg_match('/`(.*?)`/', $name)){
-            return $name;
-        }
-        if(preg_match('/^(\w*?)\(.+?\)/', $name)){
+        if(preg_match('/\W/', $name)){
             return $name;
         }
         return '`'. $name. '`';

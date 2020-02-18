@@ -234,7 +234,7 @@ class Request{
      * @param  string $name 请求头的名称
      * @return [type]       [description]
      */
-    public static function getReauestHead($name){
+    public static function getRequestHead($name){
         if($name == '') return false;
         $res = self::getRequestHeads();
         if(array_key_exists(strtolower($name), $res)){
