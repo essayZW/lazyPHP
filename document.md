@@ -603,4 +603,307 @@ $DB->prepareAndExecute('SELECT * FROM demo WHERE id=?', ['id' => 1]);
 
 ## 9. 主键
 
-使用`lazy\DB\MysqlDB->getPrimaryKey()` 获得指定表的主键
+使用`lazy\DB\MysqlDB->getPrimaryKey()` 获得指定表的主键。
+
+# 七. 模型
+
+## 1. 模型定义
+
+模型文件必须在`project\app\模块名\model\`目录下面，并且模型中的类必须与文件名保持一致。模型文件名为模型名。
+
+模型可以继承`lazy\model\Model`类，这样就可以直接调用`lazy\DB\MysqlDB`类中的方法。
+
+> 默认模型名和数据库表名对应，于是在该模型中的数据库操作会默认以模型名为表名。（前提是继承了`Model`类）
+
+一个简单的模型定义如下，该模型是`index`模块下，对应数据库中的user表。
+
+```php
+namespace app\index\model;
+class user{
+    
+}
+```
+
+## 2. 控制器中使用模型
+
+```php
+namespace app\index\controller;
+
+use lazy\controller\Controller;
+class index extends Controller{
+
+    public function index(){
+        $model = $this->model();
+    }
+}
+```
+
+需要控制器类继承`lazy\controller\Controller`类，调用类中的`model`方法实例化一个模型，默认实例化一个与controller同名的模型。
+
+# 八. 视图
+
+视图功能由`lazy\view\View`提供，提供了对HTML 模板的渲染功能。模板文件必须在`project\app\模块名\view`下。模板的具体语法在下一节说明。
+
+## 1. 使用
+
+需要控制器继承`lazy\controller\Controller`类，通过`$this`调用相关方法。暂时不支持其他方法调用。
+
+|  方法名   |                 说明                 |
+| :-------: | :----------------------------------: |
+|   fetch   |         渲染模板，并得到代码         |
+|  assign   |              对模板赋值              |
+|  noCache  |        下次渲染不生成缓存文件        |
+
+## 2. 模板赋值
+
+通过`lazy\view\View->assign()`方法赋值。可以通过数组形式传参数赋多组值。
+
+## 3. 模板渲染
+
+通过`lazy\view\View->fetch()`函数渲染，默认渲染与控制器同名的模板文件。返回的是模板渲染之后的结果。
+
+## 4. 系统变量
+
+模板在渲染的时候自动
+
+添加一些框架变量，列表如下：
+
+|        变量名        |                           值或说明                           |
+| :------------------: | :----------------------------------------------------------: |
+|     \_\_CSS\_\_      |                    `project\static\css\`                     |
+|      \_\_JS\_\_      |                     `project\static\js\`                     |
+|    \_\_IMAGE\_\_     |                   `project\static\image\`                    |
+| \_\_STATIC\_PATH\_\_ |                      `project\static\`                       |
+|  \_\_ROOT\_PATH\_\_  |                          `project\`                          |
+|     LazyRequest      | 一个数组，包含了`GET`、`POST`、`FILES`、`URL`、`HOST`、`REFERER`信息 |
+
+> 对LazyRequest的说明
+
+```php
+$LazyRequest = [
+    'get'       => \lazy\request\Request::get(),
+    'post'      => \lazy\request\Request::post(),
+    'files'     => \lazy\request\Request::files(),
+    'url'       => \lazy\request\Request::url(),
+    'host'      => \lazy\request\Request::host(),
+    'referer'   => \lazy\request\Request::referer()
+]
+```
+
+
+
+# 九. 模板
+
+模板文件必须在`project\app\模块名\view`下。并且是`.html`文件。模板文件渲染默认会生成缓存，缓存文件目录`peoject\runtime\temp\`下，缓存文件是PHP文件。文件名是模板文件路径的MD5处理值，其中含有对应模板文件代码的MD5值，通过MD5值来判断是否需要重新渲染模板。
+
+## 1. 模板定位
+
+`lazy\view\View`中的`fetch`函数默认定位名与当前控制器名相同的模板文件，通过参数指定其他文件，参数是模板文件想对于该模块下`view`目录的相对路径。
+
+模板的原理是通过正则表达式替换为PHP代码，用`extract`函数导入变量，通过`require`引入代码执行，使用`ob_get_clean`获得执行结果。
+
+## 2. 变量输出
+
+在模板中，通过`{$变量名}`的形式对变量名输出。**注意区分大小写**，变量名两端可以允许空格的出现。
+
+有模板文件内容如下：
+
+```
+{$name}
+```
+
+渲染：
+
+```php
+$this->assign('name', 123);
+echo $this->fetch();
+```
+
+这样变得到了`123` 的输出。
+
+其模板编译为PHP文件如下:
+
+```php
+<?php echo htmlspecialchars($name);?>
+```
+
+**注意**：这里用了`htmlspecialchars`函数对输出进行处理，可以在配置文件中修改`fetch_specialchars `为`false`禁用输出处理。
+
+## 3. 使用函数
+
+可以在变量输出的同时使用函数对变量处理。
+
+语法： `{$变量名|函数名}` 
+
+注意：`|`两边允许出现空格。
+
+例如：
+
+```php
+{$name | md5}
+```
+
+依旧通过上面的方法渲染，得到结果：
+
+`202cb962ac59075b964b07152d234b70`
+
+> 不支持函数嵌套。也不支持自定义参数传入。
+
+## 4. 选择结构
+
+语法：
+
+```
+{if condition="PHP条件表达式1"}
+	//内容	
+{elseif conditon="PHP条件表达式2"/}
+	//内容
+{elseif conditon="PHP条件表达式3"/}
+……
+{else/}
+	//内容
+{endif/}
+```
+
+例如：
+
+```html
+{if condition="$name == 1"}
+	<h1>first: {$name}</h1>
+{elseif condition="$name >= 2 && $name <= 10"/}
+	<h2>second: {$name}</h2>
+{else/}
+	<h3>third: {$name}</h3>
+{endif/}
+```
+
+渲染HTML得到的代码：
+
+```php
+        <?php if($name == 1){ ?>
+        	<h1>first: <?php echo htmlspecialchars($name);?></h1>
+        <?php }else if($name >= 2 && $name <= 10){ ?>
+        	<h2>second: <?php echo htmlspecialchars($name);?></h2>
+        <?php }else{ ?>
+        	<h3>third: <?php echo htmlspecialchars($name);?></h3>
+        <?php };?>
+```
+
+## 4. 循环输出结构
+
+语法:
+
+```
+{volist name="循环变量" id="循环每一步的值"}
+	// 内容
+{/volist}
+```
+
+注意：循环输出结构暂时只支持循环中得到值，而得不到索引。
+
+例子：
+
+```html
+{volist name="name" id="item"}
+	<div>{$item}</div>
+{/volist}
+```
+
+渲染，`$name = [1, 2, 3, 4]`
+
+结果：
+
+```html
+<div>1</div>
+<div>2</div>
+<div>3</div>
+<div>4</div>
+```
+
+渲染得到的PHP代码：
+
+```php
+<?php foreach($name as $item){ ?>
+	<div><?php echo htmlspecialchars($item);?></div>
+<?php };?>
+```
+
+## 5. 模板注释
+
+语法：
+
+```
+{--内容--}
+```
+
+ 支持多行注释
+
+> 与HTML注释的区别在于，模板注释不会出现在渲染之后的内容中，而是作为PHP注释写入渲染之后的缓存PHP文件
+
+## 6. 模板引入
+
+  支持在一个模板中引入另外一个模板文件，提高模板复用功能。
+
+语法：
+
+```
+{include file="路径"}
+```
+
+**注意**： 路径是相对于该模块下的`view`目录的相对目录，不是相对当前模板的相对目录
+
+例子：
+
+现有模板`project\app\index\view\a.html`
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action="./index/index/check" method="POST">
+        <input type="text" name="code" required="required">
+        {include file="b.html"}
+    </form>
+</body>
+</html>
+```
+
+又有模板文件`project\app\index\view\b.html`
+
+```html
+<img src="{$imageSrc}" alt="" onclick="window.location.href = '/'" style="cursor:pointer;">
+<input type="submit" value="提交">
+```
+
+这样就将模板引入了进来，渲染之后的PHP代码为:
+
+```php
+<?php /*@MD5:7c07a412f331c629593040bb5b21c866@*/ ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action="./index/index/check" method="POST">
+        <input type="text" name="code" required="required">
+        
+<?php /*Include from:code.html;Include Start*/ ?>
+<img src="<?php echo htmlspecialchars($imageSrc);?>" alt="" onclick="window.location.href = '/'" style="cursor:pointer;">
+<input type="submit" value="提交">
+<?php /*Include End!*/ ?>
+
+    </form>
+</body>
+</html>
+```
+
+## 7. 模板中PHP代码
+
+倘若设置了配置文件中的`fetch_allow_code`值为`true`，则可以在模板中任意地方穿插PHP代码，默认该项是关闭的。
+
+# 十. 日志
+
