@@ -482,12 +482,14 @@ class MysqlDB{
      * @return [type] [description]
      */
     public function getPrimaryKey($tableName){
+        $temp =$this->tableName;
         $res = $this->field('column_name')
                     ->table('INFORMATION_SCHEMA.`KEY_COLUMN_USAGE`')
                     ->where('table_name', '=', $tableName)
                     ->where('CONSTRAINT_SCHEMA', '=', $this->database)
                     ->where('constraint_name', '=', 'PRIMARY')
                     ->find();
+        $this->tableName = $temp;
         return isset($res['column_name']) ? $res['column_name'] : '';
     }
 }

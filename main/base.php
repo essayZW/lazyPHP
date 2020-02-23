@@ -5,11 +5,8 @@
  */
 
 //全局变量定义
+// 以下变量都是绝对路径
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
-define("__STATIC_PATH__", './static/');         //静态资源目录
-define("__CSS__", __STATIC_PATH__ . '/css/');                   //css目录
-define("__JS__", __STATIC_PATH__ . '/js/');                     //js目录
-define("__IMAGE__", __STATIC_PATH__ . '/image/');               //image目录
 define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
 define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件路径
 define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件目录
@@ -29,6 +26,13 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
         'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
     ]
 );
+// 定义静态文件目录，是相对路径
+define("__STATIC_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__). '/static/');         //静态资源目录
+define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
+define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
+define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
+// 定义入口文件相对于网站根目录的相对目录
+define("__RELATIVE_ROOT_PATH__", lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
 //导入配置文件
 lazy\LAZYConfig::load();
 

@@ -203,8 +203,6 @@ class Captcha{
             $last = rand($last + 6, $last + (int)($this->imgWidth / $len));
             imagestring($imgHandle, 28, $last, rand(0, (int)($this->imgHeight / 2) - 3), $str{$i}, $txtColor);
         }
-        // 清空缓存区
-        ob_clean();
         if($this->saveInFile){
             ob_start();
             imagepng($imgHandle, $this->filename);

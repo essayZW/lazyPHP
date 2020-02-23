@@ -182,6 +182,12 @@ class Request{
     }
 
     /**
+     * 得到网站的根目录,服务器绝对路径
+     */
+    public static function wwwroot(){
+        return $_SERVER['DOCUMENT_ROOT'];
+    }
+    /**
      * 本次请求的模块
      *
      * @return void

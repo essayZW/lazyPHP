@@ -66,6 +66,25 @@ namespace lazy{
         }
     }
 
+    /**
+     * 获得相对路径, 得到b相对于a的相对路径
+     */
+    function getRelativelyPath($a, $b)
+    {
+        $a = explode('/', $a);
+        $b = explode('/', $b);
+        $c = array_values(array_diff($a, $b));
+        $d = array_values(array_diff($b, $a));
+        array_pop($c);
+        foreach ($c as &$v) {
+            $v = '..';
+        }
+        $arr = array_merge($c, $d);
+        $str = implode("/", $arr);
+        return $str;
+    }
+
+
     trait fileOperation{
         /**
          * 删除文件夹及其下面所有的文件
@@ -140,3 +159,4 @@ namespace lazy{
     }
     
 }
+
