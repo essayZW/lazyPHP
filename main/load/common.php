@@ -57,7 +57,7 @@ namespace lazy{
      */
     function Vendor($name, $objectName = ''){
         $name = str_replace('.', '/', $name) . '.php';
-        log\Log::info('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
+        log\Log::log('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
         require_once(__EXTEND_PATH__ . $name);
         if($objectName !== ''){
             log\Log::info('Extend Use Class: ' . $objectName);

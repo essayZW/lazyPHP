@@ -39,10 +39,10 @@ class Log{
      * @param string $path
      * @return void
      */
-    public static function init($path, $autoClearFlag = false, $maxdays = 30){
+    public static function init($path, $autoClearFlag = false, $maxMounth = 3){
         self::$logPath = $path;
         self::$autoClearFlag = $autoClearFlag;
-        self::$maxMounth = $maxdays;
+        self::$maxMounth = $maxMounth;
     }
 
     /**

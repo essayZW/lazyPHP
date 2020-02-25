@@ -166,7 +166,7 @@ class Captcha{
      * @param [type] $str
      * @return void
      */
-    public function create($str){
+    private function create($str){
         // 创建一个空白图片
         $imgHandle = imagecreate($this->imgWidth, $this->imgHeight);
         // 设置背景颜色

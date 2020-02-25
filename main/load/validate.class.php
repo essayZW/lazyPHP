@@ -60,15 +60,15 @@
      * @param string $method
      * @return void
      */
-    public function setMsg($name, $method){
+    private function setMsg($name, $method){
         $str = $name . '.' . $method;
         if(isset($this->msgList[$str])){
-            $this->errorMsg = array_merge($this->errorMsg, [$this->msgList[$str]]);
+            $this->errorMsg = array_merge($this->errorMsg, [$str => $this->msgList[$str]]);
             return;
         }
         // 没有设置具体的变量的错误信息，但是设置了统一的函数信息
         if(isset($this->msgList[$method])){
-            $this->errorMsg = array_merge($this->errorMsg, [$this->msgList[$method]]);
+            $this->errorMsg = array_merge($this->errorMsg, [$method => $this->msgList[$method]]);
             return;
         }
     }
@@ -80,20 +80,13 @@
      * @return mixed
      */
     public function getErrorMsg($isArray = false){
-        $isArray = $this->isBatch;
-        if($this->isBatch){
-            // 之作用一次
-            $this->isBatch = false;
-        }
         if($isArray){
             return $this->errorMsg;
         }
-        if(isset($this->errorMsg[0])){
-            return $this->errorMsg[0];
+        foreach ($this->errorMsg as $value) {
+            return $value;
         }
-        else{
-            return false;
-        }
+        return '';
     }
 
     public function batch(){
@@ -174,15 +167,14 @@
                     return false;
             }
         }
+        $this->isBatch = false;
         return $flag;
     }
 
 
-    // 下面是负责验证的一些基础函数
-    // 使用接口
+    // 负责验证的一些基础函数
     use Check;
  }
-
 
  trait Check{
      /**
@@ -285,5 +277,17 @@
         }
         return false;
     }
+    
+    
+    public function require($value){
+        return $value == true;
+    }
 
+    public function lenmax($value, $max){
+        return strlen($value) <= $max;
+    }
+
+    public function lenmin($value, $min){
+        return strlen($value) >= $min;
+    }
  }

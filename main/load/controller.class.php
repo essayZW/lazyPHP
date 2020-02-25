@@ -140,6 +140,5 @@ class Controller extends View{
         return $res;
     }
     
-    // 因为验证器的原因所以使用了validate里面提供的接口
     use \lazy\validate\Check;
 }
