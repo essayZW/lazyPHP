@@ -119,10 +119,6 @@ require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量
 ```php
 //全局变量定义
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
-define("__STATIC_PATH__", './static/');         //静态资源目录
-define("__CSS__", __STATIC_PATH__ . '/css/');                   //css目录
-define("__JS__", __STATIC_PATH__ . '/js/');                     //js目录
-define("__IMAGE__", __STATIC_PATH__ . '/image/');               //image目录
 define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
 define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件路径
 define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件目录
@@ -131,6 +127,13 @@ define("__USER_COMMON__", __APP_PATH__ . '/common.php');        //用户公用�
 define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件目录
 define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
 define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库目录
+// 定义静态文件目录，是相对路径
+define("__STATIC_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__). '/static/');         										//静态资源目录
+define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
+define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
+define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
+// 定义入口文件相对于网站根目录的相对目录
+define("__RELATIVE_ROOT_PATH__", lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
 ```
 
 3. 核心文件引入
@@ -206,6 +209,8 @@ request\Request::$method = $method;
 
 应用配置文件必须在`project\app\config.php`中以`return`形式返回，暂不支持在应用生命周期内动态更改配置项，可以自定义非框架配置项
 
+>`project`在本文档中代表项目目录
+
 ## 1. 应用读取配置
 
 使用`lazy\LAZYConfig::get($config_name)` 可以读取到`$config_name`的配置值
@@ -255,7 +260,7 @@ URL多余的部分`/id/5`会被作为GET表单参数传入，该部分将在后�
 
 路由类提供了以下表所示的绑定函数
 
-**但是这必须再解析路由之前定义,可以定义在`router.php`文件中返回数组的上册，也可以在后续版本提供的插件接口中定义**
+**但是这必须在解析路由之前定义,可以定义在`router.php`文件中返回数组的上册，也可以在后续版本提供的插件接口中定义**
 
 | 方法名 |        说明        |
 | :----: | :----------------: |
@@ -901,9 +906,290 @@ echo $this->fetch();
 </html>
 ```
 
-## 7. 模板中PHP代码
+## 7. 模板中使用PHP代码
 
 倘若设置了配置文件中的`fetch_allow_code`值为`true`，则可以在模板中任意地方穿插PHP代码，默认该项是关闭的。
 
 # 十. 日志
 
+框架提供自带的日志记录类，每次框架运行的时候会自动记录日志，日志默认保存3个月。
+
+## 1. 配置
+
+在配置文件中有着关于日志的相关配置
+
+```php
+    'log_file_path'                 => __LOG_PATH__,
+    // 日志文件是否自动清理
+    'log_file_autoclear'            => true,
+    // 日志文件最长保留时间,单位：月,只有开启自动清理该项才有效
+    'log_max_time'                  => 3
+```
+
+其中`__LOG_PATH__`是框架定义的环境常量，默认为`project/runtime/log/`目录。
+
+一次访问的日志信息如下：
+
+```
+[ log ] [2020年02月25日19时17分39秒] App Start!
+[ info ] User IP: 172.17.0.1
+[ info ] Request Host: 127.0.0.1:8080
+[ info ] Request Url: /lazy/index.php
+[ info ] Query String: 
+[ info ] Request Method: GET
+[ info ] Referer: http://127.0.0.1:8080/lazy/
+[ info ] PathInfo: /
+[ info ] Router On
+[ info ] Matched Router: None
+[ info ] Module: index
+[ info ] Controller: index
+[ info ] Method: index
+```
+
+
+
+## 2. 使用
+
+日志类依靠`lazy\log\Log::init()`函数初始化，初始化的时候配置了日志的存放路径、自动清理等信息。
+
+由于框架已经自己初始化了该类，所以可以略过该步。
+
+|    方法    |                描述                |
+| :--------: | :--------------------------------: |
+| `record()` |   记录指定类型的日志信息在内存中   |
+| `write()`  |       立刻写入一条信息到文件       |
+|  `save()`  | 将内存中的所有日志信息全部写入文件 |
+
+日志分类：
+
+- log 普通的日志信息
+- error 程序错误的日志信息
+- warn 程序运行警告的日志信息
+- info 程序的输出信息
+- notice 程序运行中的警告信息
+- debug 程序的调试日志信息
+- sql 程序数据库操作日志
+- time 包含日志记录时间的日志，时间格式：Y-m-d-h-i-s
+
+于是可以在调用`record`、`write`函数的时候可以传入第二个参数指定日志类型。
+
+如:存入一条错误信息日志：`Log::record('error info', 'error')`
+
+也可以使用专门的函数快速记录不同类别的日志
+
+`Log::info('info')`记录info类型日志
+
+`Log::warn('warning')` 记录warn类型日志，其他类型同理
+
+> 另外可以使用`Log::line()`方法插入一条空行
+
+## 3. 程序异常处理日志
+
+在`project\main\load\common.php`中有日志接口`lazy\logMethod`，其中的`errorLog`提供了`lazy\debug\AppDebug`类的日志记录接口。
+
+## 4. SQL 日志
+
+框架提供的`lazy\DB\MysqlDB`类中使用`project\main\load\common.php`中的`lazy\logMethod`提供的日志接口`sqlLog`记录日志。默认记录通过`MysqlDB`类执行的所有SQL语句。
+
+# 十一．扩展
+
+## 1. 用户扩展函数
+
+默认用户扩展函数文件在`project\app\common.php`中定义，可以通过修改日志文件中的`extra_file_list`项，添加用户扩展函数文件。
+
+```php
+// 扩展函数文件，已经有app/common.php，如要继续添加，需要在下面配置
+    'extra_file_list'               => [],
+```
+
+用户扩展函数文件会在框架载入过程中被引入。
+
+## 2. 第三方扩展类
+
+可以将第三方扩展类库放入`project\extend\`  目录下面。使用`lazy\Vendor`方法载入类库。
+
+`Vendor`函数的第一个参数是一个路径，只不过路径中的`/`字符可以被替换为`.`，第二个参数可选，代表引入类库时候实例化的类名。
+
+例如：在`project\extend\`目录下有一个`demo`类库。其目录结构为：
+
+```
+extend
+└── demo
+    └── main.php
+```
+
+`demo.php`中的内容如下：
+
+```php
+<?php
+class demo{
+    public function say_hello(){
+        return 'Hello World';
+    }
+}
+```
+
+使用该类库
+
+```php
+$demo = lazy\Vendor('demo.main', 'demo');
+echo $demo->say_hello();
+```
+
+也可以这样：
+
+```php
+lazy\Vendor('demo.main');
+$demo = new demo();
+echo $demo->say_hello();
+```
+
+# 十二. 其他内置功能
+
+## 1. 验证器
+
+框架内置验证器功能，可以方便的进行数据的验证。
+
+### (1) 使用
+
+在控制器中，如果继承了`lazy\controller\Controller` 类，则可以通过`$this->validate`使用验证器类，且该方式有个好处是可以方便的扩展以及重写验证方法，具体在后面会说明。如果没有继承`Controller`类，则可以实例化`lazy\validate\Validate`类。
+
+### (2) 验证规则
+
+可以在验证器实例化的时候传入验证规则，直接使用`$this->validate`时可以通过`$this->validate->rule`方法添加验证规则。
+
+```php
+$rule = [
+    'name' => 'require|lenmax:25|lenmin:6',
+    'age'  => 'integer|between:1,120'
+];
+$this->validate->rule($rule);
+```
+
+对于一个变量可以有多个验证规则，用`|`分隔。倘若单个验证规则中含有`|`字符，可以使用数组。
+
+```php
+$rule = [
+            'name' => 'require|lenmax:25|lenmin:6',
+            'age'  => ['integer', 'between:1,120']
+        ];
+```
+
+其中验证规则名是一个函数，函数的第一个参数是需要验证的信息，验证规则后面的`:`是函数其余需要的参数。
+
+比如：对于`between:1,120`来说，其实相当于`between($age, 1,120)`
+
+### (3) 验证
+
+使用`$this->validate->check()`验证指定的数据。
+
+比如对于上面的验证规则来说
+
+```php
+$this->validate->check([
+            'name' => $name,
+            'age'  => $age
+]);
+```
+
+可以检验`$name`与`$age`变量的值是否符合规则，并且在检验到第一个错误的时候，就会停止。返回布尔值。
+
+可以使用`batch()`方法忽略错误继续验证所有的数据。
+
+```php
+$this->validate->batch()->check([
+            'name' => $name,
+            'age'  => $age
+        ])
+```
+
+### (4) 错误信息
+
+可以自定义指定的验证规则验证错误之后的错误信息。
+
+```php
+$this->validate->msg([
+            'require'       => '该项必须!',			  // 对require
+            'lenmax'        => '长度超过限制!',	   	 // 对lenmax
+            'name.lenmin'   => '名字长度最小为6',		// 对name变量的lenmin规则
+            'integer'       => '必须是整数',			// 对integer规则
+            'age.between'   => '年龄范围必须是1~120'  // 对age变量的between规则
+]);
+```
+
+这样可以使用`getErrorMsg`函数获得错误信息，由于错误信息可能不止一条，所以可以使用`getErrorMsg(true)`得到错误信息数组。
+
+```php
+$name = '123';
+$age = 0;
+// 验证规则如上，错误信息设置如上。
+// 验证
+var_dump($this->validate->batch()->check([
+            'name' => $name,
+            'age'  => $age
+        ]));
+// 打印错误信息
+var_dump($this->validate->getErrorMsg(true));
+```
+
+得到结果:
+
+```php
+bool(false)
+array(2) {
+  ["name.lenmin"]=>
+  string(22) "名字长度最小为6"
+  ["age.between"]=>
+  string(26) "年龄范围必须是1~120"
+}
+
+```
+
+### (5) 内置规则与扩展
+
+内置规则有：
+
+规则扩展：
+
+所有的规则都是使用的是`project\main\load\validate.php`中的`lazy\validate\Check`接口，于是可以通过在接口中增加新的方法添加扩展的全局规则。但这样做并不是很推荐，因为可以通过扩展控制器的函数，并通过`$this->validate`对象可以使用这些函数。
+
+例如在用户共用函数文件中有如下内容:
+
+```php
+trait userCheck{
+    public function str($value){
+    	// some code
+    }
+}
+```
+
+在控制器中这样使用：
+
+```php
+namespace app\index\controller;
+
+use lazy\controller\Controller;
+use lazy\captcha\Captcha;
+class index extends Controller{
+	// 使用刚才的扩展规则
+    use userCheck;
+    public function index(){
+    	$rule = [
+            'name' : 'str|between'
+        ];
+        var_dump($this->check([
+            'name' => 123
+        ]));
+    }
+    
+    // 也可以在控制器中直接定义扩展规则
+    public function between(){
+        // some code
+    }
+```
+
+**注意：不要定义重复的规则！**
+
+## 2. 验证码
+
+框架内置了验证码的生成以及基本的验证功能，使用`session`存储验证码值，生成普通的字母数字图片，使用点与线干扰。
