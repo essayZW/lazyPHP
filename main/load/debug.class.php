@@ -15,7 +15,7 @@ class AppDebug{
     use \lazy\logMethod;
 
     // 不显示变量列表
-    public $uninclude = ['errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
+    public $uninclude = ['this', 'errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
     private $levelTips;
     private $errorMessage;
     private $errorFile;
@@ -186,7 +186,7 @@ class AppDebug{
         $e = new \Exception;
         $traceInfo = htmlspecialchars($this->errorTrace);
         return "<!DOCTYPE html><html><head><title>Error!</title><meta charset=\"UTF-8\"><style>
-                *{padding:0px;margin:0px;}.line-num{display:inline-block;border-right:1px solid black;width:28px;padding-left:5px;margin-right:5px;}.error-line{background:#F79A9A}body{padding:10px}html{width:100%;height:100%}div{margin-bottom:20px;width:100%;height:30px;line-height:30px}.error-info{background:#F79A9A}pre{background:rgb(243,243,243);border:1px solid black;min-height:30px;width:100%;overflow:auto;margin-bottom:20px;}p{width:100%;height:30px;line-height:30px}p>span{display:inline-block;height:100%;line-height:30px;}.env-info{background:white;font-size:110%;}.trace{font-size:105%;line-height:25px;font-family:simhei;padding-left:3px;}</style></head><body><h1>Error!</h1><br><div>错误信息：</div><h3 class=\"error-info\">$error</h3><br><div>错误级别：$this->levelTips</div><div>错误文件位置：$this->errorFile</div><div>错误代码位置：</div><pre>$errorCodeString</pre><div>堆栈调用信息:</div><pre class=\"trace\">$traceInfo</pre><div>环境变量等信息：</div><pre class=\"env-info\">$envInfo</pre></body></html>";
+                *{padding:0px;margin:0px;}.line-num{display:inline-block;border-right:1px solid black;width:28px;padding-left:5px;margin-right:5px;}.error-line{background:#F79A9A}body{padding:10px}html{width:100%;height:100%}div{margin-bottom:20px;width:100%;height:30px;line-height:30px}.error-info{background:#F79A9A}pre{background:rgb(243,243,243);border:1px solid black;min-height:30px;width:100%;overflow:auto;margin-bottom:20px;}p{width:100%;height:25px;line-height:25px}p>span{display:inline-block;height:100%;line-height:25px;}.env-info{background:white;font-size:110%;}.trace{font-size:105%;line-height:25px;font-family:simhei;padding-left:3px;}</style></head><body><h1>Error!</h1><br><div>错误信息：</div><h3 class=\"error-info\">$error</h3><br><div>错误级别：$this->levelTips</div><div>错误文件位置：$this->errorFile</div><div>错误代码位置：</div><pre>$errorCodeString</pre><div>堆栈调用信息:</div><pre class=\"trace\">$traceInfo</pre><div>环境变量等信息：</div><pre class=\"env-info\">$envInfo</pre></body></html>";
     }
 
     /**

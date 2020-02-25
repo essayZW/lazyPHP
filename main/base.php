@@ -32,7 +32,7 @@ define("__CSS__", __STATIC_PATH__ . '/css/');                               //cs
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
 // 定义入口文件相对于网站根目录的相对目录
-define("__RELATIVE_ROOT_PATH__", lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
+define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
 //导入配置文件
 lazy\LAZYConfig::load();
 
@@ -52,8 +52,11 @@ foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
 }
 
 // 写入日志开头
-\lazy\log\Log::info("[". date('Y年m月d日H时i分s秒') ."] App Start!");
+\lazy\log\Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
 // 写入请求者信息
 \lazy\log\Log::info('User IP: '. \lazy\request\Request::ip());
+\lazy\log\Log::info('Request Host: '. \lazy\request\Request::host());
+\lazy\log\Log::info('Request Url: ' . \lazy\request\Request::url());
+\lazy\log\Log::info('Query String: '. \lazy\request\Request::query());
 \lazy\log\Log::info('Request Method: '. \lazy\request\Request::getMethod());
 \lazy\log\Log::info('Referer: '. (\lazy\request\Request::referer() ? \lazy\request\Request::referer() : 'None'));

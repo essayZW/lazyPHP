@@ -136,6 +136,12 @@ class Request{
     }
 
     /**
+     * 获得请求的查询参数
+     */
+    public static function query(){
+        return $_SERVER['QUERY_STRING'];
+    }
+    /**
      * 得到pathinfo中的信息
      * @return [type] [description]
      */

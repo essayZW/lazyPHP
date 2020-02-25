@@ -68,10 +68,17 @@ class Log{
      * @return void
      */
     public static function write($info, $type = 'log'){
+        $content = "[ $type ] $info\r\n";
+        self::writeFile($content);
+    }
+
+    /**
+     * 写入文件
+     */
+    private static function writeFile($content){
         $dirname = date('Ym');
         $filename = date('d') . '.log';
         $path = self::$logPath . '/' . $dirname . '/' . $filename;
-        $content = "[ $type ] $info\r\n";
         if(!file_exists(self::$logPath . '/' . $dirname)){
             mkdir(self::$logPath . '/' . $dirname);
         }
@@ -84,20 +91,23 @@ class Log{
     }
 
     /**
+     * 写入空行
+     */
+    public static function line(){
+        self::writeFile("\r\n");
+    }
+    /**
      * 将内存中的所有日志保存
      *
      * @return void
      */
     public static function save(){
+        $content = '';
         foreach (self::$log as $key => $value) {
-            self::write($value['info'], $value['type']);
+            $content .= "[ ". $value['type']. " ] ". $value['info']. "\r\n";
             unset(self::$log[$key]);
         }
-        if(self::$autoClearFlag && !self::$clearFlag){
-            // 开启了自动清理
-            self::$clearFlag = true;
-            self::autoClear();
-        }
+        self::writeFile($content);
     }
 
     /**

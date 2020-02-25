@@ -141,6 +141,7 @@ namespace lazy{
             }
             // 日志写入内存
             log\Log::save();
+            log\Log::line();
         }
         /**
          * 系统S数据库日志记录接口

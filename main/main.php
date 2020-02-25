@@ -5,13 +5,13 @@ require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量
 //解析url
 $pathinfo = request\Request::path();
 // 记录pathinfo日志
-log\Log::record('PathInfo: '. $pathinfo);
+log\Log::info('PathInfo: '. $pathinfo);
 $accpetMethod = 'ALL';                                  //默认支持所有请求
 //加载路由列表
 if(LAZYConfig::get('url_route_on')){
     //开启了路由
     // 记录日志
-    log\Log::log('Router On');
+    log\Log::info('Router On');
     $routerList = require_once(__ROUTER__);
     router\Router::importFromArray($routerList);          //将已经有配置文件中的路由列表导入
     $rule = router\Router::getRule($pathinfo);            //得到对应的记录
@@ -27,9 +27,9 @@ $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::g
 $controller = strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller'));
 $method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
 // 记录日志
-log\Log::log('Module: '. $module);
-log\Log::log('Controller: '. $controller);
-log\Log::log('Method: ' . $method);
+log\Log::info('Module: '. $module);
+log\Log::info('Controller: '. $controller);
+log\Log::info('Method: ' . $method);
 // 解析除了模块控制器方法以外的信息
 if(count($pathArr) > 3){
     // 记录日志
@@ -69,3 +69,4 @@ request\Request::$method = $method;
 print_r(controller\Controller::callMethod($module, $controller, $method));
 // 保存内存中所有日志
 log\Log::save();
+log\Log::line();
