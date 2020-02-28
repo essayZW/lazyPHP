@@ -13,10 +13,11 @@
  class Validate{
     private $ruleList;          // 验证规则数组
     private $msgList;
-    public $methodClass;        // 存储验证方法所在的对象中
     
     private $errorMsg;          // 上次验证的错误信息
     private $isBatch;           // 是否批量验证
+
+    private $extendMethod;
     /**
      * 初始化，可以传入验证数据的规则
      *
@@ -24,22 +25,12 @@
      */
     public function __construct($rule = []){
         $this->ruleList = $rule;
-        $this->methodClass = $this;
         $this->errorMsg = [];
         $this->msgList = [];
         $this->isBatch = false;     // 默认不批量验证
+        $this->extendMethod = [];
     }
 
-    /**
-     * 设置验证器中的验证方法所属的对象
-     *
-     * @param object $objectName
-     * @return void
-     */
-    public function setObject($objectName){
-        if(gettype($this) != gettype($objectName)) return;
-        $this->methodClass = $objectName;
-    }
 
     /**
      *  添加自定义错误信息
@@ -73,6 +64,11 @@
         }
     }
 
+    public function extend($name, $callback){
+        $this->extendMethod = array_merge($this->extendMethod, [
+            $name => $callback
+        ]);
+    }
     /**
      * 返回错误信息，若参数是true返回所有的参数信息
      *
@@ -114,7 +110,7 @@
      * @param mixed $value
      * @return boolean
      */
-    public function checkSingle($name, $v){
+    private function checkSingle($name, $v){
         // 得到验证规则
         if(!isset($this->ruleList[$name])){
             // 不存在验证规则
@@ -125,25 +121,28 @@
             $rule = explode('|', $rule);
         }
         foreach ($rule as $value) {
-            if(strstr($value, ':')){
-                $pattern = '/(.+):(.+)/';
-                $replacement = "$1|$2";
-                $str = preg_replace($pattern, $replacement, $value);
-                $paramArr = explode('|', $str);
-                $paramArr[1] = explode(',', $paramArr[1]);
-                if(!call_user_func_array(array($this->methodClass, $paramArr[0]), array_merge([$v], $paramArr[1]))){
-                    $this->setMsg($name, $paramArr[0]);
-                    return false;
+            if(gettype($value) == gettype('')){
+                $value = explode(':', $value);
+                if(isset($value[1])){
+                    $param = explode(',', $value[1]);
+                    unset($value[1]);
+                    $value = array_merge($value, $param);
                 }
             }
+            if(key_exists($value[0], $this->extendMethod)){
+                $callMethod = $this->extendMethod[$value[0]];
+            }
+            else if(method_exists($this, $value[0])){
+                $callMethod = array($this, $value[0]);
+            }
             else{
-                $pattern = '/(.+)/';
-                $replacement = "$1";
-                $str = preg_replace($pattern, $replacement, $value);
-                if(!call_user_func_array(array($this->methodClass, $str), [$v])){
-                    $this->setMsg($name, $str);
-                    return false;
-                }
+                // 验证方法不存在
+                trigger_error('Method not exists', E_USER_NOTICE);
+            }
+            $param = array_merge([$v], array_slice($value, 1, count($value) - 1));
+            if(!call_user_func_array($callMethod, $param)){
+                $this->setMsg($name, $value[0]);
+                return false;
             }
         }
         return true;

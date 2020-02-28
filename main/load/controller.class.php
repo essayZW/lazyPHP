@@ -19,7 +19,6 @@ class Controller extends View{
     public function __construct(){
         // 实例化一个验证器
         $this->validate = new Validate();
-        $this->validate->setObject($this);
     }
     /**
      * 调用一个其余模块的控制器的方法
@@ -139,6 +138,4 @@ class Controller extends View{
         $res->load(require(__DATABASE_CONFIG__));
         return $res;
     }
-    
-    use \lazy\validate\Check;
 }

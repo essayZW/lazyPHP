@@ -15,7 +15,7 @@ class AppDebug{
     use \lazy\logMethod;
 
     // 不显示变量列表
-    public $uninclude = ['this', 'errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
+    public $uninclude = ['debug', 'this', 'errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
     private $levelTips;
     private $errorMessage;
     private $errorFile;
