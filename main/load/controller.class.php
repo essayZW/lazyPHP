@@ -28,11 +28,14 @@ class Controller extends View{
      * @return mixed              执行结果
      */
     public static function callMethod($module, $controller, $method){
+        $trace = debug_backtrace();
+        if(!isset($trace[0]['file'])) {
+            // 不是通过main.php调用
+            return;
+        }
         //尝试访问对应的模块的类的方法
         $module_path = __APP_PATH__ . $module;
         $controller_path = $module_path . '/controller/';
-        $model_path = $module_path . '/model/';
-        $view_path = $module_path . '/view/';
         if(!file_exists($module_path)){
             //模块不存在
             trigger_error("Module $module Not Exists!", E_USER_ERROR);
