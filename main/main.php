@@ -17,9 +17,18 @@ if(LAZYConfig::get('url_route_on')){
     $rule = router\Router::getRule($pathinfo);            //得到对应的记录
     // 记录日志
     log\Log::info('Matched Router: '. ($rule ? $rule : 'None'));
-    $accpetMethod = router\Router::getMethod($pathinfo);  //得到支持的方法
-    if($rule != false) $pathinfo = $rule;               //若存在记录则替换为记录的规则
-    if($accpetMethod == false) $accpetMethod = 'ALL';   //若路由中不存在则支持所有方法
+    $accpetMethod = router\Router::getMethod($pathinfo);
+    if($rule != false) {
+        $pathinfo = $rule;
+    }
+    else if(LAZYConfig::get('url_route_must')){
+        // 没有找到对应的路由
+        trigger_error('Route not found', E_USER_ERROR);
+    }
+    if($accpetMethod == false) {
+        //若路由中不存在则支持所有方法
+        $accpetMethod = 'ALL';
+    }
 }
 //解析URL
 $pathArr = array_filter(explode('/', $pathinfo));
@@ -33,7 +42,7 @@ log\Log::info('Method: ' . $method);
 // 解析除了模块控制器方法以外的信息
 if(count($pathArr) > 3){
     // 记录日志
-    log\Log::info('Params On Url!');
+    log\Log::log('Params On Url!');
     // 含有其他部分
     // 将其作为get表单数据
     $pathParam = array_slice($pathArr, 3, count($pathArr) - 3);

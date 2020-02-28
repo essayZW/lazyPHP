@@ -162,11 +162,23 @@ class Router{
     public static function getRule($key = ''){
         $flag = 0;
         foreach (self::$list as $k => $v) {
-            if(preg_match($k, $key)){
-                $res = preg_replace($k, self::getListValue($k), $key);
-                $flag = 1;
-                break;
+            if(preg_match('/^\/(.+)\/$/', $k)){
+                // 正则表达式模式
+                if(preg_match($k, $key)){
+                    $res = preg_replace($k, self::getListValue($k), $key);
+                    $flag = 1;
+                    break;
+                }
             }
+            else{
+                // 普通匹配模式
+                if($k == $key){
+                    $res = self::getListValue($k);
+                    $flag = 1;
+                    break;
+                }
+            }
+            
         }
         if($flag){
             return $res;
@@ -184,10 +196,19 @@ class Router{
     public static function getMethod($key = ''){
         $flag = 0;
         foreach (self::$list as $k => $v) {
-            if(preg_match($k, $key)){
-                $flag = 1;
-                $key = $k;
-                break;
+            if(preg_match('/^\/(.+)\/$/', $k)){
+                if(preg_match($k, $key)){
+                    $flag = 1;
+                    $key = $k;
+                    break;
+                }
+            }
+            else{
+                if($k == $key){
+                    $flag = 1;
+                    $key = $k;
+                    break;
+                }
             }
         }
         if(!$flag){
