@@ -1079,6 +1079,16 @@ $rule = [
         ];
 ```
 
+对于验证规则参数中存在`:`字符的时候，可以用数组
+
+```php
+$rule = [
+    'name' => [['equal', '123:123'], ['lenmax', 25]]
+];
+```
+
+这样的二维数组，其中每个子数组的第一个是方法名，后面是参数列表。
+
 其中验证规则名是一个函数，函数的第一个参数是需要验证的信息，验证规则后面的`:`是函数其余需要的参数。
 
 比如：对于`between:1,120`来说，其实相当于`between($age, 1,120)`
@@ -1153,47 +1163,97 @@ array(2) {
 
 内置规则有：
 
+* 后续完善
+
 规则扩展：
 
-所有的规则都是使用的是`project\main\load\validate.php`中的`lazy\validate\Check`接口，于是可以通过在接口中增加新的方法添加扩展的全局规则。但这样做并不是很推荐，因为可以通过扩展控制器的函数，并通过`$this->validate`对象可以使用这些函数。
+由于内置规则的局限性，所以允许扩展验证规则。
 
-例如在用户共用函数文件中有如下内容:
-
-```php
-trait userCheck{
-    public function str($value){
-    	// some code
-    }
-}
-```
-
-在控制器中这样使用：
+使用`extend`函数既可以扩展规则 。
 
 ```php
-namespace app\index\controller;
-
-use lazy\controller\Controller;
-use lazy\captcha\Captcha;
-class index extends Controller{
-	// 使用刚才的扩展规则
-    use userCheck;
-    public function index(){
-    	$rule = [
-            'name' : 'str|between'
-        ];
-        var_dump($this->check([
-            'name' => 123
-        ]));
-    }
-    
-    // 也可以在控制器中直接定义扩展规则
-    public function between(){
-        // some code
-    }
+$this->validata->extend('test', function($value){
+    // some code;
+});
 ```
 
-**注意：不要定义重复的规则！**
+这样就可以再验证规则中使用新的规则，且扩展规则会覆盖原来的规则。
 
 ## 2. 验证码
 
 框架内置了验证码的生成以及基本的验证功能，使用`session`存储验证码值，生成普通的字母数字图片，使用点与线干扰。
+
+验证码功能由`lazy\captcha\Captcha`类提供。
+
+### (1) 生成验证码
+
+实例化一个`lazy\captca\Captcha`类，实例化的时候可以传入参数定义生成的验证码图片的尺寸。
+
+```php
+$captcha = new Captcha(80, 30);		// 80px宽，30px高
+$str = $captcha->str();				// 得到一个验证码值
+$img = $captcha->set($str);			// 根据str生成验证码图片，返回的是图片的base64数据
+```
+
+也可以后续自定义验证码的宽高:
+
+```php
+$captcha->setWidth(100);			// 设置宽
+$captcha->setHeight(40);			// 设置高
+```
+
+
+
+倘若要指定验证码值的长度:
+
+```php
+$str = $captcah->str(6);			// 验证码值长度为6，默认5位
+// 更改默认长度值
+$captcha->setLength(6);				// 更改默认长度为6
+```
+
+默认生成的验证码有点和线的干扰，可以设置关闭。
+
+```php
+$captcha->isIine(false);			// 取消线干扰
+$captcha->isPoint(false);			// 取消点干扰
+```
+
+可以更改生成的图片方式为文件，或者以图片形式输出
+
+以图片形式输出:
+
+```php
+$captcha->outputImage();			// 这样就会直接输出图片
+```
+
+以文件形式保存:
+
+```php
+$captcha->saveAsFile($path, $name);	// 文件名若未设置则随机文件名
+$captcha->set($str);				// 这样返回图片路径
+```
+
+验证码值默认保存在名为`captcha` 的`session`中，可以设置该名字。
+
+```php
+$captcha->setSessionName('code');	// 设置名字为code
+```
+
+### (2) 验证验证码
+
+```php
+$captcha = new Captcha();
+$captcha->check($value);		//检查，返回布尔值
+```
+
+默认检查的时候不区分大小写，可以设置是否区分大小写
+
+```php
+$captcha->isLower();			// 设置区分大小写
+```
+
+## 3. cookie
+
+框架内置了简单操作cookie的类：`lazy\cookie\Cookie`
+

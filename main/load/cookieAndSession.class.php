@@ -135,7 +135,7 @@ namespace lazy\session{
          */
         public static function close(){
             self::start();
-            if(self::startFlag)
+            if(self::$startFlag)
                 session_destroy();
         }
     }

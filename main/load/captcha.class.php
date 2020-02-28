@@ -13,7 +13,7 @@ class Captcha{
     // 保存验证码字符串的session名
     private $sessionName = 'captcha';
     // 验证码验证的时候是否区分大小写,默认不区分
-    private $changeFlag = true;
+    private $changeFlag = false;
 
     public function __construct($width = 80, $height = 20){
         $this->imgHeight = $height;
@@ -49,7 +49,7 @@ class Captcha{
      * @param boolean $value
      * @return object
      */
-    public function isInterferenceLine($value){
+    public function isLine($value){
         $this->isInterferenceLine = $value;
         return $this;
     }
@@ -60,7 +60,7 @@ class Captcha{
      * @param boolean $value
      * @return object
      */
-    public function isInterferencePoint($value){
+    public function isPoint($value){
         $this->isInterferencePoint = $value;
         return $this;
     }
@@ -75,7 +75,7 @@ class Captcha{
         return $this;
     }
 
-    private $fileame = '';                  // 保存验证码图片的文件名
+    private $filename = '';                  // 保存验证码图片的文件名
     private $saveInFile = false;        // 是否保存文件，优先级最高
     /**
      * 设置保存到某个目录
@@ -97,7 +97,7 @@ class Captcha{
      * @param [type] $value
      * @return void
      */
-    public function setLength($value){
+    public function setLength($value = true){
         $this->strLen = $value;
         return $this;
     }
@@ -141,6 +141,13 @@ class Captcha{
     }
 
     /**
+     * 设置检查的时候是否区分大小写
+     */
+    public function isLower($value = true){
+        $this->changeFlag = $value;
+        return $this;
+    }
+    /**
      * 检测验证码对不对
      *
      * @param [type] $str
@@ -151,7 +158,7 @@ class Captcha{
         if(!isset($_SESSION[$this->sessionName])){
             return false;
         }
-        if($this->changeFlag){
+        if(!$this->changeFlag){
             $str = strtolower($str);
             return $str === strtolower($_SESSION[$this->sessionName]);
         }

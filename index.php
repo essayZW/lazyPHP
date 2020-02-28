@@ -5,7 +5,7 @@
  * 提供用户自定义的全局变量
  */
 
-define("__ROOT_PATH__", dirname(__FILE__)); //根目录
+define("__ROOT_PATH__", dirname(__FILE__). '/'); //根目录
 
 try {
     require_once("./main/main.php");

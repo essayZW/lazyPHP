@@ -8,8 +8,8 @@
 // 以下变量都是绝对路径
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
 define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
-define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件路径
-define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件目录
+define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件
+define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件
 define("__DATABASE_CONFIG__", __APP_PATH__ . '/database.php');  //用户数据库配置文件
 define("__USER_COMMON__", __APP_PATH__ . '/common.php');        //用户公用函数文件
 define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件目录
