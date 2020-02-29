@@ -24,6 +24,7 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
         'view.class.php'    => 'controller.class.php',      //controller依赖于view
         'mysqlDB.class.php' => 'model.class.php',           //model依赖于mysqlDB
         'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
+        'code.class.php'    => 'controller.class.php'       //controller 依赖于 code
     ]
 );
 // 定义静态文件目录，是相对路径

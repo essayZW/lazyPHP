@@ -1040,6 +1040,8 @@ $demo = lazy\Vendor('demo.main', 'demo');
 echo $demo->say_hello();
 ```
 
+> 倘若实例化的类需要参数，可以给`Vendor`传入第三个参数，是一个数组，按顺序对应实例化需要的参数
+
 也可以这样：
 
 ```php

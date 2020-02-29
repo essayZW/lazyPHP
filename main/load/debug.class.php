@@ -38,7 +38,7 @@ class AppDebug{
                     // 如果该类存在日志记录功能
                     $this->errorLog($error_no, $error_msg, $error_file, $error_line);
                 }
-                $this->throwError("<!DOCTYPE html><head><title>Error!</title><meta charset=\"UTF-8\"><head><body><h1>Error!</h1><div>网页有错误发生！</div></body>");
+                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
                 return true;
             }, E_ALL | E_STRICT);
             return $this;
