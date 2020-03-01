@@ -34,7 +34,7 @@ class View{
      * 赋值变量，可以多组
      * @return [type] [description]
      */
-    protected function assign($key, $value = ''){
+    public function assign($key, $value = ''){
         if(gettype($key) == gettype('')){
             $this->assignSingle($key, $value);
         }
@@ -72,7 +72,7 @@ class View{
      * @param  string $path 模板路径
      * @return [type]       [description]
      */
-    protected function fetch($path = false){
+    public function fetch($path = false){
         if($path == false && gettype($path) != gettype('')){
             //参数错误,采用默认参数
             $path = Request::controller();
@@ -104,6 +104,17 @@ class View{
     }
 
     /**
+     * @param $code string 需要渲染的代码片段
+     * @return string 渲染运行之后的结果
+     */
+    public function fetchPart($code){
+        $fileName = __TEMP_PATH__ . md5(time()) . '.php';
+        $code = $this->fetchCode($code);
+        file_put_contents($fileName, $code);
+        return $this->noCache()->runCode($fileName);
+    }
+
+    /**
      * 运行指定文件的PHP代码，并得到结果
      * @param  string $filename [description]
      * @return [type]           [description]
@@ -120,6 +131,7 @@ class View{
         //如果不使用缓存，则删除缓存
         if(!$this->useCache){
             unlink($filename);
+            $this->useCache = true;
         }
         return $code;
     }
@@ -153,10 +165,13 @@ class View{
      */
     private function assignInclude($code){
         $pattern = '/\{include +?file="(.+?) *?"\}/';
-        $code = preg_replace_callback($pattern, function($matches){
+        $code = preg_replace_callback($pattern, function($matches) use($pattern){
             $includeCode = $this->load($matches[1]);
             // 添加引入注释信息
             $includeCode = "\r\n{--Include from:$matches[1];Include Start--}\r\n" . $includeCode . "\r\n{--Include End!--}\r\n";
+            if(preg_match($pattern, $includeCode)){
+                $includeCode = $this->assignInclude($includeCode);
+            }
             return $includeCode;
         }, $code);
         return $code;

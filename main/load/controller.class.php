@@ -92,10 +92,7 @@ class Controller extends View{
             'time' => $time,
             'word' => '操作成功！'
         ]);
-        $code = $this->fetchCode($this->pageCode);
-        $filename = __TEMP_PATH__ . md5($code) . '.php';
-        file_put_contents($filename, $code);
-        die($this->noCache()->runCode($filename));
+        die($this->fetchPart($this->pageCode));
     }
 
     /**
@@ -115,10 +112,7 @@ class Controller extends View{
             'time' => $time,
             'word' => '操作失败！'
         ]);
-        $code = $this->fetchCode($this->pageCode);
-        $filename = __TEMP_PATH__ . md5($code) . '.php';
-        file_put_contents($filename, $code);
-        die($this->noCache()->runCode($filename));
+        die($this->fetchPart($this->pageCode));
     }
 
     /**
