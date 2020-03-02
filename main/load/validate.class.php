@@ -183,9 +183,76 @@
      * @return boolean
      */
     public function integer($value){
-        return gettype($value) == gettype(1);
+        return !(filter_var($value, FILTER_VALIDATE_INT) === false);
     }
 
+    /**
+     * 检查是不是浮点数
+     */
+    public function float($value){
+        return !(filter_var($value, FILTER_VALIDATE_FLOAT) === false);
+    }
+    /**
+     * 判断是不是布尔值
+     */
+    public function boolean($value){
+        return !(filter_var($value, FILTER_VALIDATE_BOOLEAN) === false);
+    }
+    /**
+     * 判断是不是电子邮件格式
+     */
+    public function email($value){
+        return !(filter_var($value, FILTER_VALIDATE_EMAIL) === false);
+    }
+    /**
+     * 判断是不是数组
+     */
+    public function array($value){
+        return gettype($value) == gettype([]);
+    }
+    /**
+     * 判断是不是yes,on,或者1
+     */
+    public function accept($value){
+        if(gettype($value) === gettype(0)){
+            return $value === 1;
+        }
+        if(gettype($value) === gettype('')){
+            $value = strtolower($value);
+            return $value === 'yes' || $value === 'on';
+        }
+        return false;
+    }
+    /**
+     * 判断是不是一个有效的日期
+     */
+    public function date($value){
+        return !(strtotime($value) === false);
+    }
+    /**
+     * 判断是不是字母组成
+     */
+    public function alpha($value){
+        return ctype_alpha($value);
+    }
+    /**
+     * 判断是不是字母与数字组成
+     */
+    public function alphaNum($value){
+        return ctype_alnum($value);
+    }
+    /**
+     *判断是不是一个URL
+     */
+    public function url($value){
+        return !(filter_var($value, FILTER_VALIDATE_URL));
+    }
+    /**
+     * 判断是不是一个IP
+     */
+    public function ip($value){
+        return !(filter_var($value, FILTER_VALIDATE_IP));
+    }
 
     /**
      * 检查一个值是不是小于等于一个值
@@ -235,7 +302,7 @@
      * @return void
      */
     public function equal($value, $value2){
-        return $value == $value2;
+        return $value === $value2;
     }
 
     /**
@@ -258,7 +325,7 @@
      * @param string $str2
      * @return void
      */
-    public function in($str1, $str2){
+    public function substr($str1, $str2){
         return strstr($str1, $str2);
     }
 
@@ -277,16 +344,29 @@
         return false;
     }
     
-    
+    /**
+     * 某个值是不是必须
+     */
     public function require($value){
         return $value == true;
     }
 
+    /**
+     * 字符串的长度是不是小于等于$max
+     */
     public function lenmax($value, $max){
         return strlen($value) <= $max;
     }
-
+    /**
+     * 字符串的长度是不是大于等于$min
+     */
     public function lenmin($value, $min){
         return strlen($value) >= $min;
+    }
+    /**
+     * 判断字符串的长度是不是等于某个值
+     */
+    public function len($value, $len){
+        return strlen($value) === $len;
     }
  }

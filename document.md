@@ -278,6 +278,8 @@ URL多余的部分`/id/5`会被作为GET表单参数传入，该部分将在后�
 
 通过`$_SERVER['PATH_INFO']`获取到请求的具体URL，之后通过`/`分割URL，按顺序依次作为模块，控制器，方法名，[参数1，值1，……]
 
+> 倘若服务器不支持`$_SERVER['PATH_INFO']`则会使用`$REQUEST['PATH_INFO']`参数，否则默认为`/`
+
 比如：`http://serverName/index/demo/test/name/essay`
 
 会被解析为：模块:index，控制器：demo，方法：test，GET参数：name=essay
@@ -394,7 +396,7 @@ echo 'Get param test value: ' . $request->get('test') . '<br>';
 echo 'Request url : '. $request->url() . '<br>';
 // 得到请求的域名
 echo 'Request host: ' . $request->host() . '<br>';
-// 获得请求的pathinfo信息
+// 获得请求的pathinfo信息，这里的值是兼容了$_REQUEST['PATH_INFO']的，即使两者都不存在值也是 '/'
 echo 'Path info: '. $request->path() . '<br>';
 // 得到请求的路径参数
 echo 'Param in path: '. $request->pathParam() . '<br>';
@@ -657,11 +659,13 @@ class index extends Controller{
 
 需要控制器继承`lazy\controller\Controller`类，通过`$this`调用相关方法。暂时不支持其他方法调用。
 
-|  方法名   |                 说明                 |
-| :-------: | :----------------------------------: |
-|   fetch   |         渲染模板，并得到代码         |
-|  assign   |              对模板赋值              |
-|  noCache  |        下次渲染不生成缓存文件        |
+| 方法名  |              说明              |
+| :-----: | :----------------------------: |
+|  fetch  |      渲染模板，并得到代码      |
+| assign  |           对模板赋值           |
+| noCache | 下次渲染不使用也不生成缓存文件 |
+
+**注意: `noCache`函数只对下一次的渲染起作用**
 
 ## 2. 模板赋值
 
@@ -698,8 +702,6 @@ $LazyRequest = [
     'referer'   => \lazy\request\Request::referer()
 ]
 ```
-
-
 
 # 九. 模板
 
@@ -851,7 +853,7 @@ echo $this->fetch();
 
 ## 6. 模板引入
 
-  支持在一个模板中引入另外一个模板文件，提高模板复用功能。
+支持在一个模板中引入另外一个模板文件，提高模板复用功能。
 
 语法：
 
@@ -859,7 +861,7 @@ echo $this->fetch();
 {include file="路径"}
 ```
 
-**注意**： 路径是相对于该模块下的`view`目录的相对目录，不是相对当前模板的相对目录
+**注意： 路径是相对于该模块下的`view`目录的相对路径，不是相对当前模板的相对路径**
 
 例子：
 
@@ -913,6 +915,10 @@ echo $this->fetch();
 ## 7. 模板中使用PHP代码
 
 倘若设置了配置文件中的`fetch_allow_code`值为`true`，则可以在模板中任意地方穿插PHP代码，默认该项是关闭的。
+
+## 8. 渲染代码片段
+
+使用`fetchPart`即可。参数是需要渲染的代码，返回渲染执行之后的结果，还是使用`assign`对变量赋值。
 
 # 十. 日志
 

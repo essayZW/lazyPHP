@@ -262,7 +262,10 @@ class Request{
     public static function path(){
         if(isset($_SERVER['PATH_INFO'])){
             $pathInfo = $_SERVER['PATH_INFO'];
-        }else{
+        }else if(isset($_REQUEST['PATH_INFO'])){
+            $pathInfo = $_REQUEST['PATH_INFO'];
+        }
+        else{
             $pathInfo = '/';
         }
         return $pathInfo;

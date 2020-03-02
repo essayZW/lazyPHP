@@ -27,13 +27,13 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
         'code.class.php'    => 'controller.class.php'       //controller 依赖于 code
     ]
 );
+// 定义入口文件相对于网站根目录的相对目录
+define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__) . '/');
 // 定义静态文件目录，是相对路径
-define("__STATIC_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__). '/static/');         //静态资源目录
+define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . '/static/');         //静态资源目录
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
-// 定义入口文件相对于网站根目录的相对目录
-define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
 //导入配置文件
 lazy\LAZYConfig::load();
 
@@ -45,19 +45,6 @@ ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
 //引入用户自定义函数文件
 require_once(__USER_COMMON__);
-
 foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
     require_once($value);
 }
-
-// 初始化日志类
-\lazy\log\Log::init(lazy\LAZYConfig::get('log_file_path'), lazy\LAZYConfig::get('log_file_autoclear'), lazy\LAZYConfig::get('log_max_time'));
-// 写入日志开头
-\lazy\log\Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
-// 写入请求信息
-\lazy\log\Log::info('User IP: '. \lazy\request\Request::ip());
-\lazy\log\Log::info('Request Host: '. \lazy\request\Request::host());
-\lazy\log\Log::info('Request Url: ' . \lazy\request\Request::url());
-\lazy\log\Log::info('Query String: '. \lazy\request\Request::query());
-\lazy\log\Log::info('Request Method: '. \lazy\request\Request::getMethod());
-\lazy\log\Log::info('Referer: '. (\lazy\request\Request::referer() ? \lazy\request\Request::referer() : 'None'));

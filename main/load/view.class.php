@@ -51,11 +51,11 @@ class View{
      */
     private function loadSystem(){
         $this->assign([
-            '__CSS__'           => __CSS__,
-            '__JS__'            => __JS__,
-            '__IMAGE__'         => __IMAGE__,
-            '__STATIC_PATH__'   => __STATIC_PATH__,
-            '__ROOT_PATH__'     => __RELATIVE_ROOT_PATH__,
+            '__CSS__'           => \str_replace('//', '/', __CSS__),
+            '__JS__'            => \str_replace('//', '/', __JS__),
+            '__IMAGE__'         => \str_replace('//', '/', __IMAGE__),
+            '__STATIC_PATH__'   => \str_replace('//', '/', __STATIC_PATH__),
+            '__ROOT_PATH__'     => \str_replace('//', '/', __RELATIVE_ROOT_PATH__),
             'LazyRequest'       => [
                 'get'       => \lazy\request\Request::get(),
                 'post'      => \lazy\request\Request::post(),

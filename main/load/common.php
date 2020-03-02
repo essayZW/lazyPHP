@@ -72,6 +72,18 @@ namespace lazy{
      */
     function getRelativelyPath($a, $b)
     {
+        $a = \str_replace('\\', '/', $a);
+        $b = \str_replace('\\', '/', $b);
+        $a = \str_replace(':', '', $a);
+        $b = \str_replace(':', '', $b);
+        $a = \str_replace('//', '/', $a);
+        $b = \str_replace('//', '/', $b);
+        if($a{0} != '/'){
+            $a = '/' . $a;
+        }
+        if($b{0} != '/'){
+            $b = '/' . $b;
+        }
         $a = explode('/', $a);
         $b = explode('/', $b);
         $c = array_values(array_diff($a, $b));

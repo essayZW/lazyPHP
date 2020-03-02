@@ -2,6 +2,18 @@
 namespace lazy;         //顶级命名空间
 define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
 require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量加载，环境设置文件
+// 日志记录
+// 初始化日志类
+log\Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
+// 写入日志开头
+log\Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
+// 写入请求信息
+log\Log::info('User IP: '. request\Request::ip());
+log\Log::info('Request Host: '. request\Request::host());
+log\Log::info('Request Url: ' . request\Request::url());
+log\Log::info('Query String: '. request\Request::query());
+log\Log::info('Request Method: '. request\Request::getMethod());
+log\Log::info('Referer: '. (request\Request::referer() ? request\Request::referer() : 'None'));
 //解析url
 $pathinfo = request\Request::path();
 // 记录pathinfo日志
