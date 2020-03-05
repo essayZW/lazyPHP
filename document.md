@@ -1167,11 +1167,129 @@ array(2) {
 
 ```
 
-### (5) 内置规则与扩展
+### (5) 内置规则与规则扩展扩展
 
 内置规则有：
 
-* 后续完善
+* integer
+
+  > 判断是不是整数，使用`filter_var`判断
+
+* float
+
+  > 判断是不是浮点数，使用`filter_val`判断
+
+* boolean
+
+  > 判断是不是布尔值，使用`filter_val判断`
+
+* email
+
+  > 判断是不是一个合法的电子邮件格式，使用`filter_val`判断
+
+* array
+
+  > 判断是不是一个数组
+
+* accept
+
+  > 判断是不是数字1或者字符串的`yes`,`on`不区分大小写
+
+* date
+
+  > 判断是不是一个有效的日期，使用`strrotime`判断
+
+* alpha
+
+  > 判断是不是仅有字母组成
+
+* alphaNum
+
+  > 判断是不是仅有字母与数字组成
+
+* url
+
+  > 判断是不是一个有效的URL地址，使用`filter_val`判断
+
+* ip
+
+  > 判断是不是一个合法的IP地址，使用`filter_val`判断
+
+* max
+
+  > 判断数字是不是小于等于一个值
+
+* min
+
+  > 判断数字数不是大于等于一个值
+
+* chs
+
+  > 判断是不是只含有中文
+
+* isChs
+
+  > 判断是不是含有中文
+
+* between
+
+  > 判断数字是不是在某个闭区间内
+
+* equal
+
+  > 判断是否与指定值相等
+
+* lenBetween
+
+  > 判断一个字符串的长度是否在某个闭区间范围内
+
+* substr
+
+  > 判断是不是某字符串的子串
+
+* nowBetween
+
+  > 判断某个数字不在某个区间
+
+* require
+
+  > 判断某个值是否为空，即其是否为true
+
+* lenmax
+
+  > 判断字符串的长度是不是小于等于一个值
+
+* lenmin
+
+  > 判断字符串的长度是不是大于等于一个值
+
+* len
+
+  > 判断字符串的长度是不是等于一个值
+
+* different 
+
+  > 判断是不是不等于某个值
+
+* egt
+
+  > 判断是不是大于等于某个值
+
+* gt
+
+  > 判断是不是大于某个值
+
+* elt
+
+  > 判断是不是小于等于某个值
+
+* lt
+
+  > 判断是不是小于某个值
+
+* regmatch
+
+  > 判断某个字符串是否匹配某正则表达式
 
 规则扩展：
 
@@ -1264,4 +1382,81 @@ $captcha->isLower();			// 设置区分大小写
 ## 3. cookie
 
 框架内置了简单操作cookie的类：`lazy\cookie\Cookie`
+
+设置一个cookie
+
+```php
+// 设置一个cookie名为test,值为val,一小时后过期
+lazy\cookie\Cookie::set('test', 'val', time() + 3600);
+```
+
+得到指定cookie的值
+
+```php
+echo lazy\cookie\Cookie::get('test');
+```
+
+判断是否存在某个cookie
+
+```php
+var_dump(lazy\cookie\Cookie::has('test'));
+```
+
+删除一个指定的cookie
+
+```php
+lazy\cookie\Cookie::delete('test');
+```
+
+清空所有的cookie
+
+```php
+lazy\cookie\Cookie::clear();
+```
+
+## 4. session
+
+框架内置了简单的操作session的类: `lazy\session\Session`
+
+开启session回话:
+
+```php
+lazy\session\Session::start();
+```
+
+设置一个session：
+
+```php
+lazy\session\Session::set('test', 'val');
+```
+
+得到一个session值
+
+```php
+echo lazy\session\Session::get('test');
+```
+
+判断是否有某个session
+
+```php
+var_dump(lazy\session\Session::has('test'));
+```
+
+删除某个session:
+
+```php
+lazy\session\Session::delete('test');
+```
+
+清空所有的session:
+
+```php
+lazy\session\Session::clear();
+```
+
+关闭session回话：
+
+```php
+lazy\session\Session::close();
+```
 

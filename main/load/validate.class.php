@@ -253,7 +253,18 @@
     public function ip($value){
         return !(filter_var($value, FILTER_VALIDATE_IP));
     }
-
+    /**
+     * 验证是否全是中文
+     */
+    public function chs($value){
+        return preg_match("/^[\x7f-\xff]+$/", $value) == true;
+    }
+    /**
+     * 验证是否含有中文
+     */
+    public function isChs($value){
+        return preg_match("/[\x7f-\xff]/", $value) == true;
+    }
     /**
      * 检查一个值是不是小于等于一个值
      *
@@ -368,5 +379,41 @@
      */
     public function len($value, $len){
         return strlen($value) === $len;
+    }
+    /**
+     * 验证是不是不等于某值
+     */
+    public function different($value, $val){
+        return $value != $val;
+    }
+    /**
+     * 判断是不是大于等于某个值
+     */
+    public function egt($a, $b){
+        return $a >= $b;
+    }
+    /**
+     * 判断是不是大于某个值
+     */
+    public function gt($a, $b){
+        return $a > $b;
+    }
+    /**
+     * 判断是不是小于等于某个值
+     */
+    public function elt($a, $b){
+        return $a <= $b;
+    }
+    /**
+     * 判断是不是小于某个值
+     */
+    public function lt($a, $b){
+        return $a < $b;
+    }
+    /**
+     * 验证某个正则表达式是否匹配
+     */
+    public function regmatch($val, $pattern){
+        return preg_match($pattern, $val);
     }
  }
