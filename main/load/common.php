@@ -56,11 +56,10 @@ namespace lazy{
      * @return void
      */
     function Vendor($name, $objectName = '', $param = []){
-        $name = str_replace('.', '/', $name) . '.php';
         log\Log::log('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
         require_once(__EXTEND_PATH__ . $name);
         if($objectName !== ''){
-            log\Log::info('Extend Use Class: ' . $objectName);
+            log\Log::info('Extend use class: ' . $objectName);
             $object = new \ReflectionClass($objectName);
             $object = $object->newInstanceArgs($param);
             return $object;

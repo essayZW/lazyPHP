@@ -311,6 +311,8 @@ URL多余的部分`/id/5`会被作为GET表单参数传入，该部分将在后�
 
 控制器必须放在`project\app\模块名\cotroller\`下，并且控制器文件名必须与文件中的类名保持一致，控制器文件名为控制器名。
 
+**按规定，控制器名最好是首字母大写**
+
 一个典型的控制器类定义如下:
 
 ```php
@@ -367,7 +369,63 @@ protected function error($info = '', $url = false, $time = 3){};
 
 跳转页面的模板代码在`lazy\controller\Controller::$pageCode`中存储，可以渲染`$info, $url, $time`三个变量
 
-## 4. 空操作
+## 4.跨模块调用
+
+`lazy\controller\Controller`中有着一个方法`callMethod`，框架正是通过该方法执行指定的模块、控制器、方法的，该函数可以调用一个指定的模块中的控制器中的方法。
+
+函数原型如下：
+
+`public static function callMethod($module, $controller, $method);`
+
+##  5. 空模块
+
+当请求的模块不存在的时候，可以自定义执行一个默认的模块，其在配置文件中配置默认的模块名。
+
+```php
+// 当模块不存在的时候的模块
+'error_default_module'          => 'error'
+```
+
+通过空控制器、空操作的结合可以配置全APP的模块、控制器、方法找不到的时候的错误处理。
+
+现有空模块`error`,其目录控制器文件`project/app/error/controller/Error.php`
+
+```php
+<?php
+namespace app\error\controller;
+class Error{
+    public function _Error(){
+        return 'error 404!'
+    }
+}
+```
+
+## 6. 空控制器
+
+当请求的控制器不存在的时候，可以自定义执行一个默认的控制器，其在配置文件中配置默认控制器名
+
+```php
+// 当请求控制器不存在的时候的控制器
+'error_default_controller'      => 'Error'
+```
+
+这样可以优化控制器找不到时候的错误页面。
+
+一个典型的空控制器定义如下，其中`_Error`方法是空操作。
+
+```php
+<?php
+namespace app\index\controller;
+class Error{
+    public function _Error(){
+        return '404';
+    }
+}
+```
+
+
+
+## 7. 空操作
 
 当请求的方法不存在的时候，可以自定义执行一个默认的方法，其在配置文件中配置默认方法名
 
@@ -622,6 +680,8 @@ $DB->prepareAndExecute('SELECT * FROM demo WHERE id=?', ['id' => 1]);
 
 模型文件必须在`project\app\模块名\model\`目录下面，并且模型中的类必须与文件名保持一致。模型文件名为模型名。
 
+**按规定，模型名最好是首字母大写**
+
 模型可以继承`lazy\model\Model`类，这样就可以直接调用`lazy\DB\MysqlDB`类中的方法。
 
 > 默认模型名和数据库表名对应，于是在该模型中的数据库操作会默认以模型名为表名。（前提是继承了`Model`类）
@@ -651,6 +711,8 @@ class index extends Controller{
 
 需要控制器类继承`lazy\controller\Controller`类，调用类中的`model`方法实例化一个模型，默认实例化一个与controller同名的模型。
 
+> 这里模型名字区分大小写
+
 # 八. 视图
 
 视图功能由`lazy\view\View`提供，提供了对HTML 模板的渲染功能。模板文件必须在`project\app\模块名\view`下。模板的具体语法在下一节说明。
@@ -674,6 +736,8 @@ class index extends Controller{
 ## 3. 模板渲染
 
 通过`lazy\view\View->fetch()`函数渲染，默认渲染与控制器同名的模板文件。返回的是模板渲染之后的结果。
+
+>  **注意这里模板文件名区分大小写**
 
 ## 4. 系统变量
 
@@ -956,8 +1020,6 @@ echo $this->fetch();
 [ info ] Method: index
 ```
 
-
-
 ## 2. 使用
 
 日志类依靠`lazy\log\Log::init()`函数初始化，初始化的时候配置了日志的存放路径、自动清理等信息。
@@ -1018,7 +1080,7 @@ echo $this->fetch();
 
 可以将第三方扩展类库放入`project\extend\`  目录下面。使用`lazy\Vendor`方法载入类库。
 
-`Vendor`函数的第一个参数是一个路径，只不过路径中的`/`字符可以被替换为`.`，第二个参数可选，代表引入类库时候实例化的类名。
+`Vendor`函数的第一个参数是一个路径，第二个参数可选，代表引入类库时候实例化的类名。
 
 例如：在`project\extend\`目录下有一个`demo`类库。其目录结构为：
 
@@ -1042,7 +1104,7 @@ class demo{
 使用该类库
 
 ```php
-$demo = lazy\Vendor('demo.main', 'demo');
+$demo = lazy\Vendor('demo/main.php', 'demo');
 echo $demo->say_hello();
 ```
 
@@ -1051,7 +1113,7 @@ echo $demo->say_hello();
 也可以这样：
 
 ```php
-lazy\Vendor('demo.main');
+lazy\Vendor('demo/main.php');
 $demo = new demo();
 echo $demo->say_hello();
 ```

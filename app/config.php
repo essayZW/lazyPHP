@@ -8,7 +8,7 @@ return [
     // 应用错误调试部分
     // *******************************************************
     //应用调试模式
-    'app_debug'                     => false,
+    'app_debug'                     => true,
     //出现非致命错误后是否继续运行整个脚本
     'app_error_run'                 => false,
 
@@ -25,6 +25,10 @@ return [
     'default_method'                => 'index',
     // 当请求方法不存在时候的执行方法名
     'error_default_method'          => '_Error',
+    // 当请求控制器不存在的时候的控制器
+    'error_default_controller'      => 'Error',
+    // 当模块不存在的时候的模块
+    'error_default_module'          => 'error',
 
 
 

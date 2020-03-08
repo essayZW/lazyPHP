@@ -6,6 +6,7 @@ require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量
 // 初始化日志类
 log\Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
 // 写入日志开头
+log\Log::line();
 log\Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
 // 写入请求信息
 log\Log::info('User IP: '. request\Request::ip());
@@ -45,12 +46,12 @@ if(LAZYConfig::get('url_route_on')){
 //解析URL
 $pathArr = array_filter(explode('/', $pathinfo));
 $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::get('default_module'));
-$controller = strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller'));
-$method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
+$controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
+$method = ucwords(strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method')));
 // 记录日志
-log\Log::info('Module: '. $module);
-log\Log::info('Controller: '. $controller);
-log\Log::info('Method: ' . $method);
+log\Log::info('Request module: '. $module);
+log\Log::info('Request controller: '. $controller);
+log\Log::info('Request method: ' . $method);
 // 解析除了模块控制器方法以外的信息
 if(count($pathArr) > 3){
     // 记录日志
@@ -82,12 +83,9 @@ define("__MODULE_PATH__", __APP_PATH__ . $module);                  //模块目�
 define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器目录
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
-//保存本次请求中的模型，控制器，方法信息
-request\Request::$module = $module;
-request\Request::$controller = $controller;
-request\Request::$method = $method;
+// 第一次保存内存中所有日志
+log\Log::save();
 //开始执行对应的方法并输出结果
-print_r(controller\Controller::callMethod($module, $controller, $method));
+print_r(controller\Controller::callMethod($module, $controller, $method, true));
 // 保存内存中所有日志
 log\Log::save();
-log\Log::line();

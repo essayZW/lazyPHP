@@ -27,7 +27,7 @@ class Controller extends View{
      * @param  string $method     方法名
      * @return mixed              执行结果
      */
-    public static function callMethod($module, $controller, $method){
+    public static function callMethod($module, $controller, $method, $from = false){
         $trace = debug_backtrace();
         if(!isset($trace[0]['file'])) {
             // 调用自身
@@ -37,14 +37,25 @@ class Controller extends View{
         $module_path = __APP_PATH__ . $module;
         $controller_path = $module_path . '/controller/';
         if(!file_exists($module_path)){
-            //模块不存在
-            trigger_error("Module $module Not Exists!", E_USER_ERROR);
+            $blankModule = \lazy\LAZYConfig::get('error_default_module');
+            if(!file_exists(__APP_PATH__ . $blankModule . '/controller/')){
+                //模块不存在
+                trigger_error("Module $module Not Exists!", E_USER_ERROR);
+            }
+            $module = $blankModule;
+            $controller_path = __APP_PATH__ . $module . '/controller/';
         }
 
-        $controllerPath = $controller_path . strtolower($controller) . '.php';
+        $controllerPath = $controller_path . $controller . '.php';
+        // 空控制器
+        $blankController = \lazy\LAZYConfig::get('error_default_controller');
         if(!file_exists($controllerPath)){
-            //控制器不存在
-            trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+            if(!file_exists($controller_path . $blankController . '.php')){
+                //控制器不存在
+                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+            }else{
+                $controllerPath = $controller_path . $blankController . '.php';
+            }
         }
 
         //引入控制器文件
@@ -52,23 +63,38 @@ class Controller extends View{
         //开始执行对应的模块，控制器以及方法
         $controller = 'app\\' . $module . '\controller\\' . $controller;
         if(!class_exists($controller)){
-            //控制器不存在
-            trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+            if(!class_exists('app\\' . $module . '\controller\\' . $blankController)){
+                //控制器不存在
+                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+            }
+            else{
+                $controller = 'app\\' . $module . '\controller\\' . $blankController;
+            }
         }
 
         //实例化一个控制器
         $appController = new $controller;
         if(!method_exists($appController, $method)){
             // 当请求方法不存在时，尝试调用默认方法
-            if(!method_exists($appController, \lazy\LAZYConfig::get('error_default_method'))){
+            $blankMethod = \lazy\LAZYConfig::get('error_default_method');
+            if(!method_exists($appController, $blankMethod)){
                 //方法不存在
                 trigger_error("Method $method Not Exists!", E_USER_ERROR);
             }
             else{
-                $method = \lazy\LAZYConfig::get('error_default_method');
-                \lazy\request\Request::$method = $method;
+                $method = $blankMethod;
             }
         }
+        if($from){
+            //保存本次请求中的模型，控制器，方法信息
+            \lazy\request\Request::$module = $module;
+            \lazy\request\Request::$controller = (new \ReflectionClass($controller))->getShortName();
+            \lazy\request\Request::$method = $method;
+        }
+        // 记录日志
+        \lazy\log\Log::log('Use module: '. $module);
+        \lazy\log\Log::log('Use controller: '. \lazy\request\Request::controller());
+        \lazy\log\Log::log('Use method: '. $method);
         //得到表单参数列表
         $LAZYCode = new \lazy\code\PHPCodeMethod($appController, $method);
         //调用并将结果返回
