@@ -3,3 +3,4 @@ app/debug/model/Index.php
 app/debug/view/code.html
 app/debug/view/Index.html
 app/error/controller/Error.php
+app/debug/controller/Error.php

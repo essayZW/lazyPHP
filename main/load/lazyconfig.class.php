@@ -29,6 +29,9 @@ class LAZYConfig{
      * @return [type] [description]
      */
     public static function load(){
-        self::$config = require_once(__LAZY_CONFIG__);
+        $config = require_once(__LAZY_CONFIG__);
+        foreach ($config as $key => $value) {
+            self::$config[$key] = $value;
+        }
     }
 }

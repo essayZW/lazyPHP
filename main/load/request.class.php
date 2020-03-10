@@ -14,6 +14,10 @@ class Request{
     public static $module;
     public static $controller;
     public static $method;
+
+    public static $rmodule;
+    public static $rcontroller;
+    public static $rmethod;
     /**
      * 返回本次请求的请求方法
      * @return string 请求方法，若没有则返回false
@@ -198,15 +202,18 @@ class Request{
      *
      * @return void
      */
-    public static function module(){
+    public static function module($flag = true){
+        if(!$flag) return self::$rmodule;
         return self::$module;
     }
 
     
-    public static function controller(){
+    public static function controller($flag = true){
+        if(!$flag) return self::$rcontroller;
         return self::$controller;
     }
-    public static function method(){
+    public static function method($flag = true){
+        if(!$flag) return self::$rmethod;
         return self::$method;
     }
     /**

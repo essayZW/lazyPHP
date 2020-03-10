@@ -459,14 +459,16 @@ echo 'HTTP User Agent : ' . $request->getRequestHead('user-agent') . '<br>';
 echo 'HTTP Referer: ' . $request->referer() . '<br>';
 // 得到请求着的IP地址
 echo 'Requester ip address: '. $request->ip() . '<br>';
-// 得到本次请求的模块名
+// 得到当前所运行的模块名
 echo 'Request Module Name: '. $request->module() . '<br>';
-// 得到本次请求的控制器名
+// 得到当前所运行的控制器名
 echo 'Request Controller Name : ' . $request->controller() . '<br>';
-// 得到请求的控制器方法名
+// 得到当前所运行的控制器方法名
 echo 'Request Method Name: '. $request->method() . '<br>';
 
 ```
+
+> 获得请求的模块、控制器、方法则加一个参数`false`,否则获得的是当前调用该函数所处的模块、控制器、方法名
 
 这样使用`Postman`访问`http://serverName/index/index/index/test/123`得到以下输出
 

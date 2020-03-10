@@ -27,7 +27,7 @@ class Controller extends View{
      * @param  string $method     方法名
      * @return mixed              执行结果
      */
-    public static function callMethod($module, $controller, $method, $from = false){
+    public static function callMethod($module, $controller, $method){
         $trace = debug_backtrace();
         if(!isset($trace[0]['file'])) {
             // 调用自身
@@ -85,12 +85,14 @@ class Controller extends View{
                 $method = $blankMethod;
             }
         }
-        if($from){
-            //保存本次请求中的模型，控制器，方法信息
-            \lazy\request\Request::$module = $module;
-            \lazy\request\Request::$controller = (new \ReflectionClass($controller))->getShortName();
-            \lazy\request\Request::$method = $method;
-        }
+        // 备份信息
+        $oldmodule = \lazy\request\Request::module();
+        $oldcontroller = \lazy\request\Request::controller();
+        $oldmethod = \lazy\request\Request::method();
+        //保存当前使用的模型，控制器，方法信息
+        \lazy\request\Request::$module = $module;
+        \lazy\request\Request::$controller = (new \ReflectionClass($controller))->getShortName();
+        \lazy\request\Request::$method = $method;
         // 记录日志
         \lazy\log\Log::log('Use module: '. $module);
         \lazy\log\Log::log('Use controller: '. \lazy\request\Request::controller());
@@ -98,7 +100,12 @@ class Controller extends View{
         //得到表单参数列表
         $LAZYCode = new \lazy\code\PHPCodeMethod($appController, $method);
         //调用并将结果返回
-        return $LAZYCode->callMethod(\lazy\request\Request::params(), $appController);
+        $res = $LAZYCode->callMethod(\lazy\request\Request::params(), $appController);
+        // 恢复信息
+        \lazy\request\Request::$module = $oldmodule;
+        \lazy\request\Request::$controller = $oldcontroller;
+        \lazy\request\Request::$method = $oldmethod;
+        return $res;
     }
 
     /**

@@ -47,7 +47,7 @@ if(LAZYConfig::get('url_route_on')){
 $pathArr = array_filter(explode('/', $pathinfo));
 $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::get('default_module'));
 $controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
-$method = ucwords(strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method')));
+$method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
 // 记录日志
 log\Log::info('Request module: '. $module);
 log\Log::info('Request controller: '. $controller);
@@ -83,9 +83,13 @@ define("__MODULE_PATH__", __APP_PATH__ . $module);                  //模块目�
 define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器目录
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
+// 保存请求的模块、控制器、方法信息
+request\Request::$rmodule = $module;
+request\Request::$rcontroller = $controller;
+request\Request::$rmethod = $method;
 // 第一次保存内存中所有日志
 log\Log::save();
 //开始执行对应的方法并输出结果
-print_r(controller\Controller::callMethod($module, $controller, $method, true));
+print_r(controller\Controller::callMethod($module, $controller, $method));
 // 保存内存中所有日志
 log\Log::save();
