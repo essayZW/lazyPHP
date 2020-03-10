@@ -1,5 +1,5 @@
-
-app/index/controller/index.php
-app/index/model/index.php
-app/index/view/code.html
-app/index/view/index.html
+app/debug/controller/Index.php
+app/debug/model/Index.php
+app/debug/view/code.html
+app/debug/view/Index.html
+app/error/controller/Error.php
