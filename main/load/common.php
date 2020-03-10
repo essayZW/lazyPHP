@@ -30,7 +30,7 @@ namespace lazy{
                         //找到依赖项
                         //尝试先引入依赖
                         if(file_exists($path . $key)){
-                            require_once($key);
+                            require_once($path . $key);
                             $flag = 2;      //表示有依赖且已经引入依赖
                         }
                         else{

@@ -24,7 +24,9 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
         'view.class.php'    => 'controller.class.php',      //controller依赖于view
         'mysqlDB.class.php' => 'model.class.php',           //model依赖于mysqlDB
         'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
-        'code.class.php'    => 'controller.class.php'       //controller 依赖于 code
+        'code.class.php'    => 'controller.class.php',      //controller 依赖于 code
+        'request.class.php' => 'controller.class.php',       // controller 依赖于request
+        'lazyconfig.class.php' => 'controller.class.php'    // controller 依赖于 lazyconfig
     ]
 );
 // 定义入口文件相对于网站根目录的相对目录
@@ -36,7 +38,8 @@ define("__JS__", __STATIC_PATH__ . '/js/');                                 //js
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
 //导入配置文件
 lazy\LAZYConfig::load();
-
+// 设置默认时区
+date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
 //根据__APP_DEBUG__ 开启或者关闭应用调试模式
 (new lazy\debug\AppDebug())->getHandler(lazy\LAZYConfig::get('app_debug'))
                            ->errorRun(lazy\LAZYConfig::get('app_error_run'));

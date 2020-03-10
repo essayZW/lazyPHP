@@ -2,86 +2,69 @@
 
 ## 1. 框架说明
 
-本框架是仿写的think PHP框架，采用MVC设计模式
+本框架是仿写的think PHP框架。
 
-连文档都是仿照think PHP5.0看云的文档写的……
+连文档也是仿照think PHP5.0看云的文档写的。
 
 目前版本：**1.0.0**
 
-使用`cloc`代码统计工具结果
-
-```
-      25 text files.
-classified 25 files
-      25 unique files.                              
-      15 files ignored.
-
-github.com/AlDanial/cloc v 1.80  T=0.50 s (46.0 files/s, 5982.0 lines/s)
--------------------------------------------------------------------------------
-Language                     files          blank        comment           code
--------------------------------------------------------------------------------
-PHP                             22            181           1127           1681
-Markdown                         1              1              0              1
--------------------------------------------------------------------------------
-SUM:                            23            182           1127           1682
--------------------------------------------------------------------------------
-```
-
-> **框架是通过`PATH_INFO`得到请求的模块控制器方法的，所以需要保证服务器支持`	$_SERVER['PATH_INFO']`变量，最好支持URL重写功能**
+> **框架是通过`PATH_INFO`得到请求的模块控制器方法的，所以需要保证服务器支持`	$_SERVER['PATH_INFO']`变量，并且最好支持URL重写功能以隐藏入口文件和关键目录**
+>
+> 另外框架需求PHP版本在5.6及以上
 
 ## 2. 目录结构
 
 
-```
+```php
 project
-│  .htaccess							URL重写文件
-│  favicon.ico							默认站标
-│  index.php							应用入口文件
+│  .htaccess	URL重写文件
+│  favicon.ico	默认站标
+│  index.php	应用入口文件
 │  
-├─app									应用目录
-│  │  common.php						用户公用函数文件
-│  │  config.php						应用配置文件
-│  │  database.php						应用数据库配置文件
-│  │  router.php						应用路由配置文件
+├─app	应用目录
+│  │  common.php	用户公用函数文件
+│  │  config.php	应用配置文件
+│  │  database.php	应用数据库配置文件
+│  │  router.php	应用路由配置文件
 │  │  
-│  └─index								默认的index模块
-│      ├─controller						模块中的控制器目录
-│      │      index.php					index控制器文件
+│  └─index                              默认的index模块
+│      ├─controller                     模块中的控制器目录
+│      │      Index.php                 Index控制器文件
 │      │      
-│      ├─model							模型目录
-│      └─view							模板目录
+│      ├─model                          index模块的模型目录
+│      └─view                           index模块的模板目录
 ├─extend
-├─main
-│  │  base.php							应用基础环境加载以及debug注册文件
-│  │  main.php							控制路径的解析以及路由的转发以及
+├─main                                  框架核心文件夹
+│  │  base.php                          应用基础环境加载文件
+│  │  main.php                          控制路径的解析以及路由的转发
 │  │  
-│  └─load								框架核心类
-│          captcha.class.php			验证码相关类
-│          code.class.php				扩展PHP反射相关类
-│          common.php					框架公用函数文件
-│          controller.class.php			控制器类
+│  └─load                               框架核心类
+│          captcha.class.php	        验证码相关类
+│          code.class.php	            扩展PHP反射相关类
+│          common.php	                框架公用函数文件
+│          controller.class.php	        控制器类
 │          cookieAndSession.class.php	cookie以及session相关操作类
-│          debug.class.php				框架调试类
-│          lazyconfig.class.php			框架配置相关类
-│          log.class.php				日志操作相关类
-│          model.class.php				模型类
-│          mysqlDB.class.php			框架MySQL数据库操作类
-│          request.class.php			请求参数相关类
-│          router.class.php				路由解析转发相关类
-│          validate.class.php			验证器相关类
-│          view.class.php				模板类
+│          debug.class.php	            框架调试类
+│          lazyconfig.class.php	        框架配置相关类
+│          log.class.php                日志操作相关类
+│          model.class.php              模型类
+│          mysqlDB.class.php            框架MySQL数据库操作类
+│          request.class.php            请求参数相关类
+│          router.class.php             路由解析转发相关类
+│          validate.class.php           验证器相关类
+│          view.class.php               模板类
 │          
-├─runtime								日志以及临时文件缓存存放目录
-│  ├─log								日志目录
-│  └─temp								临时文件存放目录
-└─static								静态资源存放目录
+├─runtime                               日志以及临时文件缓存存放目录
+│  ├─log                                日志目录
+│  └─temp                               临时文件存放目录
+└─static                                静态资源存放目录
 ```
 
 **默认除static以外的目录请求都会被重写以保护目录**
 
 ## 3. 框架流程
 
-1. 入口文件
+### 1. 入口文件
 
 入口文件是`project/index.php`文件，其负责定义应用根目录常量，并尝试捕获`E_PARSE`和`E_ERROR`的错误处理
 
@@ -106,7 +89,7 @@ try {
 }
 ```
 
-2. 变量注册
+### 2. 变量注册
 
 ```php
 namespace lazy;         //顶级命名空间
@@ -136,7 +119,7 @@ define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //im
 define("__RELATIVE_ROOT_PATH__", lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__));
 ```
 
-3. 核心文件引入
+### 3. 核心文件引入
 
 根据依赖关系依次引入框架核心文件
 
@@ -153,7 +136,7 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
 );
 ```
 
-4. 配置加载
+### 4. 配置加载
 
 导入配置文件
 
@@ -162,7 +145,15 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
 lazy\LAZYConfig::load();
 ```
 
-5. 注册错误以及异常机制
+### 5. 时区配置
+
+根据配置文件配置时区，默认为`RPC`
+
+   ```php
+   date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
+   ```
+
+### 6. 注册错误以及异常机制
 
 通过`lazy\debug\AppDebug`注册错误处理，并根据配置文件配置处理机制，并设置错误日志存储
 
@@ -175,11 +166,11 @@ ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
 ```
 
-6. 加载路由列表
+### 7. 加载路由列表
 
 加载应用定义的路由列表，根据`PATH_INFO`匹配并解析新的URL
 
-7. 解析URL
+### 8. 解析URL
 
 对请求的URL进行解析，得到请求的模块、控制器、方法，检测请求方法是否合法
 
@@ -201,9 +192,13 @@ request\Request::$controller = $controller;
 request\Request::$method = $method;
 ```
 
-8. 响应输出
+### 9. 响应输出
 
 控制器的方法返回的值将被`print_r`函数输出
+
+### 10. 日志保存
+
+    将过程中记录到内存中的日志写入文件。
 
 # 二. 配置
 
@@ -1249,7 +1244,7 @@ array(2) {
 
   > 判断是不是一个合法的电子邮件格式，使用`filter_val`判断
 
-* array
+* isarray
 
   > 判断是不是一个数组
 
@@ -1313,7 +1308,7 @@ array(2) {
 
   > 判断某个数字不在某个区间
 
-* require
+* isrequire
 
   > 判断某个值是否为空，即其是否为true
 

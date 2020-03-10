@@ -207,7 +207,7 @@
     /**
      * 判断是不是数组
      */
-    public function array($value){
+    public function isarray($value){
         return gettype($value) == gettype([]);
     }
     /**
@@ -358,7 +358,7 @@
     /**
      * 某个值是不是必须
      */
-    public function require($value){
+    public function isrequire($value){
         return $value == true;
     }
 

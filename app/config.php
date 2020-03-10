@@ -70,6 +70,8 @@ return [
     // 日志文件是否自动清理
     'log_file_autoclear'            => true,
     // 日志文件最长保留时间,单位：月,只有开启自动清理该项才有效
-    'log_max_time'                  => 3
+    'log_max_time'                  => 3,
+    // 默认时区设置
+    'default_timezone'               => 'PRC'
 ];
 
