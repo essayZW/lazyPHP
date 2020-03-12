@@ -37,6 +37,7 @@ if(LAZYConfig::get('url_route_on')){
     else if(LAZYConfig::get('url_route_must')){
         // 没有找到对应的路由
         trigger_error('Route not found', E_USER_ERROR);
+        exit();
     }
     if($accpetMethod == false) {
         //若路由中不存在则支持所有方法
@@ -77,6 +78,7 @@ if(count($pathArr) > 3){
 if(!request\Request::isExists(request\Request::getMethod(), $accpetMethod)){
     //请求方法不符合
     trigger_error("Forbidden!", E_USER_ERROR);
+    exit();
 }
 //定义相关常量
 define("__MODULE_PATH__", __APP_PATH__ . $module);                  //模块目录

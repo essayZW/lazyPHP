@@ -12,10 +12,15 @@
  *      6.修复一些bug
  */
 namespace lazy\view;
-use lazy\request\Request;
 class View{
     private $list;                  //需要渲染的变量即对应值列表
-    private $useCache = true;              //渲染时是否实用缓存
+    protected $useCache = true;              //渲染时是否实用缓存
+    // 是否允许模板中PHP代码的运行
+    private $allowCode = false;
+    // 系统变量渲染列表
+    protected $systemVar = [];
+    // 是否对变量输出转义
+    private $specialChar = true;
     public function __construct(){
         $this->list = [];   //初始化
         $this->useCache = true;
@@ -45,40 +50,16 @@ class View{
         }
     }
 
-    /**
-     * 导入预设的系统变量
-     * @return [type] [description]
-     */
-    private function loadSystem(){
-        $this->assign([
-            '__CSS__'           => \str_replace('//', '/', __CSS__),
-            '__JS__'            => \str_replace('//', '/', __JS__),
-            '__IMAGE__'         => \str_replace('//', '/', __IMAGE__),
-            '__STATIC_PATH__'   => \str_replace('//', '/', __STATIC_PATH__),
-            '__ROOT_PATH__'     => \str_replace('//', '/', __RELATIVE_ROOT_PATH__),
-            'LazyRequest'       => [
-                'get'       => \lazy\request\Request::get(),
-                'post'      => \lazy\request\Request::post(),
-                'files'     => \lazy\request\Request::files(),
-                'url'       => \lazy\request\Request::url(),
-                'host'      => \lazy\request\Request::host(),
-                'referer'   => \lazy\request\Request::referer()
-            ]
-        ]);
-    }
-
+    private $filepath;
     /**
      * 渲染指定模板，赋值，并将渲染后的代码返回
      * @param  string $path 模板路径
      * @return [type]       [description]
      */
-    public function fetch($path = false){
-        if($path == false && gettype($path) != gettype('')){
-            //参数错误,采用默认参数
-            $path = Request::controller();
-        }
+    public function fetch($path){
+        $this->filepath = $path;
         //导入预设环境变量
-        $this->loadSystem();
+        $this->assign($this->systemVar);
         $path .= '.html';
         //加载模板代码
         $code = $this->load($path);
@@ -99,7 +80,8 @@ class View{
         }
         $code = $this->runCode($filename);
         //渲染完成，初始化
-        $this->__construct();
+        $this->list = [];   //初始化
+        $this->useCache = true;
         return $code;
     }
 
@@ -108,7 +90,7 @@ class View{
      * @return string 渲染运行之后的结果
      */
     public function fetchPart($code){
-        $fileName = __TEMP_PATH__ . md5(time()) . '.php';
+        $fileName = md5(time()) . '.php';
         $code = $this->fetchCode($code);
         file_put_contents($fileName, $code);
         return $this->noCache()->runCode($fileName);
@@ -143,7 +125,7 @@ class View{
     protected function fetchCode($code){
         //开始处理
         //根据配置决定是否允许模板运行任意PHP代码
-        if(!\lazy\LAZYConfig::get('fetch_allow_code')){
+        if(!$this->allowCode){
             //不允许PHP代码
             $code = $this->assignCode($code);
         }
@@ -191,12 +173,12 @@ class View{
      * @param  string $filename 模板文件路径
      * @return string           模板源代码
      */
-    private function load($filename){
-        if(!\file_exists(__VIEW_PATH__ . $filename)){
-            \trigger_error('View ' . __VIEW_PATH__ . $filename . ' Not Exists!', E_USER_ERROR);
+    protected function load($filename){
+        if(!\file_exists($filename)){
+            \trigger_error('View ' . $filename . ' Not Exists!', E_USER_ERROR);
             return;
         }
-        return file_get_contents(__VIEW_PATH__ . $filename);
+        return file_get_contents($filename);
     }
 
     /**
@@ -216,7 +198,7 @@ class View{
                 $matches[2] = str_replace('|', '', $matches[2]);
                 $value = $matches[2] . '(' . $value . ')';
             }
-            if(\lazy\LAZYConfig::get('fetch_specialchars')){
+            if($this->specialChar){
                 $value = 'htmlspecialchars(' . $value . ')';
             }
             return '<?php echo ' . $value . ';?>';
@@ -298,13 +280,13 @@ class View{
      * @param  string $key  模板文件MD5
      * @return [type]       [description]
      */
-    private function build($code, $path, $key){
+    protected function build($code, $path, $key){
         //生成文件名
-        $filename = md5(Request::module() . Request::controller(). $path) . '.php';
+        $filename = md5($this->filepath) . '.php';
         //生成头文件信息
         $code = "<?php /*@MD5:" . $key . "@*/ ?>\r\n" . $code;
-        file_put_contents(__TEMP_PATH__ . $filename, $code);
-        return __TEMP_PATH__ . $filename;
+        file_put_contents($filename, $code);
+        return $filename;
     }
 
 
@@ -333,8 +315,8 @@ class View{
      * @param  string $path [description]
      * @return [type]       [description]
      */
-    private function getTempFileName($path){
-        return __TEMP_PATH__ . md5(Request::module() . Request::controller(). $path) . '.php';
+    protected function getTempFileName($path){
+        return md5($this->filepath) . '.php';
     }
 
 
@@ -345,5 +327,23 @@ class View{
     protected function noCache(){
         $this->useCache = false;
         return $this;
+    }
+    /**
+     * 切换是否对输出转义
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function specialChar($flag = true){
+        $this->specialChar = $flag;
+    }
+    /**
+     * 设置是否支持模板中的PHP代码
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    public function allowCode($flag = false){
+        $this->allowCode = $flag;
     }
 }
