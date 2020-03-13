@@ -37,12 +37,13 @@ define("__CSS__", __STATIC_PATH__ . '/css/');                               //cs
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
 //导入配置文件
-lazy\LAZYConfig::load();
+lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
 // 设置默认时区
 date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
 //根据__APP_DEBUG__ 开启或者关闭应用调试模式
-(new lazy\debug\AppDebug())->getHandler(lazy\LAZYConfig::get('app_debug'))
-                           ->errorRun(lazy\LAZYConfig::get('app_error_run'));
+$LAZYDebug = new lazy\debug\AppDebug();
+$LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
+          ->errorRun(lazy\LAZYConfig::get('app_error_run'));
 // 设置报错日志存储
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');

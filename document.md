@@ -210,9 +210,21 @@ request\Request::$method = $method;
 
 使用`lazy\LAZYConfig::get($config_name)` 可以读取到`$config_name`的配置值
 
-## 2.  数据库配置文件
+## 2. 动态设置配置
+
+使用`lazy\LAZTConfig::set($name, $val)` 设置指定名称的配置项。
+
+## 3.  数据库配置文件
 
 数据库配置文件在`project/app/database.php`中，支持在应用中动态改变，详情在`模型`中会提到
+
+## 4. 模块独立配置
+
+模块独立配置文件位于`project/app/{模块名}/config.php`，该配置文件会覆盖应用配置文件中的同名配置，但是由于配置文件是在url解析之后引入的，所以对于路由、应用调试、默认模块、控制器、方法等的配置不生效。其是在框架流程中的第8步执行的。
+
+## 5. 数据库模块独立配置
+
+每个模块可以有该模块独立的数据库配置文件，其位于`project/app/{模块名}/database.php`其会覆盖应用数据库配置文件中的同名项。
 
 # 三. 路由
 

@@ -179,11 +179,16 @@ class Controller extends View{
             //模型不存在
             trigger_error("Model $name Not Exists!", E_USER_ERROR);
         }
+        \lazy\log\Log::log('Use model: '. __MODEL__PATH_ . $name . '.php');
         require_once(__MODEL__PATH_ . $name . '.php');
         $model = 'app\\' . \lazy\request\Request::module() . '\model\\' . $name;
         $res = new $model;
         //加载配置
         $res->load(require(__DATABASE_CONFIG__));
+        if(\file_exists(__APP_PATH__ . '\\' . \lazy\request\Request::module() . '\\database.php')){
+            $res->load(require(__APP_PATH__ . '\\' . \lazy\request\Request::module() . '\\database.php'));
+            \lazy\log\Log::log('Import database config file: '.__APP_PATH__ . '\\' . \lazy\request\Request::module() . '\\database.php');
+        }
         return $res;
     }
 

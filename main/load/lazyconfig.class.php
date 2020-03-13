@@ -28,10 +28,19 @@ class LAZYConfig{
      * 加载配置文件
      * @return [type] [description]
      */
-    public static function load(){
-        $config = require_once(__LAZY_CONFIG__);
+    public static function load($config){
         foreach ($config as $key => $value) {
             self::$config[$key] = $value;
         }
+    }
+    /**
+     * 设置配置项
+     *
+     * @param [type] $name
+     * @param [type] $val
+     * @return void
+     */
+    public static function set($name, $val){
+        self::$config[$name] = $val;
     }
 }

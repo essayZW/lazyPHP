@@ -89,6 +89,11 @@ define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目�
 request\Request::$rmodule = $module;
 request\Request::$rcontroller = $controller;
 request\Request::$rmethod = $method;
+// 查找是否有模块额外配置文件并导入
+if(\file_exists(__MODULE_PATH__. '/config.php')){
+    LAZYConfig::load(require_once(__MODULE_PATH__. '/config.php'));
+    log\Log::log('Import module config file: '. __MODULE_PATH__. '/config.php');
+}
 // 第一次保存内存中所有日志
 log\Log::save();
 //开始执行对应的方法并输出结果
