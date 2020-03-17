@@ -32,7 +32,7 @@ lazy\requireAllFileFromDir(__LOAD_PATH__, [
 // 定义入口文件相对于网站根目录的相对目录
 define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__) . '/');
 // 定义静态文件目录，是相对路径
-define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . '/static/');         //静态资源目录
+define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . 'static/');         //静态资源目录
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录

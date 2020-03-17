@@ -46,6 +46,7 @@ class Controller extends View{
      * @return mixed              执行结果
      */
     public static function callMethod($module, $controller, $method){
+        $controller = ucfirst($controller);
         $trace = debug_backtrace();
         if(!isset($trace[0]['file'])) {
             // 调用自身

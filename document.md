@@ -1291,7 +1291,7 @@ array(2) {
 
 * date
 
-  > 判断是不是一个有效的日期，使用`strrotime`判断
+  > 判断是不是一个有效的日期，使用`strtotime`判断
 
 * alpha
 

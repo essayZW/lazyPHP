@@ -84,6 +84,13 @@ class MysqlDB{
         $this->isCon = false;
         mysqli_close($this->con);
         $this->prepareValueArr = [];
+        $this->sqlInsertField = '';
+        $this->sqlInsertValue = '';
+        $this->sqlUpdateField = '';
+        $this->sqlVolumn = '';
+        $this->sqlAndRanger = [];
+        $this->sqlOrRanger = [];
+        $this->sqlSort = '';
     }
     /**
      * 拼装SQL模板
@@ -247,7 +254,11 @@ class MysqlDB{
      * @return [type]             [description]
      */
     public function table($table_name){
-        $this->tableName = $this->fieldConcersion($table_name);
+        if(gettype($table_name) == gettype('')){
+            $table_name = [$table_name];
+        }
+        $this->tableName = array_map(array($this, 'fieldConcersion'), $table_name);
+        $this->tableName = implode(',', $this->tableName);
         return $this;
     }
 
@@ -301,7 +312,11 @@ class MysqlDB{
      * @param  string $right  查询的条件
      * @return [type]         [description]
      */
-    public function where($left, $symbol, $right){
+    public function where($left, $symbol = '', $right = ''){
+        if($symbol === '' || $right === ''){
+            array_push($this->sqlAndRanger, $left);
+            return $this;
+        }
         // 对字段名进行关键字处理
         $left = $this->fieldConcersion($left);
         // 放入and数组
@@ -318,7 +333,11 @@ class MysqlDB{
      * @param  string $right  [description]
      * @return [type]         [description]
      */
-    public function whereOr($left, $symbol, $right){
+    public function whereOr($left, $symbol = '', $right = ''){
+        if($symbol === '' || $right === ''){
+            array_push($this->sqlOrRanger, $left);
+            return $this;
+        }
         // 对字段名进行关键字处理
         $left = $this->fieldConcersion($left);
         // 放入or数组
