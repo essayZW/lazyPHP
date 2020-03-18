@@ -129,6 +129,8 @@ class View{
             //不允许PHP代码
             $code = $this->assignCode($code);
         }
+        // 渲染literal
+        $code = $this->assignLiteral($code);
         //渲染模板注释
         $code = $this->assignCommet($code);
         //渲染单个变量
@@ -224,6 +226,20 @@ class View{
         return $code;
     }
 
+    /**
+     * 渲染literal标签
+     *
+     * @param [type] $code
+     * @return void
+     */
+    private function assignLiteral($code){
+        $pattern = '/{literal}(.*?){\/literal}/s';
+        $code = preg_replace_callback($pattern, function($matches){
+            $content = \base64_encode($matches[1]);
+            return '<?php echo base64_decode("'. $content. '"); ?>';
+        }, $code);
+        return $code;
+    }
     /**
      * 渲染多组值
      * @param  array  $arr  [description]
