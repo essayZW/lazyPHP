@@ -134,7 +134,9 @@ class Captcha{
     public function set($str = ''){
         if($str == '') $str = $this->str();
         // 开启session
-        session_start();
+        if(isset($_SESSION)){
+            session_start();
+        }
         $_SESSION[$this->sessionName] = $str;
         // 生成验证码
         return $this->create($str);
@@ -154,7 +156,9 @@ class Captcha{
      * @return void
      */
     public function check($str){
-        session_start();
+        if(isset($_SESSION)){
+            session_start();
+        }
         if(!isset($_SESSION[$this->sessionName])){
             return false;
         }

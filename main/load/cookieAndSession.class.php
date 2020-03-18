@@ -59,19 +59,14 @@ namespace lazy\cookie{
 
 namespace lazy\session{
     class Session{
-        static private $startFlag;
-
-        public function __construct(){
-            $this->startFlag = session_start();
-        }
         /**
          * 开启session会话
          *
          * @return void
          */
         public static function start(){
-            if(!self::$startFlag){
-                self::$startFlag = session_start();
+            if(!isset($_SESSION)){
+                session_start();
             }
         }
         /**
@@ -135,7 +130,7 @@ namespace lazy\session{
          */
         public static function close(){
             self::start();
-            if(self::$startFlag)
+            if(isset($_SESSION))
                 session_destroy();
         }
     }

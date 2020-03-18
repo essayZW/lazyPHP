@@ -194,9 +194,27 @@ class View{
                 $matches[1] = '';
             }
             $value = '$' . $name . $matches[1];
+            $funName = '';
+            $param = '';
             if(isset($matches[2])){
-                $matches[2] = str_replace('|', '', $matches[2]);
-                $value = $matches[2] . '(' . $value . ')';
+                $matches[2] = \preg_replace('/^\|(.+?)/', '$1', $matches[2]);
+                if(\preg_match('/^(\w+?):(.+?)$/', $matches[2])){
+                    $funName = \preg_replace_callback('/^(\w+?):(.+?)$/', function ($matches) use (&$param, $value){
+                        $param = $matches[2];
+                        if(\strstr($param, '###')){
+                            $param = \str_replace('###', $value, $param);
+                        }
+                        else{
+                            $param = $value. ','. $param;
+                        }
+                        return $matches[1];
+                    }, $matches[2]);
+                }
+                else{
+                    $funName = $matches[2];
+                    $param = $value;
+                }
+                $value = $funName . '(' . $param . ')';
             }
             if($this->specialChar){
                 $value = 'htmlspecialchars(' . $value . ')';

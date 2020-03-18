@@ -848,7 +848,31 @@ echo $this->fetch();
 
 `202cb962ac59075b964b07152d234b70`
 
-> 不支持函数嵌套。也不支持自定义参数传入。
+> 不支持函数嵌套。
+
+函数传入参数
+
+有以下模板
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {$time}
+    <br>
+    {$time|md5}
+    <br>
+    {$time|date:'Y时m月d日H时i分s秒',###}
+</body>
+</html>
+```
+
+函数传参形式用冒号`:`声明，例如`{$time|date:'Y时m月d日H时i分s秒',###}`，其中`###`被替换为变量，倘若没有`###`，则默认第一个参数为变量。
 
 ## 4. 选择结构
 
