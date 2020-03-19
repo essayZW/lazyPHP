@@ -1,12 +1,6 @@
 <?php
 /**
  * 提供MySQL数据库的基本的增删改查功能
- * version:1.0
- * UPdate Info:
- *      1.数据库的基本增删改查
- *      2.采用预处理模式执行，防止SQL注入
- *      3.提供用户自定义的SQL语句以及SQL模板运行
- *      4.未对联表查询以及别名支持
  */
 namespace lazy\DB;
 class MysqlDB{

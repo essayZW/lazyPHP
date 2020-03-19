@@ -149,14 +149,14 @@ namespace lazy{
                 log\Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else{
-                log\Log::info($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                log\Log::log($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             // 日志写入内存
             log\Log::save();
             log\Log::line();
         }
         /**
-         * 系统S数据库日志记录接口
+         * 系统数据库日志记录接口
          *
          * @param [type] $sql
          * @return void

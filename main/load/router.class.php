@@ -1,9 +1,6 @@
 <?php
 /**
  * 路由的操作类
- * version:1.2
- * Update Info:
- *      1.更改为正则表达式匹配路由
  */
 
 namespace lazy\router;

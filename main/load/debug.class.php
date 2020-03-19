@@ -1,12 +1,6 @@
 <?php
 /**
  * 应用debug信息处理类
- * version: 1.2.0
- * Update Info:
- *     1.修正堆栈信息显示不完全问题
- *     2.丰富了本地变量的显示
- *     3.可以自定义去除掉一些不显示本地变量
- *     4.优化了显示
  */
 namespace lazy\debug;
 
@@ -41,6 +35,14 @@ class AppDebug{
                 $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
                 return true;
             }, E_ALL | E_STRICT);
+            set_exception_handler(function($exception){
+                if (method_exists($this, 'errorLog')) {
+                    $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
+                }
+                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
+                return true;
+            });
+            // 设置捕获异常
             return $this;
         }
         // 未开启debug模式
@@ -58,6 +60,19 @@ class AppDebug{
             $this->throwError($this->build());
             return true;
         }, E_ALL | E_STRICT);
+        set_exception_handler(function ($exception) {
+            if(method_exists($this, 'errorLog')){
+                $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
+            }
+            $debug = new \lazy\debug\AppDebug();
+            $debug->throwError($debug->setLevel(E_ERROR)
+                ->setErrorEnv(get_defined_vars())
+                ->setErrorFile($exception->getFile())
+                ->setErrorLine($exception->getLine())
+                ->setErrorMsg($exception->getMessage())
+                ->setErrorTrace($exception->getTraceAsString())
+                ->build());
+        });
         return $this;
     }
 
@@ -67,6 +82,9 @@ class AppDebug{
      */
     public function setLevel($errorNo){
         switch ($errorNo) {
+            case E_ERROR:
+                $this->levelTips = 'PHP Error';
+                break;
             case E_WARNING:
                 $this->levelTips = 'PHP Warning';
                 break;

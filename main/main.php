@@ -104,6 +104,10 @@ request\Request::$rmethod = $method;
 if(\file_exists(__MODULE_PATH__. '/config.php')){
     LAZYConfig::load(require_once(__MODULE_PATH__. '/config.php'));
     log\Log::log('Import module config file: '. __MODULE_PATH__. '/config.php');
+    $LAZYDebug = new debug\AppDebug();
+    $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
+        ->errorRun(LAZYConfig::get('app_error_run'));
+    ini_set('display_errors', LAZYConfig::get('app_debug'));
 }
 // 第一次保存内存中所有日志
 log\Log::save();

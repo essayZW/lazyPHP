@@ -1,12 +1,6 @@
 <?php
 /**
  * 控制器的相关操作类
- * version:1.1
- * Update Info:
- *      1.新增调用任意模块\控制器\方法
- *      2.新增实例化一个指定的model
- *      3.新增跳转页面
- *      4.修复BUG
  */
 
 namespace lazy\controller;
@@ -78,7 +72,22 @@ class Controller extends View{
         }
 
         //引入控制器文件
-        require_once($controllerPath);
+        try {
+            require_once($controllerPath);
+        } catch (\Error $error) {
+            if (!class_exists('\lazy\debug\AppDebug')) {
+                echo $error->getMessage() . ' at' . $error->getFile() . ' on line ' . $error->getLine();
+                return;
+            }
+            $debug = new \lazy\debug\AppDebug();
+            $debug->throwError($debug->setLevel(E_ERROR)
+                ->setErrorEnv(get_defined_vars())
+                ->setErrorFile($error->getFile())
+                ->setErrorLine($error->getLine())
+                ->setErrorMsg($error->getMessage())
+                ->setErrorTrace($error->getTraceAsString())
+                ->build());
+        }
         //开始执行对应的模块，控制器以及方法
         $controller = 'app\\' . $module . '\controller\\' . $controller;
         if(!class_exists($controller)){

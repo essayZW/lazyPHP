@@ -4,6 +4,8 @@
  * 一些环境的注册
  */
 
+use lazy\LAZYConfig;
+
 //全局变量定义
 // 以下变量都是绝对路径
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
@@ -47,6 +49,7 @@ $LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
 // 设置报错日志存储
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
+ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
 //引入用户自定义函数文件
 require_once(__USER_COMMON__);
 foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {

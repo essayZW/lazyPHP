@@ -1,11 +1,6 @@
 <?php
 /**
  * 关于网络请求参数表单的获取操作的类
- * version: 1.4.1
- * Update Info:
- *      1.新增获取host,url,referer信息
- *      2.修改get,post,files函数，可以获取指定值
- *      3.新增存储URL中的pathinfo参数
  */
 namespace lazy\request;
 class Request{

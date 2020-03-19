@@ -1,7 +1,6 @@
 <?php
 /**
  * 关于PHP源代码层面的操作，比如函数原型，代码，类原型，代码及其所属文件信息
- * version:1.0
  */
 
 namespace lazy\code;
