@@ -70,8 +70,22 @@ class Controller extends View{
         }
 
         //引入控制器文件
+        
+        //开始执行对应的模块，控制器以及方法
+        $controller = 'app\\' . $module . '\controller\\' . $controller;
+        if(!class_exists($controller)){
+            if(!class_exists('app\\' . $module . '\controller\\' . $blankController)){
+                //控制器不存在
+                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+            }
+            else{
+                $controller = 'app\\' . $module . '\controller\\' . $blankController;
+            }
+        }
+
+        //实例化一个控制器
         try {
-            require_once($controllerPath);
+            $appController = new $controller;
         } catch (\Error $error) {
             if (!class_exists('\lazy\debug\AppDebug')) {
                 echo $error->getMessage() . ' at' . $error->getFile() . ' on line ' . $error->getLine();
@@ -86,20 +100,6 @@ class Controller extends View{
                 ->setErrorTrace($error->getTraceAsString())
                 ->build());
         }
-        //开始执行对应的模块，控制器以及方法
-        $controller = 'app\\' . $module . '\controller\\' . $controller;
-        if(!class_exists($controller)){
-            if(!class_exists('app\\' . $module . '\controller\\' . $blankController)){
-                //控制器不存在
-                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
-            }
-            else{
-                $controller = 'app\\' . $module . '\controller\\' . $blankController;
-            }
-        }
-
-        //实例化一个控制器
-        $appController = new $controller;
         if(!method_exists($appController, $method)){
             // 当请求方法不存在时，尝试调用默认方法
             $blankMethod = \lazy\LAZYConfig::get('error_default_method');
@@ -188,17 +188,8 @@ class Controller extends View{
             trigger_error("Model $name Not Exists!", E_USER_ERROR);
         }
         \lazy\Log::log('Use model: '. __MODEL__PATH_ . $name . '.php');
-        require_once(__MODEL__PATH_ . $name . '.php');
         $model = 'app\\' . \lazy\Request::module() . '\model\\' . $name;
         $res = new $model;
-        //加载配置
-        $res->load(require(__DATABASE_CONFIG__));
-        $path = __APP_PATH__ . '\\' . \lazy\Request::module() . '\\database.php';
-        $path = str_replace('\\', '/', $path);      
-        if(\file_exists($path)){
-            $res->load(require($path));
-            \lazy\Log::log('Import database config file: '.$path);
-        }
         return $res;
     }
 
