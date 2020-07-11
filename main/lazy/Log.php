@@ -2,7 +2,7 @@
 /**
  * 日志相关操作类
  */
-namespace lazy\log;
+namespace lazy;
 class Log{
     private static $logPath;
     private static $log = [];

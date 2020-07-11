@@ -3,7 +3,7 @@
  * 路由的操作类
  */
 
-namespace lazy\router;
+namespace lazy;
 
 class Router{
     static private $list = [];     //路由列表

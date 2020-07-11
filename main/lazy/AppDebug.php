@@ -2,7 +2,7 @@
 /**
  * 应用debug信息处理类
  */
-namespace lazy\debug;
+namespace lazy;
 
 class AppDebug{
     // 使用框架提供的log接口记录日志
@@ -64,7 +64,7 @@ class AppDebug{
             if(method_exists($this, 'errorLog')){
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
-            $debug = new \lazy\debug\AppDebug();
+            $debug = new \lazy\AppDebug();
             $debug->throwError($debug->setLevel(E_ERROR)
                 ->setErrorEnv(get_defined_vars())
                 ->setErrorFile($exception->getFile())

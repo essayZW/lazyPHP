@@ -50,21 +50,6 @@ namespace lazy{
         closedir($handler);
     }
     
-    /**
-     * 加载指定的第三方类库
-     *
-     * @return void
-     */
-    function Vendor($name, $objectName = '', $param = []){
-        log\Log::log('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
-        require_once(__EXTEND_PATH__ . $name);
-        if($objectName !== ''){
-            log\Log::info('Extend use class: ' . $objectName);
-            $object = new \ReflectionClass($objectName);
-            $object = $object->newInstanceArgs($param);
-            return $object;
-        }
-    }
 
     /**
      * 获得相对路径, 得到b相对于a的相对路径
@@ -140,20 +125,20 @@ namespace lazy{
          */
         protected function errorLog($error_no, $error_msg, $error_file, $error_line){
             if($error_no == E_ERROR || $error_no == E_USER_ERROR){
-                log\Log::error($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::error($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_WARNING || $error_no == E_USER_WARNING){
-                log\Log::warn($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::warn($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_NOTICE || $error_no == E_USER_NOTICE){
-                log\Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else{
-                log\Log::log($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::log($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             // 日志写入内存
-            log\Log::save();
-            log\Log::line();
+            Log::save();
+            Log::line();
         }
         /**
          * 系统数据库日志记录接口
@@ -163,10 +148,10 @@ namespace lazy{
          */
         protected function sqlLog($sql, $data = []){
             if($data){
-                log\Log::sql('[prepare] ' . $sql . "\r\n" . var_export($data, true));
+                Log::sql('[prepare] ' . $sql . "\r\n" . var_export($data, true));
             }
             else{
-                log\Log::sql($sql);
+                Log::sql($sql);
             }
         }
     }

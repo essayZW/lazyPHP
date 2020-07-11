@@ -2,7 +2,7 @@
 /**
  * 关于网络请求参数表单的获取操作的类
  */
-namespace lazy\request;
+namespace lazy;
 class Request{
     public static $pathParamStr;
 

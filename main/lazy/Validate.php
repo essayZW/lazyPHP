@@ -3,7 +3,7 @@
  * 验证器，可以验证数据的合法性
  */
 
- namespace lazy\validate;
+ namespace lazy;
  class Validate{
     private $ruleList;          // 验证规则数组
     private $msgList;

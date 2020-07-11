@@ -2,7 +2,7 @@
 /**
  * 提供验证码相关功能的类
  */
-namespace lazy\captcha;
+namespace lazy;
 class Captcha{
     // 验证码图片的宽，单位:px
     private $imgWidth;

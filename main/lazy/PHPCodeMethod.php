@@ -3,7 +3,7 @@
  * 关于PHP源代码层面的操作，比如函数原型，代码，类原型，代码及其所属文件信息
  */
 
-namespace lazy\code;
+namespace lazy;
 
 
 /**
