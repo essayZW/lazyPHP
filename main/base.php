@@ -25,27 +25,33 @@ spl_autoload_register(function($className) {
     $path = __MAIN_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
-    // echo $path . '<br>';
-    if(file_exists($path))
+    if(file_exists($path)) {
         require_once($path);
+        return true;
+    }
+    return false;
 });
 // 普通文件自动加载
 spl_autoload_register(function($className) {
     $path = __ROOT_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
-    // echo $path . '<br>';
-    if(file_exists($path))
+    if(file_exists($path)) {
         require_once($path);
+        return true;
+    }
+    return false;
 });
 // 扩展文件自动加载
 spl_autoload_register(function($className) {
     $path = __EXTEND_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
-    // echo $path . '<br>';
-    if(file_exists($path))
+    if(file_exists($path)) {
         require_once($path);
+        return true;
+    }
+    return false;
 });
 
 // 定义入口文件相对于网站根目录的相对目录
@@ -56,7 +62,6 @@ define("__CSS__", __STATIC_PATH__ . '/css/');                               //cs
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
 //导入配置文件
-
 lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
 // 设置默认时区
 date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
