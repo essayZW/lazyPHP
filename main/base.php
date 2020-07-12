@@ -22,25 +22,19 @@ require_once(__LOAD_PATH__ . '/common.php');
 // 采用自动加载方式
 spl_autoload_register(function($className) {
     // 核心文件自动加载
-    $path = __MAIN_PATH__ . $className . '.php';
-    $path = str_replace('\\', '/', $path);
-    $path = str_replace('//', '/', $path);
+    $path = lazy\changeFilePath(__MAIN_PATH__ . $className . '.php');
     if(file_exists($path)) {
         require_once($path);
         return true;
     }
     // 普通文件自动加载
-    $path = __ROOT_PATH__ . $className . '.php';
-    $path = str_replace('\\', '/', $path);
-    $path = str_replace('//', '/', $path);
+    $path = lazy\changeFilePath(__ROOT_PATH__ . $className . '.php');
     if(file_exists($path)) {
         require_once($path);
         return true;
     }
     // 扩展文件自动加载
-    $path = __EXTEND_PATH__ . $className . '.php';
-    $path = str_replace('\\', '/', $path);
-    $path = str_replace('//', '/', $path);
+    $path = lazy\changeFilePath(__EXTEND_PATH__ . $className . '.php');
     if(file_exists($path)) {
         require_once($path);
         return true;

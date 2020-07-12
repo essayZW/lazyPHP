@@ -81,6 +81,23 @@ namespace lazy{
         return $str;
     }
 
+    /**
+     * 转化路径为当前系统的正确的路径
+     *
+     * @param string $path
+     * @return string
+     */
+    function changeFilePath($path) {
+        if(DIRECTORY_SEPARATOR == '/') {
+            $path = \str_replace('\\', '/', $path);
+            $path = preg_replace('/\/{2,}/', '/', $path);
+        }
+        else if(DIRECTORY_SEPARATOR == '\\'){
+            $path = str_replace('/', '\\', $path);
+            $path = preg_replace('/\\\{2,}/', '\\', $path);
+        }
+        return $path;
+    }
 
     trait fileOperation{
         /**
@@ -208,4 +225,3 @@ namespace lazy{
     }
     
 }
-

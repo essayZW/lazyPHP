@@ -104,9 +104,10 @@ Request::$rmodule = $module;
 Request::$rcontroller = $controller;
 Request::$rmethod = $method;
 // 查找是否有模块额外配置文件并导入
-if(\file_exists(__MODULE_PATH__. '/config.php')){
-    LAZYConfig::load(require_once(__MODULE_PATH__. '/config.php'));
-    Log::log('Import module config file: '. __MODULE_PATH__. '/config.php');
+$path = changeFilePath(__MODULE_PATH__. '/config.php');
+if(\file_exists($path)){
+    LAZYConfig::load(require_once($path));
+    Log::log('Import module config file: '. $path);
     $LAZYDebug = new AppDebug();
     $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
         ->errorRun(LAZYConfig::get('app_error_run'));
