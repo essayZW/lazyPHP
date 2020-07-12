@@ -50,21 +50,6 @@ namespace lazy{
         closedir($handler);
     }
     
-    /**
-     * 加载指定的第三方类库
-     *
-     * @return void
-     */
-    function Vendor($name, $objectName = '', $param = []){
-        log\Log::log('Extend ' . __EXTEND_PATH__ .  $name .' loaded!');
-        require_once(__EXTEND_PATH__ . $name);
-        if($objectName !== ''){
-            log\Log::info('Extend use class: ' . $objectName);
-            $object = new \ReflectionClass($objectName);
-            $object = $object->newInstanceArgs($param);
-            return $object;
-        }
-    }
 
     /**
      * 获得相对路径, 得到b相对于a的相对路径
@@ -96,6 +81,23 @@ namespace lazy{
         return $str;
     }
 
+    /**
+     * 转化路径为当前系统的正确的路径
+     *
+     * @param string $path
+     * @return string
+     */
+    function changeFilePath($path) {
+        if(DIRECTORY_SEPARATOR == '/') {
+            $path = \str_replace('\\', '/', $path);
+            $path = preg_replace('/\/{2,}/', '/', $path);
+        }
+        else if(DIRECTORY_SEPARATOR == '\\'){
+            $path = str_replace('/', '\\', $path);
+            $path = preg_replace('/\\\{2,}/', '\\', $path);
+        }
+        return $path;
+    }
 
     trait fileOperation{
         /**
@@ -140,20 +142,20 @@ namespace lazy{
          */
         protected function errorLog($error_no, $error_msg, $error_file, $error_line){
             if($error_no == E_ERROR || $error_no == E_USER_ERROR){
-                log\Log::error($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::error($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_WARNING || $error_no == E_USER_WARNING){
-                log\Log::warn($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::warn($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else if($error_no == E_NOTICE || $error_no == E_USER_NOTICE){
-                log\Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::notice($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             else{
-                log\Log::log($error_msg. ' in '. $error_file. ' on line '. $error_line);
+                Log::log($error_msg. ' in '. $error_file. ' on line '. $error_line);
             }
             // 日志写入内存
-            log\Log::save();
-            log\Log::line();
+            Log::save();
+            Log::line();
         }
         /**
          * 系统数据库日志记录接口
@@ -163,13 +165,63 @@ namespace lazy{
          */
         protected function sqlLog($sql, $data = []){
             if($data){
-                log\Log::sql('[prepare] ' . $sql . "\r\n" . var_export($data, true));
+                Log::sql('[prepare] ' . $sql . "\r\n" . var_export($data, true));
             }
             else{
-                log\Log::sql($sql);
+                Log::sql($sql);
             }
+        }
+    }
+
+    /**
+     * 继承原有的ReflectionFunction
+     * 新增方法：
+     *      1.根据函数的参数列表匹配参数调用
+     */
+    class PHPCodeMethod extends \ReflectionMethod{
+
+
+        /**
+         * 对指定函数调用，并匹配对应的参数值
+         * @param  array  $params       需要赋值的参数列表
+         * @return [type]               [description]
+         */
+        public function callMethod($params = [], $class){
+            $paramList = $this->getParameters();
+            $res = array();
+            foreach ($paramList as $key => $value) {
+                if(array_key_exists($value->name, $params)){
+                    $res[$key] = $params[$value->name];
+                }
+                else{
+                    $res[$key] = null;
+                }
+            }
+            return call_user_func_array(array($class, $this->name), $res);
+        }
+    }
+
+    /**
+     * 继承class的反射
+     * 新增方法:
+     *      1.得到制定类中的
+     */
+    class PHPCodeClass extends \ReflectionClass{
+        /**
+         * 得到指定类中的所有public属性以及其值
+         * @param  object $object    类名
+         * @param  array  $uninclude 排除某些属性
+         * @return array            包含所用公用属性的数组
+         */
+        public static function getAllProtype($object, $uninclude = []){
+            $arr = get_object_vars($object);
+            foreach ($arr as $key => $value) {
+                if(array_search($key, $uninclude) !== false){
+                    unset($arr[$key]);
+                }
+            }
+            return $arr;
         }
     }
     
 }
-

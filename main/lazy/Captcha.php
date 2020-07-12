@@ -2,7 +2,7 @@
 /**
  * 提供验证码相关功能的类
  */
-namespace lazy\captcha;
+namespace lazy;
 class Captcha{
     // 验证码图片的宽，单位:px
     private $imgWidth;
@@ -134,7 +134,7 @@ class Captcha{
     public function set($str = ''){
         if($str == '') $str = $this->str();
         // 开启session
-        if(isset($_SESSION)){
+        if(!isset($_SESSION)){
             session_start();
         }
         $_SESSION[$this->sessionName] = $str;
@@ -156,7 +156,7 @@ class Captcha{
      * @return void
      */
     public function check($str){
-        if(isset($_SESSION)){
+        if(!isset($_SESSION)){
             session_start();
         }
         if(!isset($_SESSION[$this->sessionName])){

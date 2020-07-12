@@ -4,34 +4,37 @@ define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
 require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量加载，环境设置文件
 // 日志记录
 // 初始化日志类
-log\Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
+Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
 // 写入日志开头
-log\Log::line();
-log\Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
+Log::line();
+Log::log("[". date('Y年m月d日H时i分s秒') ."] App Start!");
 // 写入请求信息
-log\Log::info('User IP: '. request\Request::ip());
-log\Log::info('Request Host: '. request\Request::host());
-log\Log::info('Request Url: ' . request\Request::url());
-log\Log::info('Query String: '. request\Request::query());
-log\Log::info('Request Method: '. request\Request::getMethod());
-log\Log::info('Referer: '. (request\Request::referer() ? request\Request::referer() : 'None'));
+Log::info('User IP: '. Request::ip());
+Log::info('Request Host: '. Request::host());
+Log::info('Request Url: ' . Request::url());
+Log::info('Query String: '. Request::query());
+Log::info('Request Method: '. Request::getMethod());
+Log::info('Referer: '. (Request::referer() ? Request::referer() : 'None'));
 //解析url
-$pathinfo = request\Request::path();
+$pathinfo = Request::path();
+if($pathinfo{0} != '/') {
+    $pathinfo = '/' . $pathinfo;
+}
 // 记录pathinfo日志
-log\Log::info('PathInfo: '. $pathinfo);
+Log::info('PathInfo: '. $pathinfo);
 $accpetMethod = 'ALL';    //默认支持所有请求
 $errorPath = __APP_PATH__.  '/'.LAZYConfig::get('error_default_module').'/controller/'. LAZYConfig::get('error_default_controller'). '.php';
 //加载路由列表
 if(LAZYConfig::get('url_route_on')){
     //开启了路由
     // 记录日志
-    log\Log::info('Router On');
+    Log::info('Router On');
     $routerList = require_once(__ROUTER__);
-    router\Router::importFromArray($routerList);          //将已经有配置文件中的路由列表导入
-    $rule = router\Router::getRule($pathinfo);            //得到对应的记录
+    Router::importFromArray($routerList);          //将已经有配置文件中的路由列表导入
+    $rule = Router::getRule($pathinfo);            //得到对应的记录
     // 记录日志
-    log\Log::info('Matched Router: '. ($rule ? $rule : 'None'));
-    $accpetMethod = router\Router::getMethod($pathinfo);
+    Log::info('Matched Router: '. ($rule ? $rule : 'None'));
+    $accpetMethod = Router::getMethod($pathinfo);
     if($rule != false) {
         $pathinfo = $rule;
     }
@@ -51,7 +54,7 @@ if(LAZYConfig::get('url_route_on')){
     }
 }
 //检查请求方法是否符合
-if(!request\Request::isExists(request\Request::getMethod(), $accpetMethod)){
+if(!Request::isExists(Request::getMethod(), $accpetMethod)){
     if(file_exists($errorPath)){
         $pathinfo = '/'.LAZYConfig::get('error_default_module').'/'. LAZYConfig::get('error_default_controller');
     }
@@ -67,13 +70,13 @@ $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::g
 $controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
 $method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
 // 记录日志
-log\Log::info('Request module: '. $module);
-log\Log::info('Request controller: '. $controller);
-log\Log::info('Request method: ' . $method);
+Log::info('Request module: '. $module);
+Log::info('Request controller: '. $controller);
+Log::info('Request method: ' . $method);
 // 解析除了模块控制器方法以外的信息
 if(count($pathArr) > 3){
     // 记录日志
-    log\Log::log('Params On Url!');
+    Log::log('Params On Url!');
     // 含有其他部分
     // 将其作为get表单数据
     $pathParam = array_slice($pathArr, 3, count($pathArr) - 3);
@@ -86,9 +89,9 @@ if(count($pathArr) > 3){
     // 合并到get数组中
     $_GET = array_merge($_GET, $getArr);
     // 将pathinfo后面的信息传递给request，可以供用户自己解析
-    request\Request::$pathParamStr = '/' . implode('/', $pathParam);
+    Request::$pathParamStr = '/' . implode('/', $pathParam);
     // 记录日志
-    log\Log::info('Url Params: '. request\Request::$pathParamStr);
+    Log::info('Url Params: '. Request::$pathParamStr);
 }
 
 //定义相关常量
@@ -97,21 +100,22 @@ define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器�
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
 // 保存请求的模块、控制器、方法信息
-request\Request::$rmodule = $module;
-request\Request::$rcontroller = $controller;
-request\Request::$rmethod = $method;
+Request::$rmodule = $module;
+Request::$rcontroller = $controller;
+Request::$rmethod = $method;
 // 查找是否有模块额外配置文件并导入
-if(\file_exists(__MODULE_PATH__. '/config.php')){
-    LAZYConfig::load(require_once(__MODULE_PATH__. '/config.php'));
-    log\Log::log('Import module config file: '. __MODULE_PATH__. '/config.php');
-    $LAZYDebug = new debug\AppDebug();
+$path = changeFilePath(__MODULE_PATH__. '/config.php');
+if(\file_exists($path)){
+    LAZYConfig::load(require_once($path));
+    Log::log('Import module config file: '. $path);
+    $LAZYDebug = new AppDebug();
     $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
         ->errorRun(LAZYConfig::get('app_error_run'));
     ini_set('display_errors', LAZYConfig::get('app_debug'));
 }
 // 第一次保存内存中所有日志
-log\Log::save();
+Log::save();
 //开始执行对应的方法并输出结果
-print_r(controller\Controller::callMethod($module, $controller, $method));
+print_r(Controller::callMethod($module, $controller, $method));
 // 保存内存中所有日志
-log\Log::save();
+Log::save();

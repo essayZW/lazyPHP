@@ -1,7 +1,7 @@
 <?php
 namespace app\index\controller;
 
-use lazy\controller\Controller;
+use lazy\Controller;
 class Index extends Controller{
 
     public function index(){

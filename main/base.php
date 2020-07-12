@@ -4,12 +4,10 @@
  * 一些环境的注册
  */
 
-use lazy\LAZYConfig;
-
 //全局变量定义
 // 以下变量都是绝对路径
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
-define("__LOAD_PATH__", __MAIN_PATH__ . '/load/');              //应用加载核心文件的目录
+define("__LOAD_PATH__", __MAIN_PATH__ . '/lazy/');              //应用加载核心文件的目录
 define("__LAZY_CONFIG__", __APP_PATH__ . '/config.php');        //配置文件
 define("__ROUTER__", __APP_PATH__ . '/router.php');             //路由文件
 define("__DATABASE_CONFIG__", __APP_PATH__ . '/database.php');  //用户数据库配置文件
@@ -21,18 +19,31 @@ define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库�
 // 先加载通用方法文件
 require_once(__LOAD_PATH__ . '/common.php');
 
-//引入其他核心函数库、类文件
-lazy\requireAllFileFromDir(__LOAD_PATH__, [
-        'view.class.php'    => 'controller.class.php',      //controller依赖于view
-        'mysqlDB.class.php' => 'model.class.php',           //model依赖于mysqlDB
-        'validate.class.php'=> 'controller.class.php',      //controller依赖于validate
-        'code.class.php'    => 'controller.class.php',      //controller 依赖于 code
-        'request.class.php' => 'controller.class.php',       // controller 依赖于request
-        'lazyconfig.class.php' => 'controller.class.php'    // controller 依赖于 lazyconfig
-    ]
-);
+// 采用自动加载方式
+spl_autoload_register(function($className) {
+    // 核心文件自动加载
+    $path = lazy\changeFilePath(__MAIN_PATH__ . $className . '.php');
+    if(file_exists($path)) {
+        require_once($path);
+        return true;
+    }
+    // 普通文件自动加载
+    $path = lazy\changeFilePath(__ROOT_PATH__ . $className . '.php');
+    if(file_exists($path)) {
+        require_once($path);
+        return true;
+    }
+    // 扩展文件自动加载
+    $path = lazy\changeFilePath(__EXTEND_PATH__ . $className . '.php');
+    if(file_exists($path)) {
+        require_once($path);
+        return true;
+    }
+    return false;
+});
+
 // 定义入口文件相对于网站根目录的相对目录
-define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\request\Request::wwwroot(), __ROOT_PATH__) . '/');
+define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\Request::wwwroot(), __ROOT_PATH__) . '/');
 // 定义静态文件目录，是相对路径
 define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . 'static/');         //静态资源目录
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
@@ -43,7 +54,7 @@ lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
 // 设置默认时区
 date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
 //根据__APP_DEBUG__ 开启或者关闭应用调试模式
-$LAZYDebug = new lazy\debug\AppDebug();
+$LAZYDebug = new lazy\AppDebug();
 $LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
           ->errorRun(lazy\LAZYConfig::get('app_error_run'));
 // 设置报错日志存储

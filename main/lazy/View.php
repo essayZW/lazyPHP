@@ -3,7 +3,7 @@
 /**
  * 模板操作相关类
  */
-namespace lazy\view;
+namespace lazy;
 class View{
     private $list;                  //需要渲染的变量即对应值列表
     protected $useCache = true;              //渲染时是否实用缓存
@@ -48,7 +48,7 @@ class View{
      * @param  string $path 模板路径
      * @return [type]       [description]
      */
-    public function fetch($path){
+    public function fetch($path = false){
         $this->filepath = $path;
         //导入预设环境变量
         $this->assign($this->systemVar);
