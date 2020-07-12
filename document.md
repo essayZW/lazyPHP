@@ -16,48 +16,44 @@
 
 
 ```php
-project
-│  .htaccess	URL重写文件
-│  favicon.ico	默认站标
-│  index.php	应用入口文件
-│  
-├─app	应用目录
-│  │  common.php	用户公用函数文件
-│  │  config.php	应用配置文件
-│  │  database.php	应用数据库配置文件
-│  │  router.php	应用路由配置文件
-│  │  
-│  └─index                              默认的index模块
-│      ├─controller                     模块中的控制器目录
-│      │      Index.php                 Index控制器文件
-│      │      
-│      ├─model                          index模块的模型目录
-│      └─view                           index模块的模板目录
-├─extend
-├─main                                  框架核心文件夹
-│  │  base.php                          应用基础环境加载文件
-│  │  main.php                          控制路径的解析以及路由的转发
-│  │  
-│  └─load                               框架核心类
-│          captcha.class.php	        验证码相关类
-│          code.class.php	            扩展PHP反射相关类
-│          common.php	                框架公用函数文件
-│          controller.class.php	        控制器类
-│          cookieAndSession.class.php	cookie以及session相关操作类
-│          debug.class.php	            框架调试类
-│          lazyconfig.class.php	        框架配置相关类
-│          log.class.php                日志操作相关类
-│          model.class.php              模型类
-│          mysqlDB.class.php            框架MySQL数据库操作类
-│          request.class.php            请求参数相关类
-│          router.class.php             路由解析转发相关类
-│          validate.class.php           验证器相关类
-│          view.class.php               模板类
-│          
-├─runtime                               日志以及临时文件缓存存放目录
-│  ├─log                                日志目录
-│  └─temp                               临时文件存放目录
-└─static                                静态资源存放目录
+project/
+├── app		# 应用目录
+│   ├── index			# 默认的index模块
+│   │   └── controller	# 模块中的控制器目录
+│   │       └── Index.php	# 模块中的Index控制器文件
+│   ├── common.php		# 用户扩展函数文件
+│   ├── config.php		# 整个应用配置文件
+│   ├── database.php	# 整个应用数据库配置文件
+│   └── router.php		# 应用路由注册文件
+├── extend				# 第三方扩展类库目录
+├── main				# 框架核心文件目录
+│   ├── lazy			# 框架核心类库目录
+│   │   ├── DB				# DB类目录
+│   │   │   └── MysqlDB.php	# MySQL类
+│   │   ├── AppDebug.php	# 应用异常、错误捕获处理类
+│   │   ├── Captcha.php		# 验证码类
+│   │   ├── Controller.php	# 控制器类
+│   │   ├── Cookie.php		# cookie类
+│   │   ├── LAZYConfig.php	# 框架配置类
+│   │   ├── Log.php			# 框架日志类
+│   │   ├── Model.php		# 框架模型类
+│   │   ├── Request.php		# 框架request类
+│   │   ├── Router.php		# 框架路由类
+│   │   ├── Session.php		# session类
+│   │   ├── Validate.php	# 验证器类
+│   │   ├── View.php		# 视图类
+│   │   └── common.php		# 杂项类以及方法
+│   ├── base.php		# 框架环境初始化文件
+│   └── main.php			# 解析URL以及路由调用控制器等
+├── runtime
+│   ├── log		# 框架日志文件目录
+│   └── temp	# 框架缓存以及临时文件目录
+├── static		# 静态资源目录
+├── index.php			# 入口文件
+├── README.md
+├── favicon.ico
+├── .htaccess	# URL重写文件，保护app, extend, main, runtime等目录不被访问
+└── document.md
 ```
 
 **默认除static以外的目录请求都会被重写以保护目录**
@@ -116,8 +112,8 @@ define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //im
 
 ```php
 // 采用自动加载方式
-// 核心文件自动加载
 spl_autoload_register(function($className) {
+    // 核心文件自动加载
     $path = __MAIN_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -125,10 +121,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 普通文件自动加载
-spl_autoload_register(function($className) {
+    // 普通文件自动加载
     $path = __ROOT_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -136,10 +129,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 扩展文件自动加载
-spl_autoload_register(function($className) {
+    // 扩展文件自动加载
     $path = __EXTEND_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -149,7 +139,6 @@ spl_autoload_register(function($className) {
     }
     return false;
 });
-
 ```
 
 ### 4. 配置加载
@@ -303,7 +292,7 @@ URL多余的部分`/id/5`会被作为GET表单参数传入，该部分将在后�
 
 通过`$_SERVER['PATH_INFO']`获取到请求的具体URL，之后通过`/`分割URL，按顺序依次作为模块，控制器，方法名，[参数1，值1，……]
 
-> 倘若服务器不支持`$_SERVER['PATH_INFO']`则会使用`$REQUEST['PATH_INFO']`参数，否则默认为`/`
+> 倘若服务器不支持`$_SERVER['PATH_INFO']`则会使用`$_REQUEST['PATH_INFO']`参数，否则默认为`/`
 
 比如：`http://serverName/index/demo/test/name/essay`
 

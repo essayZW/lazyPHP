@@ -17,6 +17,9 @@ Log::info('Request Method: '. Request::getMethod());
 Log::info('Referer: '. (Request::referer() ? Request::referer() : 'None'));
 //解析url
 $pathinfo = Request::path();
+if($pathinfo{0} != '/') {
+    $pathinfo = '/' . $pathinfo;
+}
 // 记录pathinfo日志
 Log::info('PathInfo: '. $pathinfo);
 $accpetMethod = 'ALL';    //默认支持所有请求

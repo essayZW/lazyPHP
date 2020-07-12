@@ -218,8 +218,9 @@ class AppDebug{
             ob_get_clean();
             echo $info;
         }
-        else
+        else {
             die($info);
+        }
     }
 
     /**

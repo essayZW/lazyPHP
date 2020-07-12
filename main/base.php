@@ -20,8 +20,8 @@ define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库�
 require_once(__LOAD_PATH__ . '/common.php');
 
 // 采用自动加载方式
-// 核心文件自动加载
 spl_autoload_register(function($className) {
+    // 核心文件自动加载
     $path = __MAIN_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -29,10 +29,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 普通文件自动加载
-spl_autoload_register(function($className) {
+    // 普通文件自动加载
     $path = __ROOT_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -40,10 +37,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 扩展文件自动加载
-spl_autoload_register(function($className) {
+    // 扩展文件自动加载
     $path = __EXTEND_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
