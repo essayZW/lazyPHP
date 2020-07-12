@@ -66,3 +66,6 @@ require_once(__USER_COMMON__);
 foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
     require_once($value);
 }
+
+// 初始化cookie类
+lazy\Cookie::init(lazy\LAZYConfig::get('cookie'));

@@ -1531,11 +1531,39 @@ $captcha->isLower();			// 设置区分大小写
 
 框架内置了简单操作cookie的类：`lazy\Cookie`
 
+cookie使用之前需要初始化该类，默认会读取配置文件中的cookie设置
+
+```php
+    // *******************************************************
+    // cookie相关设置
+    // *******************************************************
+    'cookie'                        => [
+        // cookie 名称前缀
+        'prefix'        => '',
+        // cookie 保存时间
+        'expire'        => 0,
+        // cookie 有效域名
+        'domain'        => '',
+        // cookie 保存路径
+        'path'          => __RELATIVE_ROOT_PATH__,
+        // 是否启用安全传输
+        'secure'        => false,
+        // 是否开启httponly
+        'httponly'      => false,
+    ]
+```
+
+也可以使用`Cookie::init()` 方法初始化。
+
 设置一个cookie
 
 ```php
 // 设置一个cookie名为test,值为val,一小时后过期
-lazy\Cookie::set('test', 'val', time() + 3600);
+lazy\Cookie::set('test', 'val', 3600);
+// 设置cookie使用独立设置
+lazy\Cookie::set('test', 'val', [
+    'prefix' => 'lazy_'
+]);
 ```
 
 得到指定cookie的值
@@ -1547,7 +1575,7 @@ echo lazy\Cookie::get('test');
 判断是否存在某个cookie
 
 ```php
-var_dump(lazy\Cookie::has('test'));
+lazy\Cookie::has('test');
 ```
 
 删除一个指定的cookie

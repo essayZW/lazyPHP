@@ -112,6 +112,8 @@ if(\file_exists($path)){
     $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
         ->errorRun(LAZYConfig::get('app_error_run'));
     ini_set('display_errors', LAZYConfig::get('app_debug'));
+    // 重新加载cookie设置
+    Cookie::init(LAZYConfig::get('cookie'));
 }
 // 第一次保存内存中所有日志
 Log::save();
