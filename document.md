@@ -1164,8 +1164,8 @@ echo $this->fetch();
 可以将第三方扩展类库放入`project\extend\`  目录下面。框架已经定义了类库的自动加载方式。
 
 ```php
-// 扩展文件自动加载
 spl_autoload_register(function($className) {
+    // 扩展文件自动加载
     $path = __EXTEND_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);

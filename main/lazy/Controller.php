@@ -87,7 +87,7 @@ class Controller extends View{
         try {
             $appController = new $controller;
         } catch (\Error $error) {
-            if (!class_exists('\lazy\debug\AppDebug')) {
+            if (!class_exists('\lazy\AppDebug')) {
                 echo $error->getMessage() . ' at' . $error->getFile() . ' on line ' . $error->getLine();
                 return;
             }
