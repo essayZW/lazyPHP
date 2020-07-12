@@ -72,6 +72,24 @@ return [
     // 日志文件最长保留时间,单位：月,只有开启自动清理该项才有效
     'log_max_time'                  => 3,
     // 默认时区设置
-    'default_timezone'               => 'PRC'
+    'default_timezone'              => 'PRC',
+
+    // *******************************************************
+    // cookie相关设置
+    // *******************************************************
+    'cookie'                        => [
+        // cookie 名称前缀
+        'prefix'        => '',
+        // cookie 保存时间
+        'expire'        => 0,
+        // cookie 有效域名
+        'domain'        => '',
+        // cookie 保存路径
+        'path'          => __RELATIVE_ROOT_PATH__,
+        // 是否启用安全传输
+        'secure'        => false,
+        // 是否开启httponly
+        'httponly'      => false,
+    ]
 ];
 
