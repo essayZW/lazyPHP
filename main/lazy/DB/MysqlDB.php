@@ -377,7 +377,7 @@ class MysqlDB{
         $res = $this->execute($stmt);
         //关闭连接
         $this->close();
-        if(count($res) == 0) return false;
+        if(count($res) == 0) return [];
         $arr = [];
         $num = 0;
         foreach ($res as $key => $value) {
@@ -394,7 +394,7 @@ class MysqlDB{
      */
     public function find(){
         $res = $this->select(1);
-        if($res) return $res[0];
+        if(isset($res[0])) return $res[0];
         return false;
     }
 

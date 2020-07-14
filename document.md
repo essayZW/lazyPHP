@@ -485,7 +485,9 @@ echo 'Request Method Name: '. $request->method() . '<br>';
 
 ```
 
-> 获得请求的模块、控制器、方法则加一个参数`false`,否则获得的是当前调用该函数所处的模块、控制器、方法名
+> 因为框架允许跨模块、跨控制器调用。
+>
+> 所以需要获得最初请求的模块、控制器、方法则加一个参数`false`,否则获得的是当前调用该函数所处的模块、控制器、方法名
 
 这样使用`Postman`访问`http://serverName/index/index/index/test/123`得到以下输出
 
@@ -563,7 +565,7 @@ $db->connect([
 $DB->table('demo')->where('id', '=', '1')->select();
 ```
 
-> `select`  方法查询不到信息的时候返回`false`
+> `select`  方法查询不到信息的时候返回空数组
 
 这样执行的语句相当于:
 
@@ -571,7 +573,7 @@ $DB->table('demo')->where('id', '=', '1')->select();
 SELECT * FROM `demo` WHERE `id`=1
 ```
 
-> 还支持`find`方法，其只返回一条数据，而`select`返回所有的数据
+> 还支持`find`方法，其只返回一条数据，而`select`返回所有的数据,若find查找不到数据返回`false`
 
 * 可以使用`field`函数限定查询的字段范围
 
