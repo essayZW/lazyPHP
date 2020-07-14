@@ -209,7 +209,8 @@ class Controller extends View{
      * @return string           模板源代码
      */
     protected function load($filename){
-        return parent::load(__VIEW_PATH__. $filename);
+        $path = \lazy\changeFilePath( __APP_PATH__ . '/' .\lazy\Request::module() . '/view/' . $filename);
+        return parent::load($path);
     }
 
     public function fetch($path = false){
