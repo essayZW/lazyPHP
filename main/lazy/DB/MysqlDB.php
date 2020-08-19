@@ -15,6 +15,7 @@ class MysqlDB{
     private $isCon;                     // MySQL是否连接
     private $affectedRowNum = 0;        // 受影响行数
 
+    private $autoClose = true;          // 是否自动在操作数据库之后自动关闭连接
     // 如果与log接口则使用接口
     use \lazy\logMethod;
 
@@ -62,6 +63,7 @@ class MysqlDB{
         $this->con = $con ? $con : false;
         if($this->con){
             $this->isCon = true;
+            $this->con->query("SET NAMES utf8");
         }
         else{
             $this->isCon = false;
@@ -69,6 +71,30 @@ class MysqlDB{
         return $this;
     }
 
+    /**
+     * 返回连接句柄
+     * @return object 连接句柄
+     */
+    public function getCon() {
+        return $this->con;
+    }
+
+    /**
+     * 是否连接
+     * @return boolean
+     */
+    public function isCon() {
+        return $this->isCon;
+    }
+
+    /**
+     * 设置是否自动关闭连接
+     * @param boolean $flag 是否关闭
+     */
+    public function setAutoClose($flag = false) {
+        $this->autoClose = $flag;
+        return $this;
+    }
     /**
      * 关闭一个数据库连接
      * @return [type] [description]
@@ -185,7 +211,8 @@ class MysqlDB{
         //运行得到结果
         $res = $this->execute($stmt);
         //关闭
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         return $res;
     }
 
@@ -213,7 +240,8 @@ class MysqlDB{
         }
         $this->affectedRowNum = mysqli_affected_rows($this->con);
         //关闭
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         return $res;
     }
 
@@ -376,7 +404,8 @@ class MysqlDB{
         //运行
         $res = $this->execute($stmt);
         //关闭连接
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         if(count($res) == 0) return [];
         $arr = [];
         $num = 0;
@@ -426,9 +455,10 @@ class MysqlDB{
         //构建SQL语句并预先处理
         $stmt = $this->buildTemplate('insert');
         //赋值并得到结果
-        $res = $this->execute($stmt);
+        $this->execute($stmt);
         //关闭
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         return $this->affectedRowNum > 0;
     }
 
@@ -442,9 +472,10 @@ class MysqlDB{
         // 准备预处理模板
         $stmt = $this->buildTemplate('delete');
         // 运行
-        $res = $this->execute($stmt);
+        $this->execute($stmt);
         // 关闭
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         return $this->affectedRowNum > 0;
     }
 
@@ -478,7 +509,8 @@ class MysqlDB{
         // 运行得到结果
         $res = $this->execute($stmt);
         // 关闭
-        $this->close();
+        if($this->autoClose)
+            $this->close();
         return $this->affectedRowNum > 0;
     }
 
