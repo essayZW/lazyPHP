@@ -1222,7 +1222,7 @@ echo $demo->say_hello();
 
 ```php
 $rule = [
-    'name' => 'require|lenmax:25|lenmin:6',
+    'name' => 'isrequire|lenmax:25|lenmin:6',
     'age'  => 'integer|between:1,120'
 ];
 $this->validate->rule($rule);
@@ -1232,7 +1232,7 @@ $this->validate->rule($rule);
 
 ```php
 $rule = [
-            'name' => 'require|lenmax:25|lenmin:6',
+            'name' => 'isrequire|lenmax:25|lenmin:6',
             'age'  => ['integer', 'between:1,120']
         ];
 ```
@@ -1281,7 +1281,7 @@ $this->validate->batch()->check([
 
 ```php
 $this->validate->msg([
-            'require'       => '该项必须!',			  // 对require
+            'isrequire'       => '该项必须!',			  // 对require
             'lenmax'        => '长度超过限制!',	   	 // 对lenmax
             'name.lenmin'   => '名字长度最小为6',		// 对name变量的lenmin规则
             'integer'       => '必须是整数',			// 对integer规则
