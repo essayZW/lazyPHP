@@ -353,7 +353,7 @@
      * 某个值是不是必须
      */
     public function isrequire($value){
-        return $value == true;
+        return $value != null;
     }
 
     /**
