@@ -194,7 +194,7 @@ namespace lazy{
                     $res[$key] = $params[$value->name];
                 }
                 else{
-                    $res[$key] = null;
+                    $res[$key] = $value->getDefaultValue();
                 }
             }
             return call_user_func_array(array($class, $this->name), $res);
