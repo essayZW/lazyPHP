@@ -199,7 +199,7 @@ class AppDebug{
         $fileCodeArray[$this->errorLine - 1] = '<p class="error-line" title="' . $error . '"><span class="line-num">' . $this->errorLine . '</span>' . $fileCodeArray[$this->errorLine - 1]. '</p>';
         $errorCodeString = implode("", array_slice($fileCodeArray, $start, $end - $start + 1));
         // 错误环境信息
-        $envInfo = htmlspecialchars(json_encode($this->environment, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));  //获得格式化的JSON信息
+        $envInfo = htmlspecialchars(json_encode($this->environment, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));  //获得格式化的JSON信息
         // 获取调用栈
         $e = new \Exception;
         $traceInfo = htmlspecialchars($this->errorTrace);
