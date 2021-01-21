@@ -1,10 +1,5 @@
 <?php
-/**
- * 应用全局变量注册
- * 一些环境的注册
- */
 
-//全局变量定义
 // 以下变量都是绝对路径
 define("__APP_PATH__", __ROOT_PATH__ . '/app/');                //应用目录
 define("__LOAD_PATH__", __MAIN_PATH__ . '/lazy/');              //应用加载核心文件的目录
@@ -15,8 +10,7 @@ define("__USER_COMMON__", __APP_PATH__ . '/common.php');        //用户公用�
 define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件目录
 define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
 define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库目录
-//加载核心函数库，以及类
-// 先加载通用方法文件
+
 require_once(__LOAD_PATH__ . '/common.php');
 
 // 采用自动加载方式
@@ -49,11 +43,8 @@ define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . 'static/');         //静态�
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
-//导入配置文件
 lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
-// 设置默认时区
 date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
-//根据__APP_DEBUG__ 开启或者关闭应用调试模式
 $LAZYDebug = new lazy\AppDebug();
 $LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
           ->errorRun(lazy\LAZYConfig::get('app_error_run'));
@@ -61,11 +52,9 @@ $LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
 ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
-//引入用户自定义函数文件
 require_once(__USER_COMMON__);
 foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
     require_once($value);
 }
 
-// 初始化cookie类
 lazy\Cookie::init(lazy\LAZYConfig::get('cookie'));

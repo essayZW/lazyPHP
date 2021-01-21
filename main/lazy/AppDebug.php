@@ -20,58 +20,48 @@ class AppDebug{
     private $lineNum = 9;       //显示错误行上下的代码行数
 
     private $errorRun = false;          //发生致命错误后是否继续运行
+    static private $debug = false;
     /**
-     * 捕获所有报错，转为自己处理
-     * @return [type] [description]
+     * 设置系统异常处理
      */
     public function getHandler($debug = false){
-        if($debug == false){
-            //开启了debug模式
-            set_error_handler(function ($error_no, $error_msg, $error_file, $error_line) {
-                if(method_exists($this, 'errorLog')){
-                    // 如果该类存在日志记录功能
-                    $this->errorLog($error_no, $error_msg, $error_file, $error_line);
-                }
-                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
-                return true;
-            }, E_ALL | E_STRICT);
-            set_exception_handler(function($exception){
-                if (method_exists($this, 'errorLog')) {
-                    $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
-                }
-                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
-                return true;
-            });
-            // 设置捕获异常
-            return $this;
-        }
-        // 未开启debug模式
+        self::$debug = $debug;
         set_error_handler(function ($error_no, $error_msg, $error_file, $error_line, $env_info) {
             if(method_exists($this, 'errorLog')){
-                // 如果该类存在日志记录功能
                 $this->errorLog($error_no, $error_msg, $error_file, $error_line);
             }
-            $this->setLevel($error_no)
-                ->setErrorMsg($error_msg)
-                ->setErrorFile($error_file)
-                ->setErrorLine($error_line)
-                ->setErrorEnv(array_merge($env_info, get_defined_vars()))
-                ->setErrorTrace((new \Exception)->getTraceAsString());
-            $this->throwError($this->build());
-            return true;
+            if(self::$debug == false) {
+                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
+                return true;
+            }
+            else {
+                $this->setLevel($error_no)
+                    ->setErrorMsg($error_msg)
+                    ->setErrorFile($error_file)
+                    ->setErrorLine($error_line)
+                    ->setErrorEnv(array_merge($env_info, get_defined_vars()))
+                    ->setErrorTrace((new \Exception)->getTraceAsString());
+                $this->throwError($this->build());
+                return true;
+            }
         }, E_ALL | E_STRICT);
-        set_exception_handler(function ($exception) {
-            if(method_exists($this, 'errorLog')){
+        set_exception_handler(function($exception){
+            if (method_exists($this, 'errorLog')) {
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
-            $debug = new \lazy\AppDebug();
-            $debug->throwError($debug->setLevel(E_ERROR)
-                ->setErrorEnv(get_defined_vars())
-                ->setErrorFile($exception->getFile())
-                ->setErrorLine($exception->getLine())
-                ->setErrorMsg($exception->getMessage())
-                ->setErrorTrace($exception->getTraceAsString())
-                ->build());
+            if(self::$debug == false) {
+                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
+                return true;
+            }
+            else {
+                $this->throwError($this->setLevel(E_ERROR)
+                    ->setErrorEnv(get_defined_vars())
+                    ->setErrorFile($exception->getFile())
+                    ->setErrorLine($exception->getLine())
+                    ->setErrorMsg($exception->getMessage())
+                    ->setErrorTrace($exception->getTraceAsString())
+                    ->build());
+            }
         });
         return $this;
     }
@@ -199,9 +189,8 @@ class AppDebug{
         $fileCodeArray[$this->errorLine - 1] = '<p class="error-line" title="' . $error . '"><span class="line-num">' . $this->errorLine . '</span>' . $fileCodeArray[$this->errorLine - 1]. '</p>';
         $errorCodeString = implode("", array_slice($fileCodeArray, $start, $end - $start + 1));
         // 错误环境信息
-        $envInfo = htmlspecialchars(json_encode($this->environment, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));  //获得格式化的JSON信息
+        $envInfo = htmlspecialchars(json_encode($this->environment, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         // 获取调用栈
-        $e = new \Exception;
         $traceInfo = htmlspecialchars($this->errorTrace);
         return "<!DOCTYPE html><html><head><title>Error!</title><meta charset=\"UTF-8\"><style>
                 *{padding:0px;margin:0px;}.line-num{display:inline-block;border-right:1px solid black;width:28px;padding-left:5px;margin-right:5px;}.error-line{background:#F79A9A}body{padding:10px}html{width:100%;height:100%}div{margin-bottom:20px;width:100%;height:30px;line-height:30px}.error-info{background:#F79A9A}pre{background:rgb(243,243,243);border:1px solid black;min-height:30px;width:100%;overflow:auto;margin-bottom:20px;}p{width:100%;height:25px;line-height:25px}p>span{display:inline-block;height:100%;line-height:25px;}.env-info{background:white;font-size:110%;}.trace{font-size:105%;line-height:25px;font-family:simhei;padding-left:3px;}</style></head><body><h1>Error!</h1><br><div>错误信息：</div><h3 class=\"error-info\">$error</h3><br><div>错误级别：$this->levelTips</div><div>错误文件位置：$this->errorFile</div><div>错误代码位置：</div><pre>$errorCodeString</pre><div>堆栈调用信息:</div><pre class=\"trace\">$traceInfo</pre><div>环境变量等信息：</div><pre class=\"env-info\">$envInfo</pre></body></html>";

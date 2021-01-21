@@ -131,7 +131,7 @@
             }
             else{
                 // 验证方法不存在
-                trigger_error('Method not exists', E_USER_NOTICE);
+                trigger_error('Method not exists');
             }
             $param = array_merge([$v], array_slice($value, 1, count($value) - 1));
             if(!call_user_func_array($callMethod, $param)){

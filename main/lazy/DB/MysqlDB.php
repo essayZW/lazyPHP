@@ -3,6 +3,7 @@
  * 提供MySQL数据库的基本的增删改查功能
  */
 namespace lazy\DB;
+use Exception;
 class MysqlDB{
     private $config;            // 配置数组
     private $hostname;          // 服务器名
@@ -161,7 +162,7 @@ class MysqlDB{
         $stmt = mysqli_prepare($this->con, $sql_template);
         if(!$stmt){
             // sql预处理错误
-            trigger_error('SQL Prepare Error!', E_USER_WARNING);
+            throw new Exception('SQL Prepare Error!');
         }
         $type = '';
         foreach ($dataArr as $key => $value) {
