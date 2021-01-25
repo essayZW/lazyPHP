@@ -1,7 +1,4 @@
 <?php
-/**
- * 路由的操作类
- */
 
 namespace lazy;
 

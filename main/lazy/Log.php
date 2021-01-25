@@ -1,7 +1,5 @@
 <?php
-/**
- * 日志相关操作类
- */
+
 namespace lazy;
 class Log{
     private static $logPath;
@@ -10,7 +8,34 @@ class Log{
     private static $autoClearFlag;
     private static $maxMounth;
     private static $clearFlag = false;
-    use \lazy\fileOperation;
+
+
+    /**
+     * 删除文件夹及其下面所有的文件
+     */
+    public static function deldir($dir) {
+        //先删除目录下的文件：
+        $dh = opendir($dir);
+        while ($file = readdir($dh)) {
+            if($file != "." && $file!="..") {
+                $fullpath = $dir."/".$file;
+                if(!is_dir($fullpath)) {
+                    unlink($fullpath);
+                } else {
+                    self::deldir($fullpath);
+                }
+            }
+        }
+        closedir($dh);
+
+        //删除当前文件夹：
+        if(rmdir($dir)) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
 
     /**
      * 删除month个月之前的所有日志

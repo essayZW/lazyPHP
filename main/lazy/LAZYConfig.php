@@ -1,7 +1,4 @@
 <?php
-/**
- * 读取配置文件的值
- */
 
 namespace lazy;
 class LAZYConfig{

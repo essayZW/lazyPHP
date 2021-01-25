@@ -1,7 +1,5 @@
 <?php
-/**
- * cookie以及session操作相关类
- */
+
 namespace lazy;
 class Cookie{
     static private $settings = [

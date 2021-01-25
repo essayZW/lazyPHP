@@ -105,5 +105,10 @@ if(\file_exists($path)){
 // 第一次保存日志，防止之后运行中出现崩溃日志丢失
 Log::save();
 // 调用对应的控制器方法并将结果输出
-print_r(Controller::callMethod($module, $controller, $method));
+$returnPrintMethod = LAZYConfig::get('method_return_print');
+$res = Controller::callMethod($module, $controller, $method);
+if(!function_exists($returnPrintMethod)) {
+    $returnPrintMethod = 'print_r';
+}
+call_user_func($returnPrintMethod, $res);
 Log::save();

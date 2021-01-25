@@ -1,9 +1,6 @@
 <?php
-/**
- * 应用debug信息处理类
- */
-namespace lazy;
 
+namespace lazy;
 class AppDebug{
     // 使用框架提供的log接口记录日志
     use \lazy\logMethod;
@@ -19,42 +16,40 @@ class AppDebug{
 
     private $lineNum = 9;       //显示错误行上下的代码行数
 
-    private $errorRun = false;          //发生致命错误后是否继续运行
-    static private $debug = false;
+    private static $errorRun = false;          //发生致命错误后是否继续运行
+    private static $debug = false;
     /**
      * 设置系统异常处理
      */
     public function getHandler($debug = false){
         self::$debug = $debug;
-        set_error_handler(function ($error_no, $error_msg, $error_file, $error_line, $env_info) {
+        set_error_handler(function ($error_no, $error_msg, $error_file, $error_line) {
             if(method_exists($this, 'errorLog')){
                 $this->errorLog($error_no, $error_msg, $error_file, $error_line);
             }
             if(self::$debug == false) {
                 $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
-                return true;
             }
             else {
                 $this->setLevel($error_no)
                     ->setErrorMsg($error_msg)
                     ->setErrorFile($error_file)
                     ->setErrorLine($error_line)
-                    ->setErrorEnv(array_merge($env_info, get_defined_vars()))
+                    ->setErrorEnv(get_defined_vars())
                     ->setErrorTrace((new \Exception)->getTraceAsString());
                 $this->throwError($this->build());
-                return true;
             }
-        }, E_ALL | E_STRICT);
+            return true;
+        });
         set_exception_handler(function($exception){
             if (method_exists($this, 'errorLog')) {
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
             if(self::$debug == false) {
                 $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
-                return true;
             }
             else {
-                $this->throwError($this->setLevel(E_ERROR)
+                $this->throwError($this->setLevel($exception->getCode())
                     ->setErrorEnv(get_defined_vars())
                     ->setErrorFile($exception->getFile())
                     ->setErrorLine($exception->getLine())
@@ -62,6 +57,7 @@ class AppDebug{
                     ->setErrorTrace($exception->getTraceAsString())
                     ->build());
             }
+            return true;
         });
         return $this;
     }
@@ -199,11 +195,10 @@ class AppDebug{
     /**
      * 抛出一个异常
      * @param  string $info 异常信息
-     * @return [type]       [description]
      */
     public function throwError($info = ''){
         http_response_code(500);        //设置HTTP状态值
-        if($this->errorRun){
+        if(self::$errorRun){
             ob_get_clean();
             echo $info;
         }
@@ -215,10 +210,9 @@ class AppDebug{
     /**
      * 发生非致命错误后是否继续运行
      * @param  boolean $error_run [description]
-     * @return [type]             [description]
      */
-    public function errorRun($error_run = true){
-        $this->errorRun = $error_run;
+    public static function errorRun($error_run = true){
+        self::$errorRun = $error_run;
     }
 
 }

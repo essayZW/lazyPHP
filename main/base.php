@@ -36,9 +36,9 @@ spl_autoload_register(function($className) {
     return false;
 });
 
-// 定义入口文件相对于网站根目录的相对目录
+// 入口文件相对于网站根目录的相对目录
 define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\Request::wwwroot(), __ROOT_PATH__) . '/');
-// 定义静态文件目录，是相对路径
+// 静态文件目录，是相对路径
 define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . 'static/');         //静态资源目录
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录

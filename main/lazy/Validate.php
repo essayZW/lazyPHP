@@ -1,7 +1,4 @@
 <?php
-/**
- * 验证器，可以验证数据的合法性
- */
 
  namespace lazy;
  class Validate{

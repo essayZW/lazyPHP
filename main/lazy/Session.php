@@ -1,4 +1,5 @@
 <?php
+
 namespace lazy{
     class Session{
         /**

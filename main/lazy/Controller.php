@@ -1,7 +1,4 @@
 <?php
-/**
- * 控制器的相关操作类
- */
 
 namespace lazy;
 
@@ -11,15 +8,16 @@ class Controller extends View{
     protected $validate;
     private $pageCode = '<!DOCTYPE html><html><head><title>{$title}</title><meta charset="utf-8"><script type="text/javascript">window.onload=function(){let endTime={$time};let now=0;let url="{$url}";let block=document.querySelector("#time");let jump=function(){now++;show(endTime-now,block);if(now<endTime){setTimeout(jump,1000)}else{window.location.href=url}};show(endTime,block);setTimeout(jump,1000);function show(num,position){position.innerHTML="还有"+num+"s跳转到:   "+url}};</script><style type="text/css">*{margin:0px;padding:0px}a,a:hover{text-decoration:none}html,body{width:100%;height:100%}h1{padding-left:20px;font-family:simhei,宋体;margin-top:50px;margin-bottom:10px}#time,#click,pre{display:block;padding-left:20px;margin-bottom:10px}#click{width:200px}pre{width:90%;min-height:200px;margin-top:10px;max-width:300px;font-size:110%;word-break:break-word;white-space:pre-wrap}</style></head><body><h1>{$word}</h1><div id="time"></div><a href="{$url}"id="click">点击立即跳转!</a>{if condition="$info != """}<pre>{$info}</pre>{endif/}</body></html>';
     public function __construct(){
-        // 实例化一个验证器
+        parent::__construct();
         $this->validate = new Validate();
         $this->allowCode(\lazy\LAZYConfig::get('fetch_allow_code'));
         $this->systemVar = [
-            '__CSS__'           => \str_replace('//', '/', __CSS__),
-            '__JS__'            => \str_replace('//', '/', __JS__),
-            '__IMAGE__'         => \str_replace('//', '/', __IMAGE__),
-            '__STATIC_PATH__'   => \str_replace('//', '/', __STATIC_PATH__),
-            '__ROOT_PATH__'     => \str_replace('//', '/', __RELATIVE_ROOT_PATH__),
+            // 因这些常量最后一个是 / 因此，需要去掉方便前端模板使用
+            '__CSS__'           => substr(\str_replace('//', '/', __CSS__), 0, -1),
+            '__JS__'            => substr(\str_replace('//', '/', __JS__), 0, -1),
+            '__IMAGE__'         => substr(\str_replace('//', '/', __IMAGE__), 0, -1),
+            '__STATIC_PATH__'   => substr(\str_replace('//', '/', __STATIC_PATH__), 0, -1),
+            '__ROOT_PATH__'     => substr(\str_replace('//', '/', __RELATIVE_ROOT_PATH__), 0, -1),
             'LazyRequest'       => [
                 'get'       => \lazy\Request::get(),
                 'post'      => \lazy\Request::post(),
@@ -30,7 +28,6 @@ class Controller extends View{
             ]
         ];
         $this->specialChar(\lazy\LAZYConfig::get('fetch_specialchars'));
-        parent::__construct();
     }
     /**
      * 调用一个其余模块的控制器的方法
