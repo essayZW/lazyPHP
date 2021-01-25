@@ -7,7 +7,6 @@ class LAZYConfig{
     /**
      * 读取指定配置的值
      * @param  string $name 配置名称
-     * @return [type]       [description]
      */
     public static function get($name = ''){
         if($name == ''){
@@ -30,7 +29,6 @@ class LAZYConfig{
         $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
                   ->errorRun(LAZYConfig::get('app_error_run'));
         ini_set('display_errors', LAZYConfig::get('app_debug'));
-        require_once(__USER_COMMON__);
         foreach (LAZYConfig::get('extra_file_list') as $value) {
             require_once($value);
         }
@@ -39,7 +37,6 @@ class LAZYConfig{
 
     /**
      * 加载配置文件
-     * @return [type] [description]
      */
     public static function load($config){
         if(gettype($config) != gettype([])) return;
@@ -50,8 +47,8 @@ class LAZYConfig{
     /**
      * 设置配置项
      *
-     * @param [type] $name
-     * @param [type] $val
+     * @param  $name
+     * @param  $val
      * @return void
      */
     public static function set($name, $val){

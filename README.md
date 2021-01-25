@@ -1,14 +1,8 @@
 ## 1. 框架说明
 
-本框架是仿写的think PHP框架。
+**框架是通过`PATH_INFO`得到请求的模块控制器方法的，所以需要保证服务器支持`	$_SERVER['PATH_INFO']`变量，并且最好支持URL重写功能以隐藏入口文件和关键目录**
 
-连文档也是仿照think PHP5.0看云的文档写的。
-
-目前版本：**1.0.0**
-
-> **框架是通过`PATH_INFO`得到请求的模块控制器方法的，所以需要保证服务器支持`	$_SERVER['PATH_INFO']`变量，并且最好支持URL重写功能以隐藏入口文件和关键目录**
->
-> 另外框架需求PHP版本在5.6及以上
+另外框架需求PHP版本在5.6及以上
 
 ## 2. 目录结构
 
@@ -110,8 +104,8 @@ define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //im
 
 ```php
 // 采用自动加载方式
-// 核心文件自动加载
 spl_autoload_register(function($className) {
+    // 核心文件自动加载
     $path = __MAIN_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -119,10 +113,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 普通文件自动加载
-spl_autoload_register(function($className) {
+    // 普通文件自动加载
     $path = __ROOT_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -130,10 +121,7 @@ spl_autoload_register(function($className) {
         require_once($path);
         return true;
     }
-    return false;
-});
-// 扩展文件自动加载
-spl_autoload_register(function($className) {
+    // 扩展文件自动加载
     $path = __EXTEND_PATH__ . $className . '.php';
     $path = str_replace('\\', '/', $path);
     $path = str_replace('//', '/', $path);
@@ -143,27 +131,30 @@ spl_autoload_register(function($className) {
     }
     return false;
 });
-
 ```
 
 ### 4. 配置加载
 
-导入配置文件
+导入默认主配置文件
 
 ```php
-//导入配置文件
 lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
 ```
 
-### 5. 时区配置
+根据配置文件中的项目初始化应用
 
-根据配置文件配置时区，默认为`RPC`，其在配置文件中定义
+```php
+$LAZYDebug = new AppDebug();
+$LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
+    ->errorRun(LAZYConfig::get('app_error_run'));
+ini_set('display_errors', LAZYConfig::get('app_debug'));
+foreach (LAZYConfig::get('extra_file_list') as $value) {
+    require_once($value);
+}
+Cookie::init(LAZYConfig::get('cookie'));
+```
 
-   ```php
-date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
-   ```
-
-### 6. 注册错误以及异常机制
+### 5. 注册错误以及异常机制
 
 通过`lazy\debug\AppDebug`注册错误处理，并根据配置文件配置处理机制，并设置错误日志存储
 
@@ -178,11 +169,11 @@ ini_set('error_log', __LOG_PATH__ . '/error.log');
 ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
 ```
 
-### 7. 加载路由列表
+### 6. 加载路由列表
 
 加载应用定义的路由列表，根据`PATH_INFO`匹配并解析新的URL
 
-### 8. 解析URL
+### 7. 解析URL
 
 对请求的URL进行解析，得到请求的模块、控制器、方法，检测请求方法是否合法，并输出结果
 
@@ -204,10 +195,14 @@ Request::$rcontroller = $controller;
 Request::$rmethod = $method;
 ```
 
+### 8. 配置项二次加载
+
+若存在模块配置文件，则加载模块配置文件并覆盖主配置文件中的相同项
+
 ### 9. 响应输出
 
-控制器的方法返回的值将被`print_r`函数输出
+控制器的方法返回的值将默认被`print_r`函数输出
 
 ### 10. 日志保存
 
-    将过程中记录到内存中的日志写入文件。
+将过程中记录到内存中的日志写入文件。

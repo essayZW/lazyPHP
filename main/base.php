@@ -11,7 +11,10 @@ define("__TEMP_PATH__", __ROOT_PATH__ . '/runtime/temp/');      //临时文件�
 define("__LOG_PATH__", __ROOT_PATH__ . '/runtime/log/');        //日志文件目录
 define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库目录
 
+// 核心通用函数类文件
 require_once(__LOAD_PATH__ . '/common.php');
+// 默认用户扩展函数类文件
+require_once(__USER_COMMON__);
 
 // 采用自动加载方式
 spl_autoload_register(function($className) {

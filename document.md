@@ -143,22 +143,26 @@ spl_autoload_register(function($className) {
 
 ### 4. 配置加载
 
-导入配置文件
+导入默认主配置文件
 
 ```php
-//导入配置文件
 lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
 ```
 
-### 5. 时区配置
+根据配置文件中的项目初始化应用
 
-根据配置文件配置时区，默认为`RPC`，其在配置文件中定义
+```php
+$LAZYDebug = new AppDebug();
+$LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
+    ->errorRun(LAZYConfig::get('app_error_run'));
+ini_set('display_errors', LAZYConfig::get('app_debug'));
+foreach (LAZYConfig::get('extra_file_list') as $value) {
+    require_once($value);
+}
+Cookie::init(LAZYConfig::get('cookie'));
+```
 
-   ```php
-date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
-   ```
-
-### 6. 注册错误以及异常机制
+### 5. 注册错误以及异常机制
 
 通过`lazy\debug\AppDebug`注册错误处理，并根据配置文件配置处理机制，并设置错误日志存储
 
@@ -173,11 +177,11 @@ ini_set('error_log', __LOG_PATH__ . '/error.log');
 ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
 ```
 
-### 7. 加载路由列表
+### 6. 加载路由列表
 
 加载应用定义的路由列表，根据`PATH_INFO`匹配并解析新的URL
 
-### 8. 解析URL
+### 7. 解析URL
 
 对请求的URL进行解析，得到请求的模块、控制器、方法，检测请求方法是否合法，并输出结果
 
@@ -199,13 +203,17 @@ Request::$rcontroller = $controller;
 Request::$rmethod = $method;
 ```
 
+### 8. 配置项二次加载
+
+若存在模块配置文件，则加载模块配置文件并覆盖主配置文件中的相同项
+
 ### 9. 响应输出
 
-控制器的方法返回的值将被`print_r`函数输出
+控制器的方法返回的值将默认被`print_r`函数输出
 
 ### 10. 日志保存
 
-    将过程中记录到内存中的日志写入文件。
+将过程中记录到内存中的日志写入文件。
 
 # 二. 配置
 
@@ -780,11 +788,11 @@ $model = new \app\index\model\Index();
 
 |        变量名        |                           值或说明                           |
 | :------------------: | :----------------------------------------------------------: |
-|     \_\_CSS\_\_      |                    `project\static\css\`                     |
-|      \_\_JS\_\_      |                     `project\static\js\`                     |
-|    \_\_IMAGE\_\_     |                   `project\static\image\`                    |
-| \_\_STATIC\_PATH\_\_ |                      `project\static\`                       |
-|  \_\_ROOT\_PATH\_\_  |                          `project\`                          |
+|     \_\_CSS\_\_      |                     `project\static\css`                     |
+|      \_\_JS\_\_      |                     `project\static\js`                      |
+|    \_\_IMAGE\_\_     |                    `project\static\image`                    |
+| \_\_STATIC\_PATH\_\_ |                       `project\static`                       |
+|  \_\_ROOT\_PATH\_\_  |                          `project`                           |
 |     LazyRequest      | 一个数组，包含了`GET`、`POST`、`FILES`、`URL`、`HOST`、`REFERER`信息 |
 
 > 对LazyRequest的说明
