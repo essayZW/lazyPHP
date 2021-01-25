@@ -43,18 +43,7 @@ define("__STATIC_PATH__", __RELATIVE_ROOT_PATH__ . 'static/');         //静态�
 define("__CSS__", __STATIC_PATH__ . '/css/');                               //css目录
 define("__JS__", __STATIC_PATH__ . '/js/');                                 //js目录
 define("__IMAGE__", __STATIC_PATH__ . '/image/');                           //image目录
-lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
-date_default_timezone_set(lazy\LAZYConfig::get('default_timezone'));
-$LAZYDebug = new lazy\AppDebug();
-$LAZYDebug->getHandler(lazy\LAZYConfig::get('app_debug'))
-          ->errorRun(lazy\LAZYConfig::get('app_error_run'));
-// 设置报错日志存储
 ini_set('log_errors', true);
 ini_set('error_log', __LOG_PATH__ . '/error.log');
-ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
-require_once(__USER_COMMON__);
-foreach (lazy\LAZYConfig::get('extra_file_list') as $value) {
-    require_once($value);
-}
-
-lazy\Cookie::init(lazy\LAZYConfig::get('cookie'));
+lazy\LAZYConfig::load(require_once(__LAZY_CONFIG__));
+lazy\LAZYConfig::init();

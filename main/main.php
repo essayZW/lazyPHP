@@ -94,13 +94,7 @@ Request::$rmethod = $method;
 $path = changeFilePath(__MODULE_PATH__. '/config.php');
 if(\file_exists($path)){
     LAZYConfig::load(require_once($path));
-    Log::log('Import module config file: '. $path);
-    $LAZYDebug = new AppDebug();
-    $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
-        ->errorRun(LAZYConfig::get('app_error_run'));
-    ini_set('display_errors', LAZYConfig::get('app_debug'));
-    // 重新加载cookie设置
-    Cookie::init(LAZYConfig::get('cookie'));
+    LAZYConfig::init();
 }
 // 第一次保存日志，防止之后运行中出现崩溃日志丢失
 Log::save();
