@@ -53,7 +53,7 @@ class Cookie{
      */
     public static function get($name){
         $name = self::$settings['prefix'] . $name;
-        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : '';
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
     }
 
     /**
@@ -70,7 +70,7 @@ class Cookie{
     /**
      * 删除一个cookie
      *
-     * @param [type] $name
+     * @param  $name
      * @return void
      */
     public static function delete($name){

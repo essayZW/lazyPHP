@@ -7,7 +7,7 @@
  class Validate{
     private $ruleList;          // 验证规则数组
     private $msgList;
-    
+
     private $errorMsg;          // 上次验证的错误信息
     private $isBatch;           // 是否批量验证
 
@@ -348,7 +348,7 @@
         }
         return false;
     }
-    
+
     /**
      * 某个值是不是必须
      */

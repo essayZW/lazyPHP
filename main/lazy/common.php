@@ -49,7 +49,7 @@ namespace lazy{
         // 关闭文件夹
         closedir($handler);
     }
-    
+
 
     /**
      * 获得相对路径, 得到b相对于a的相对路径
@@ -120,7 +120,7 @@ namespace lazy{
                 }
             }
             closedir($dh);
-            
+
             //删除当前文件夹：
             if(rmdir($dir)) {
                 return true;
@@ -223,5 +223,5 @@ namespace lazy{
             return $arr;
         }
     }
-    
+
 }

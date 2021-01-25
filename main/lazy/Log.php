@@ -63,7 +63,7 @@ class Log{
     /**
      * 写入一条日志
      *
-     * @param [type] $info
+     * @param  $info
      * @param string $type
      * @return void
      */
@@ -113,7 +113,7 @@ class Log{
     /**
      * 写入错误日志
      *
-     * @param [type] $info
+     * @param  $info
      * @return void
      */
     public static function error($info){
@@ -123,7 +123,7 @@ class Log{
     /**
      * 写入普通日志
      *
-     * @param [type] $info
+     * @param  $info
      * @return void
      */
     public static function info($info){
@@ -132,7 +132,7 @@ class Log{
     /**
      * 写入警告
      *
-     * @param [type] $info
+     * @param  $info
      * @return void
      */
     public static function notice($info){
@@ -150,7 +150,7 @@ class Log{
     /**
      * 写入debug日志
      *
-     * @param [type] $info
+     * @param  $info
      * @return void
      */
     public static function debug($info){
@@ -178,7 +178,7 @@ class Log{
     /**
      * 写入带有时间的日志
      *
-     * @param [type] $info
+     * @param  $info
      * @return void
      */
     public static function time($info){

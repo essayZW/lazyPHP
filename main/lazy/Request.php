@@ -1,7 +1,5 @@
 <?php
-/**
- * 关于网络请求参数表单的获取操作的类
- */
+
 namespace lazy;
 class Request{
     public static $pathParamStr;
@@ -15,13 +13,13 @@ class Request{
     public static $rmethod;
     /**
      * 返回本次请求的请求方法
-     * @return string 请求方法，若没有则返回false
+     * @return string 请求方法，若没有则返回null
      */
     public static function getMethod(){
         if(isset($_SERVER['REQUEST_METHOD'])){
             return $_SERVER['REQUEST_METHOD'];
         }
-        return false;
+        return null;
     }
 
 
@@ -29,7 +27,7 @@ class Request{
      * 判断请求方法是否在支持列表中
      * @param  string  $method 请求方法
      * @param  mixed  $list   支持的列表
-     * @return boolean         [description]
+     * @return boolean
      */
     public static function isExists($method, $list = 'ALL'){
         if(gettype($list) == gettype('')){
@@ -47,9 +45,9 @@ class Request{
      * @param mixed $name 需要得到的具体数据名
      * @return mixed get表单
      */
-    public static function get($name = false){
-        if($name != false){
-            return isset($_GET[$name]) ? $_GET[$name] : false;
+    public static function get($name = null){
+        if($name != null){
+            return isset($_GET[$name]) ? $_GET[$name] : null;
         }
         return $_GET;
     }
@@ -58,27 +56,27 @@ class Request{
      * 得到所有的post数据
      * @return mixed post表单
      */
-    public static function post($name = false){
-        if($name != false){
-            return isset($_POST[$name]) ? $_POST[$name] : false;
+    public static function post($name = null){
+        if($name != null){
+            return isset($_POST[$name]) ? $_POST[$name] : null;
         }
         return $_POST;
     }
 
     /**
      * 得到所有的文件表单信息
-     * @return mixed [description]
+     * @return mixed
      */
-    public static function files($name = false){
-        if($name != false){
-            return isset($_FILES[$name]) ? $_FILES[$name] : false;
+    public static function files($name = null){
+        if($name != null){
+            return isset($_FILES[$name]) ? $_FILES[$name] : null;
         }
         return $_FILES;
     }
 
     /**
      * 得到所有的表单信息
-     * @return array [description]
+     * @return array
      */
     public static function params(){
         return array_merge(self::get(), self::post(), self::files());
@@ -86,12 +84,12 @@ class Request{
 
     /**
      * 获得制定名字的参数值
-     * @param  string $name [description]
-     * @return [type]       [description]
+     * @param  string $name
+     * @return
      */
     public static function param($name = ''){
         if(!array_key_exists($name, self::params())){
-            return false;
+            return null;
         }
         return self::params()[$name];
     }
@@ -99,7 +97,7 @@ class Request{
      * 判断指定方法的表单名是否存在
      * @param  string  $name   表单名
      * @param  string  $method 方法名
-     * @return boolean         [description]
+     * @return boolean
      */
     public static function has($name = '', $method = ''){
         $method = strtoupper($method);
@@ -121,14 +119,14 @@ class Request{
 
     /**
      * 得到请求的url
-     * @return [type] [description]
+     * @return
      */
     public static function url(){
         return $_SERVER['PHP_SELF'];
     }
     /**
      * 得到请求的host
-     * @return [type] [description]
+     * @return
      */
     public static function host(){
         return $_SERVER['HTTP_HOST'];
@@ -142,7 +140,7 @@ class Request{
     }
     /**
      * 得到pathinfo中的信息
-     * @return [type] [description]
+     * @return
      */
     public static function pathParam(){
         return self::$pathParamStr;
@@ -150,25 +148,25 @@ class Request{
 
     /**
      * 得到请求的ueer-agent头
-     * @return [type] [description]
+     * @return
      */
     public static function referer(){
-        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : false;
+        return isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
     }
     /**
      * 判断是不是IP地址
      *
-     * @param [type] $str
+     * @param  $str
      * @return boolean
      */
     public static function is_ip($str){
         $ip=explode('.',$str);
-        for($i=0;$i<count($ip);$i++){  
-            if($ip[$i]>255){  
-                return false;  
-            }  
-        }  
-        return preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',$str);  
+        for($i=0;$i<count($ip);$i++){
+            if($ip[$i]>255){
+                return false;
+            }
+        }
+        return preg_match('/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/',$str);
     }
     /**
      * 得到请求者的IP地址
@@ -202,7 +200,7 @@ class Request{
         return self::$module;
     }
 
-    
+
     public static function controller($flag = true){
         if(!$flag) return self::$rcontroller;
         return self::$controller;
@@ -246,7 +244,6 @@ class Request{
     /**
      * 得到某一个请求头的值
      * @param  string $name 请求头的名称
-     * @return [type]       [description]
      */
     public static function getRequestHead($name){
         if($name == '') return false;
@@ -254,7 +251,7 @@ class Request{
         if(array_key_exists(strtolower($name), $res)){
             return $res[strtolower($name)];
         }
-        return false;
+        return null;
     }
 
     /**
@@ -274,7 +271,7 @@ class Request{
     }
     /**
      * 判断是不是手机端的请求
-     * @return boolean [description]
+     * @return boolean
      */
     public static function isMobile(){
         //来源于：https://blog.csdn.net/misakaqunianxiatian/article/details/52193356
