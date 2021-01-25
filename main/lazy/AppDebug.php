@@ -1,12 +1,13 @@
 <?php
 
 namespace lazy;
+
 class AppDebug{
     // 使用框架提供的log接口记录日志
     use \lazy\logMethod;
 
     // 不显示变量列表
-    public $uninclude = ['debug', 'this', 'errorLine', 'errorMessage', 'levelTips', 'errorFile', 'environment', 'errorTrace', 'error_no', 'error_msg', 'error_file', 'error_line', 'env_info'];
+    public $uninclude = ['this'];
     private $levelTips;
     private $errorMessage;
     private $errorFile;
@@ -28,7 +29,7 @@ class AppDebug{
                 $this->errorLog($error_no, $error_msg, $error_file, $error_line);
             }
             if(self::$debug == false) {
-                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
+                $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
             }
             else {
                 $this->setLevel($error_no)
@@ -46,10 +47,11 @@ class AppDebug{
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
             if(self::$debug == false) {
-                $this->throwError("<!DOCTYPE html><head><title>Error</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>出现一个错误</div></body>");
+                $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
             }
             else {
-                $this->throwError($this->setLevel($exception->getCode())
+                $exceptionClassName = (new \ReflectionClass($exception))->getShortName();
+                $this->throwError($this->setLevel($exception->getCode(), $exceptionClassName)
                     ->setErrorEnv(get_defined_vars())
                     ->setErrorFile($exception->getFile())
                     ->setErrorLine($exception->getLine())
@@ -66,7 +68,7 @@ class AppDebug{
      * 设置报错级别
      * @param integer $errorNo 错误级别
      */
-    public function setLevel($errorNo){
+    public function setLevel($errorNo, $errorName = 'Unkonw Type Error'){
         switch ($errorNo) {
             case E_ERROR:
                 $this->levelTips = 'PHP Error';
@@ -96,7 +98,7 @@ class AppDebug{
                 $this->levelTips = 'PHP Strict';
                 break;
             default:
-                $this->levelTips = 'Unkonw Type Error';
+                $this->levelTips = $errorName;
                 break;
         }
         return $this;
@@ -188,8 +190,8 @@ class AppDebug{
         $envInfo = htmlspecialchars(json_encode($this->environment, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         // 获取调用栈
         $traceInfo = htmlspecialchars($this->errorTrace);
-        return "<!DOCTYPE html><html><head><title>Error!</title><meta charset=\"UTF-8\"><style>
-                *{padding:0px;margin:0px;}.line-num{display:inline-block;border-right:1px solid black;width:28px;padding-left:5px;margin-right:5px;}.error-line{background:#F79A9A}body{padding:10px}html{width:100%;height:100%}div{margin-bottom:20px;width:100%;height:30px;line-height:30px}.error-info{background:#F79A9A}pre{background:rgb(243,243,243);border:1px solid black;min-height:30px;width:100%;overflow:auto;margin-bottom:20px;}p{width:100%;height:25px;line-height:25px}p>span{display:inline-block;height:100%;line-height:25px;}.env-info{background:white;font-size:110%;}.trace{font-size:105%;line-height:25px;font-family:simhei;padding-left:3px;}</style></head><body><h1>Error!</h1><br><div>错误信息：</div><h3 class=\"error-info\">$error</h3><br><div>错误级别：$this->levelTips</div><div>错误文件位置：$this->errorFile</div><div>错误代码位置：</div><pre>$errorCodeString</pre><div>堆栈调用信息:</div><pre class=\"trace\">$traceInfo</pre><div>环境变量等信息：</div><pre class=\"env-info\">$envInfo</pre></body></html>";
+        return "<!DOCTYPE html><html><head><title>An error occurred</title><meta charset=\"UTF-8\"><style>
+                *{padding:0px;margin:0px;}.line-num{display:inline-block;border-right:1px solid black;width:28px;padding-left:5px;margin-right:5px;}.error-line{background:#F79A9A}body{padding:10px}html{width:100%;height:100%}div{margin-bottom:20px;width:100%;height:30px;line-height:30px}.error-info{background:#F79A9A}pre{background:rgb(243,243,243);border:1px solid black;min-height:30px;width:100%;overflow:auto;margin-bottom:20px;}p{width:100%;height:25px;line-height:25px}p>span{display:inline-block;height:100%;line-height:25px;}.env-info{background:white;font-size:110%;}.trace{font-size:105%;line-height:25px;font-family:simhei;padding-left:3px;}</style></head><body><h1>An error occurred!</h1><br><div>错误信息：</div><h3 class=\"error-info\">$error</h3><br><div>错误级别：$this->levelTips</div><div>错误文件位置：$this->errorFile</div><div>错误代码位置：</div><pre>$errorCodeString</pre><div>堆栈调用信息:</div><pre class=\"trace\">$traceInfo</pre><div>环境变量等信息：</div><pre class=\"env-info\">$envInfo</pre></body></html>";
     }
 
     /**
