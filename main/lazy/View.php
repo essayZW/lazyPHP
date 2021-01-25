@@ -1,9 +1,7 @@
 <?php
 
-/**
- * 模板操作相关类
- */
 namespace lazy;
+use Exception;
 class View{
     private $list;                  //需要渲染的变量即对应值列表
     protected $useCache = true;              //渲染时是否实用缓存
@@ -169,7 +167,7 @@ class View{
      */
     protected function load($filename){
         if(!\file_exists($filename)){
-            \trigger_error('View ' . $filename . ' Not Exists!', E_USER_ERROR);
+            throw new Exception('View ' . $filename . ' Not Exists!');
             return;
         }
         return file_get_contents($filename);

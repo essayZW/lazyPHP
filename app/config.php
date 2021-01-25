@@ -29,6 +29,8 @@ return [
     'error_default_controller'      => 'Error',
     // 当模块不存在的时候的模块
     'error_default_module'          => 'error',
+    // 模块控制器方法返回结果的输出函数定义
+    'method_return_print'           => 'print_r',
 
 
 

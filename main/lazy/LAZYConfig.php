@@ -1,7 +1,4 @@
 <?php
-/**
- * 读取配置文件的值
- */
 
 namespace lazy;
 class LAZYConfig{
@@ -10,7 +7,6 @@ class LAZYConfig{
     /**
      * 读取指定配置的值
      * @param  string $name 配置名称
-     * @return [type]       [description]
      */
     public static function get($name = ''){
         if($name == ''){
@@ -25,10 +21,25 @@ class LAZYConfig{
     }
 
     /**
+     * 根据已经导入的配置初始化框架
+     */
+    public static function init() {
+        date_default_timezone_set(LAZYConfig::get('default_timezone'));
+        $LAZYDebug = new AppDebug();
+        $LAZYDebug->getHandler(LAZYConfig::get('app_debug'))
+                  ->errorRun(LAZYConfig::get('app_error_run'));
+        ini_set('display_errors', LAZYConfig::get('app_debug'));
+        foreach (LAZYConfig::get('extra_file_list') as $value) {
+            require_once($value);
+        }
+        Cookie::init(LAZYConfig::get('cookie'));
+    }
+
+    /**
      * 加载配置文件
-     * @return [type] [description]
      */
     public static function load($config){
+        if(gettype($config) != gettype([])) return;
         foreach ($config as $key => $value) {
             self::$config[$key] = $value;
         }
@@ -36,8 +47,8 @@ class LAZYConfig{
     /**
      * 设置配置项
      *
-     * @param [type] $name
-     * @param [type] $val
+     * @param  $name
+     * @param  $val
      * @return void
      */
     public static function set($name, $val){

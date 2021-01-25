@@ -1,13 +1,10 @@
 <?php
-/**
- * 验证器，可以验证数据的合法性
- */
 
  namespace lazy;
  class Validate{
     private $ruleList;          // 验证规则数组
     private $msgList;
-    
+
     private $errorMsg;          // 上次验证的错误信息
     private $isBatch;           // 是否批量验证
 
@@ -131,7 +128,7 @@
             }
             else{
                 // 验证方法不存在
-                trigger_error('Method not exists', E_USER_NOTICE);
+                trigger_error('Method not exists');
             }
             $param = array_merge([$v], array_slice($value, 1, count($value) - 1));
             if(!call_user_func_array($callMethod, $param)){
@@ -348,7 +345,7 @@
         }
         return false;
     }
-    
+
     /**
      * 某个值是不是必须
      */

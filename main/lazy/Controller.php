@@ -1,23 +1,23 @@
 <?php
-/**
- * 控制器的相关操作类
- */
 
 namespace lazy;
+
+use Exception;
 
 class Controller extends View{
     protected $validate;
     private $pageCode = '<!DOCTYPE html><html><head><title>{$title}</title><meta charset="utf-8"><script type="text/javascript">window.onload=function(){let endTime={$time};let now=0;let url="{$url}";let block=document.querySelector("#time");let jump=function(){now++;show(endTime-now,block);if(now<endTime){setTimeout(jump,1000)}else{window.location.href=url}};show(endTime,block);setTimeout(jump,1000);function show(num,position){position.innerHTML="还有"+num+"s跳转到:   "+url}};</script><style type="text/css">*{margin:0px;padding:0px}a,a:hover{text-decoration:none}html,body{width:100%;height:100%}h1{padding-left:20px;font-family:simhei,宋体;margin-top:50px;margin-bottom:10px}#time,#click,pre{display:block;padding-left:20px;margin-bottom:10px}#click{width:200px}pre{width:90%;min-height:200px;margin-top:10px;max-width:300px;font-size:110%;word-break:break-word;white-space:pre-wrap}</style></head><body><h1>{$word}</h1><div id="time"></div><a href="{$url}"id="click">点击立即跳转!</a>{if condition="$info != """}<pre>{$info}</pre>{endif/}</body></html>';
     public function __construct(){
-        // 实例化一个验证器
+        parent::__construct();
         $this->validate = new Validate();
         $this->allowCode(\lazy\LAZYConfig::get('fetch_allow_code'));
         $this->systemVar = [
-            '__CSS__'           => \str_replace('//', '/', __CSS__),
-            '__JS__'            => \str_replace('//', '/', __JS__),
-            '__IMAGE__'         => \str_replace('//', '/', __IMAGE__),
-            '__STATIC_PATH__'   => \str_replace('//', '/', __STATIC_PATH__),
-            '__ROOT_PATH__'     => \str_replace('//', '/', __RELATIVE_ROOT_PATH__),
+            // 因这些常量最后一个是 / 因此，需要去掉方便前端模板使用
+            '__CSS__'           => substr(\str_replace('//', '/', __CSS__), 0, -1),
+            '__JS__'            => substr(\str_replace('//', '/', __JS__), 0, -1),
+            '__IMAGE__'         => substr(\str_replace('//', '/', __IMAGE__), 0, -1),
+            '__STATIC_PATH__'   => substr(\str_replace('//', '/', __STATIC_PATH__), 0, -1),
+            '__ROOT_PATH__'     => substr(\str_replace('//', '/', __RELATIVE_ROOT_PATH__), 0, -1),
             'LazyRequest'       => [
                 'get'       => \lazy\Request::get(),
                 'post'      => \lazy\Request::post(),
@@ -28,7 +28,6 @@ class Controller extends View{
             ]
         ];
         $this->specialChar(\lazy\LAZYConfig::get('fetch_specialchars'));
-        parent::__construct();
     }
     /**
      * 调用一个其余模块的控制器的方法
@@ -37,7 +36,7 @@ class Controller extends View{
      * @param  string $method     方法名
      * @return mixed              执行结果
      */
-    public static function  callMethod($module, $controller, $method){
+    public static function callMethod($module, $controller, $method){
         $controller = ucfirst($controller);
         $trace = debug_backtrace();
         if(!isset($trace[0]['file'])) {
@@ -51,7 +50,7 @@ class Controller extends View{
             $blankModule = \lazy\LAZYConfig::get('error_default_module');
             if(!file_exists(__APP_PATH__ . $blankModule . '/controller/')){
                 //模块不存在
-                trigger_error("Module $module Not Exists!", E_USER_ERROR);
+                throw new Exception("Module $module Not Exists!");
             }
             $module = $blankModule;
             $controller_path = __APP_PATH__ . $module . '/controller/';
@@ -62,21 +61,18 @@ class Controller extends View{
         $blankController = \lazy\LAZYConfig::get('error_default_controller');
         if(!file_exists($controllerPath)){
             if(!file_exists($controller_path . $blankController . '.php')){
-                //控制器不存在
-                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+                throw new Exception("Controller $controller Not Exists!");
             }else{
                 $controllerPath = $controller_path . $blankController . '.php';
             }
         }
 
         //引入控制器文件
-        
         //开始执行对应的模块，控制器以及方法
         $controller = 'app\\' . $module . '\controller\\' . $controller;
         if(!class_exists($controller)){
             if(!class_exists('app\\' . $module . '\controller\\' . $blankController)){
-                //控制器不存在
-                trigger_error("Controller $controller Not Exists!", E_USER_ERROR);
+                throw new Exception("Controller $controller Not Exists!");
             }
             else{
                 $controller = 'app\\' . $module . '\controller\\' . $blankController;
@@ -84,28 +80,12 @@ class Controller extends View{
         }
 
         //实例化一个控制器
-        try {
-            $appController = new $controller;
-        } catch (\Error $error) {
-            if (!class_exists('\lazy\AppDebug')) {
-                echo $error->getMessage() . ' at' . $error->getFile() . ' on line ' . $error->getLine();
-                return;
-            }
-            $debug = new \lazy\AppDebug();
-            $debug->throwError($debug->setLevel(E_ERROR)
-                ->setErrorEnv(get_defined_vars())
-                ->setErrorFile($error->getFile())
-                ->setErrorLine($error->getLine())
-                ->setErrorMsg($error->getMessage())
-                ->setErrorTrace($error->getTraceAsString())
-                ->build());
-        }
+        $appController = new $controller;
         if(!method_exists($appController, $method)){
             // 当请求方法不存在时，尝试调用默认方法
             $blankMethod = \lazy\LAZYConfig::get('error_default_method');
             if(!method_exists($appController, $blankMethod)){
-                //方法不存在
-                trigger_error("Method $method Not Exists!", E_USER_ERROR);
+                throw new Exception("Method $method Not Exists!");
             }
             else{
                 $method = $blankMethod;
@@ -185,7 +165,7 @@ class Controller extends View{
         }
         if(!file_exists(__MODEL__PATH_ . $name . '.php')){
             //模型不存在
-            trigger_error("Model $name Not Exists!", E_USER_ERROR);
+            throw new Exception("Model $name Not Exists!");
         }
         \lazy\Log::log('Use model: '. __MODEL__PATH_ . $name . '.php');
         $model = 'app\\' . \lazy\Request::module() . '\model\\' . $name;

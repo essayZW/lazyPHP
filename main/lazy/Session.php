@@ -1,4 +1,5 @@
 <?php
+
 namespace lazy{
     class Session{
         /**
@@ -25,12 +26,12 @@ namespace lazy{
         /**
          * 得到一个session值
          *
-         * @param [type] $name
+         * @param string $name
          * @return void
          */
         public static function get($name){
             self::start();
-            return isset($_SESSION[$name]) ? $_SESSION[$name] : '';
+            return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
         }
         /**
          * 判断是否有一个session
