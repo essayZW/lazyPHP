@@ -11,13 +11,6 @@ class LAZYException extends Exception implements BaseException {
         $this->envInfo = $envInfo;
         parent::__construct($message, $code, $previous);
     }
-    /**
-     * @return object
-     */
-    public function setEnvInfo($info) {
-        $this->envInfo = $info;
-        return $this;
-    }
     public function getEnvInfo() {
         return array_merge($this->envInfo, get_defined_vars());
     }
@@ -30,10 +23,16 @@ class LAZYException extends Exception implements BaseException {
         return "text/html";
     }
 
+    /**
+     * 从PHP 自带Exception类生成框架异常类
+     * 生成类为当前调用者类
+     */
     public static function BuildFromPHPException($exception) {
+        if($exception instanceof self) return $exception;
         if($exception instanceof Error) return self::BuildFromPHPError($exception);
         $reflectionClass = new \ReflectionClass($exception);
-        $resObject = new self($exception->getMessage(), $exception->getCode());
+        $className = get_called_class();
+        $resObject = new $className($exception->getMessage(), $exception->getCode());
         $resObject->file = $exception->file;
         $resObject->line = $exception->line;
         $prop = $reflectionClass->getProperty("trace");
@@ -46,9 +45,15 @@ class LAZYException extends Exception implements BaseException {
         $prop->setValue($resObject, $previous);
         return $resObject;
     }
+    /**
+     * 从PHP 自带Error类生成框架异常类
+     * 生成类为当前调用者类
+     */
     public static function BuildFromPHPError($error) {
+        if($error instanceof self) return $error;
         if($error instanceof Exception) return self::BuildFromPHPException($error);
-        $resObject = new self($error->getMessage(), $error->getCode());
+        $className = get_called_class();
+        $resObject = new $className($error->getMessage(), $error->getCode());
         $reflectionClass = new \ReflectionClass($error);
         $prop = $reflectionClass->getProperty("line");
         $prop->setAccessible(true);

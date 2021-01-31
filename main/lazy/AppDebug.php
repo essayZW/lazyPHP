@@ -2,6 +2,8 @@
 
 namespace lazy;
 
+use Exception;
+
 class AppDebug{
     // 使用框架提供的log接口记录日志
     use \lazy\logMethod;
@@ -28,17 +30,31 @@ class AppDebug{
             if(method_exists($this, 'errorLog')){
                 $this->errorLog($error_no, $error_msg, $error_file, $error_line);
             }
-            if(self::$debug == false) {
-                $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+
+            $defaultExceptionName = LAZYConfig::get("default_exception_class");
+            if(class_exists($defaultExceptionName) && method_exists($defaultExceptionName, 'BuildFromPHPException')) {
+                $exception = new $defaultExceptionName($error_msg, 500);
             }
             else {
-                $this->setLevel($error_no)
-                    ->setErrorMsg($error_msg)
-                    ->setErrorFile($error_file)
-                    ->setErrorLine($error_line)
-                    ->setErrorEnv(get_defined_vars())
-                    ->setErrorTrace((new \Exception)->getTraceAsString());
-                $this->throwError($this->build());
+                $exception = new LAZYException($error_msg, 500);
+            }
+            $errorPage = $exception->getErrorPage(self::$debug);
+            if($errorPage != null) {
+                $this->throwError($errorPage, $exception->getCode(), $exception->getResponseType());
+            }
+            else {
+                if(self::$debug == false) {
+                    $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+                }
+                else {
+                    $this->setLevel($error_no)
+                        ->setErrorMsg($error_msg)
+                        ->setErrorFile($error_file)
+                        ->setErrorLine($error_line)
+                        ->setErrorEnv(get_defined_vars())
+                        ->setErrorTrace($exception->getTraceAsString());
+                    $this->throwError($this->build(), $exception->getCode(), $exception->getResponseType());
+                }
             }
             return true;
         });
@@ -47,7 +63,13 @@ class AppDebug{
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
             if(! $exception instanceof BaseException) {
-                $exception = LAZYException::BuildFromPHPException($exception);
+                $defaultExceptionName = LAZYConfig::get("default_exception_class");
+                if(class_exists($defaultExceptionName) && method_exists($defaultExceptionName, 'BuildFromPHPException')) {
+                    $exception = call_user_func(array($defaultExceptionName, 'BuildFromPHPException'), $exception);
+                }
+                else {
+                    $exception = LAZYException::BuildFromPHPException($exception);
+                }
             }
             $errorPage = $exception->getErrorPage(self::$debug);
             if($errorPage != null) {

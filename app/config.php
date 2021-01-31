@@ -11,6 +11,8 @@ return [
     'app_debug'                     => false,
     //出现非致命错误后是否继续运行整个脚本
     'app_error_run'                 => false,
+    //默认抛出自定义异常类
+    'default_exception_class'       => 'lazy\\LAZYException',
 
 
     // *******************************************************
