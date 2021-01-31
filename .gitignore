@@ -7,3 +7,4 @@ app/debug/controller/Error.php
 app/debug/database.php
 app/debug/config.php
 app/debug/view/viewtest.html
+app/debug/common.php

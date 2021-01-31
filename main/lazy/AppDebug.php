@@ -2,6 +2,8 @@
 
 namespace lazy;
 
+use Exception;
+
 class AppDebug{
     // 使用框架提供的log接口记录日志
     use \lazy\logMethod;
@@ -28,17 +30,31 @@ class AppDebug{
             if(method_exists($this, 'errorLog')){
                 $this->errorLog($error_no, $error_msg, $error_file, $error_line);
             }
-            if(self::$debug == false) {
-                $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+
+            $defaultExceptionName = LAZYConfig::get("default_exception_class");
+            if(class_exists($defaultExceptionName) && method_exists($defaultExceptionName, 'BuildFromPHPException')) {
+                $exception = new $defaultExceptionName($error_msg, 500);
             }
             else {
-                $this->setLevel($error_no)
-                    ->setErrorMsg($error_msg)
-                    ->setErrorFile($error_file)
-                    ->setErrorLine($error_line)
-                    ->setErrorEnv(get_defined_vars())
-                    ->setErrorTrace((new \Exception)->getTraceAsString());
-                $this->throwError($this->build());
+                $exception = new LAZYException($error_msg, 500);
+            }
+            $errorPage = $exception->getErrorPage(self::$debug);
+            if($errorPage != null) {
+                $this->throwError($errorPage, $exception->getCode(), $exception->getResponseType());
+            }
+            else {
+                if(self::$debug == false) {
+                    $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+                }
+                else {
+                    $this->setLevel($error_no)
+                        ->setErrorMsg($error_msg)
+                        ->setErrorFile($error_file)
+                        ->setErrorLine($error_line)
+                        ->setErrorEnv(get_defined_vars())
+                        ->setErrorTrace($exception->getTraceAsString());
+                    $this->throwError($this->build(), $exception->getCode(), $exception->getResponseType());
+                }
             }
             return true;
         });
@@ -46,18 +62,34 @@ class AppDebug{
             if (method_exists($this, 'errorLog')) {
                 $this->errorLog(E_ERROR, $exception->getMessage(), $exception->getFile(), $exception->getLine(), get_defined_vars());
             }
-            if(self::$debug == false) {
-                $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+            if(! $exception instanceof BaseException) {
+                $defaultExceptionName = LAZYConfig::get("default_exception_class");
+                if(class_exists($defaultExceptionName) && method_exists($defaultExceptionName, 'BuildFromPHPException')) {
+                    $exception = call_user_func(array($defaultExceptionName, 'BuildFromPHPException'), $exception);
+                }
+                else {
+                    $exception = LAZYException::BuildFromPHPException($exception);
+                }
+            }
+            $errorPage = $exception->getErrorPage(self::$debug);
+            if($errorPage != null) {
+                $this->throwError($errorPage, $exception->getCode(), $exception->getResponseType());
             }
             else {
-                $exceptionClassName = (new \ReflectionClass($exception))->getShortName();
-                $this->throwError($this->setLevel($exception->getCode(), $exceptionClassName)
-                    ->setErrorEnv(get_defined_vars())
-                    ->setErrorFile($exception->getFile())
-                    ->setErrorLine($exception->getLine())
-                    ->setErrorMsg($exception->getMessage())
-                    ->setErrorTrace($exception->getTraceAsString())
-                    ->build());
+                if(self::$debug == false) {
+                    $this->throwError("<!DOCTYPE html><head><title>An error occurred</title><meta charset=\"UTF-8\"><head><body><h1>Error</h1><div>运行过程中出现了一个错误</div></body>");
+                }
+                else {
+                    $exceptionClassName = (new \ReflectionClass($exception))->getShortName();
+                    $errorPage = $this->setLevel($exception->getCode(), $exceptionClassName)
+                        ->setErrorEnv($exception->getEnvInfo())
+                        ->setErrorFile($exception->getFile())
+                        ->setErrorLine($exception->getLine())
+                        ->setErrorMsg($exception->getMessage())
+                        ->setErrorTrace($exception->getTraceAsString())
+                        ->build();
+                    $this->throwError($errorPage, $exception->getCode(), $exception->getResponseType());
+                }
             }
             return true;
         });
@@ -158,7 +190,6 @@ class AppDebug{
 
     /**
      * 设置堆栈
-     * @param [type] $envinfo [description]
      */
     public function setErrorTrace($trace_info){
         $this->errorTrace = $trace_info;
@@ -198,8 +229,9 @@ class AppDebug{
      * 抛出一个异常
      * @param  string $info 异常信息
      */
-    public function throwError($info = ''){
-        http_response_code(500);        //设置HTTP状态值
+    public function throwError($info = '', $code = 500, $type = "text/html"){
+        http_response_code($code);        //设置HTTP状态值
+        header("Content-Type:" . $type);
         if(self::$errorRun){
             ob_get_clean();
             echo $info;

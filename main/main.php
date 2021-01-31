@@ -49,6 +49,7 @@ if(LAZYConfig::get('url_route_on')){
 //检查请求方法是否符合
 if(!Request::isExists(Request::getMethod(), $accpetMethod)){
     if(file_exists($errorPath)){
+        Log::warn('Request method '. Request::getMethod(). ' not allowed');
         $pathinfo = '/'.LAZYConfig::get('error_default_module').'/'. LAZYConfig::get('error_default_controller');
     }
     else{

@@ -13,8 +13,6 @@ define("__EXTEND_PATH__", __ROOT_PATH__ . '/extend/');          //扩展类库�
 
 // 核心通用函数类文件
 require_once(__LOAD_PATH__ . '/common.php');
-// 默认用户扩展函数类文件
-require_once(__USER_COMMON__);
 
 // 采用自动加载方式
 spl_autoload_register(function($className) {
@@ -39,6 +37,8 @@ spl_autoload_register(function($className) {
     return false;
 });
 
+// 默认用户扩展函数类文件
+require_once(__USER_COMMON__);
 // 入口文件相对于网站根目录的相对目录
 define("__RELATIVE_ROOT_PATH__", '/' . lazy\getRelativelyPath(lazy\Request::wwwroot(), __ROOT_PATH__) . '/');
 // 静态文件目录，是相对路径
