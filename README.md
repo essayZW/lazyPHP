@@ -201,7 +201,9 @@ Request::$rmethod = $method;
 
 ### 9. 响应输出
 
-控制器的方法返回的值将默认被`print_r`函数输出
+控制器方法需要返回实现了`lazy\Response\BaseResponse`接口的类的实例，若返回其他对象将会抛出一个异常
+
+若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`print_r`输出值，可通过配置文件指定该输出函数
 
 ### 10. 日志保存
 

@@ -2,7 +2,8 @@
 
 namespace lazy;
 
-use Exception;
+use lazy\Exception\LAZYException;
+use lazy\Exception\BaseException;
 
 class AppDebug{
     // 使用框架提供的log接口记录日志

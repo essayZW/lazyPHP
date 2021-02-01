@@ -1,5 +1,5 @@
 <?php
-namespace lazy;
+namespace lazy\Exception;
 
 use Throwable;
 

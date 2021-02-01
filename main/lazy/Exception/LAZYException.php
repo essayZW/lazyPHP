@@ -1,6 +1,6 @@
 <?php
 
-namespace lazy;
+namespace lazy\Exception;
 
 use Error;
 use Exception;

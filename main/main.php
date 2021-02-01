@@ -1,6 +1,8 @@
 <?php
 namespace lazy;
 use Exception;
+use FFI\Exception as FFIException;
+
 define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
 require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量加载，环境设置文件
 Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
@@ -100,10 +102,12 @@ if(\file_exists($path)){
 // 第一次保存日志，防止之后运行中出现崩溃日志丢失
 Log::save();
 // 调用对应的控制器方法并将结果输出
-$returnPrintMethod = LAZYConfig::get('method_return_print');
-$res = Controller::callMethod($module, $controller, $method);
-if(!function_exists($returnPrintMethod)) {
-    $returnPrintMethod = 'print_r';
+$response = Controller::callMethod($module, $controller, $method);
+if(!is_object($response)) {
+    $response = Response\LAZYResponse::BuildFromVariable($response);
 }
-call_user_func($returnPrintMethod, $res);
+if(! $response instanceof Response\LAZYResponse) {
+    throw new \Exception("Response content must is a instance of lazy\\Response\\LAZYResponse");
+}
+$response->showPage();
 Log::save();
