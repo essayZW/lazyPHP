@@ -1,7 +1,6 @@
 <?php
 
 namespace lazy{
-
     /**
      * 获得相对路径, 得到b相对于a的相对路径
      */
@@ -143,5 +142,25 @@ namespace lazy{
             return $arr;
         }
     }
+}
+namespace lazy\Response {
+    /**
+     * 助手函数，生成一个JSONResponse对象
+     */
+    function JSONResponser($content, $code = 200) {
+        return new JSONResponse($content, $code);
+    }
+    /**
+     * 助手函数，生成一个XMLResponse对象
+     */
+    function XMLResponser($content, $code = 200) {
+        return new XMLResponse($content, $code);
+    }
 
+    /**
+     * 助手函数，生成一个FILEResponse对象
+     */
+    function FILEResponser($filename, $content) {
+        return new FILEResponse($filename, $content);
+    }
 }
