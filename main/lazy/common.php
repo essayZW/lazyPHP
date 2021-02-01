@@ -163,4 +163,11 @@ namespace lazy\Response {
     function FILEResponser($filename, $content) {
         return new FILEResponse($filename, $content);
     }
+
+    /**
+     * 助手函数，生成一个HTMLResponse对象
+     */
+    function HTMLResponser($content, $code = 200) {
+        return new HTMLResponse($content, $code);
+    }
 }
