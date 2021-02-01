@@ -209,7 +209,9 @@ Request::$rmethod = $method;
 
 ### 9. 响应输出
 
-控制器的方法返回的值将默认被`print_r`函数输出
+控制器方法需要返回实现了`lazy\Response\BaseResponse`接口的类的实例，若返回其他对象将会抛出一个异常
+
+若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`print_r`输出值，可通过配置文件指定该输出函数
 
 ### 10. 日志保存
 
@@ -347,9 +349,9 @@ class index{
 }
 ```
 
-其中，`app\index\controller`是命名空间，`index`是模块名，该命名空间的申明是**必须**的，控制器可以不继承任何类，当然也可以继承`lazy\controller\Controller`类，这样就可以使用`Controller`类提供的一些API。控制器方法中返回的返回值会被作为输出用`print_r`函数输出。
+其中，`app\index\controller`是命名空间，`index`是模块名，该命名空间的申明是**必须**的，控制器可以不继承任何类，当然也可以继承`lazy\controller\Controller`类，这样就可以使用`Controller`类提供的一些API。控制器方法中返回的返回值会被框架输出
 
-## 2. 控制器初始化
+2. 控制器初始化
 
 由于控制器实际上是一个类，于是可以通过PHP的`__construct`魔术方法初始化
 
@@ -391,7 +393,7 @@ protected function error($info = '', $url = false, $time = 3){};
 
 跳转页面的模板代码在`lazy\Controller::$pageCode`中存储，可以渲染`$info, $url, $time`三个变量
 
-## 4.跨模块调用
+## 4. 跨模块调用
 
 `lazy\Controller`中有着一个方法`callMethod`，框架正是通过该方法执行指定的模块、控制器、方法的，该函数可以调用一个指定的模块中的控制器中的方法。
 
@@ -458,6 +460,16 @@ class Error{
 
 这样可以优化方法名找不到时候的错误页面显示。
 
+## 8. 控制器方法返回值
+
+控制器方法返回值会被框架输出，规定返回值必须是实现了`lazy\Response\BaseResponse`接口的对象或者是一个非对象的变量
+
+对于对象，具体的输出行为由对象实现的`lazy\Response\BaseResponse::showPage`方法实现
+
+对于普通变量，其会被包装为`lazyResponse\LAZYResponse`对象
+
+该对象默认使用`print_r`输出，该函数可以在配置文件中的`method_return_print`定义
+
 # 五. 请求
 
 如果要获取本次请求的相关请求信息，如请求路径，请求参数等，可以使用`lazy\request\Request`类，该类的所有方法支持静态调用。
@@ -516,7 +528,130 @@ Request Method Name: index
 
 > 目前`Request`类就提供这些有限的功能，后期将会继续添加内容
 
-# 六. 数据库
+# 六. 响应
+
+框架中的任何输出到浏览器的内容都由`lazy\Response\LAZYResponse`类及其子类控制，该类实现了`lazy\Response\BaseResponse`接口
+
+具体由其中的`lazy\Response\BaseResponse::showPage`接口设置
+
+在该方法中，设置响应头，HTTP状态码以及输出内容
+
+框架`lazy\Response\LAZYResponse::showPage`的实现如下
+
+```php
+public function showPage() {
+    $this->setContentType($this->type);
+    http_response_code($this->code);
+    $returnPrintMethod = LAZYConfig::get('method_return_print');
+    if(!function_exists($returnPrintMethod)) {
+        $returnPrintMethod = 'print_r';
+    }
+    call_user_func($returnPrintMethod, $this->content);
+}
+```
+
+其默认以`print_r`函数输出内容，但是该函数可以由配置文件中的`method_return_print`这一项控制
+
+其构造函数`public function __construct($content = '', $code = 200, $type = "text/html")`
+
+默认以`html`页面形式输出
+
+## 1. HTML页面响应
+
+返回`lazy\Response\HTMLResponse`类的实例即可
+
+构造函数: `public function __construct($content = '', $code = 200)`
+
+示例:
+
+```php
+use function lazy\Response\HTMLResponser;
+public function index(){
+    $captcha = new Captcha(80, 30);
+    $img = $captcha->set($captcha->str(5));
+    $this->assign('imageSrc', $img);
+    return HTMLResponser($this->fetch()); // 或者 return new HTMLResponse($this->fetch());
+}
+```
+
+其中`HTMLResponser`是一个助手函数，用来快速创建一个`HTMLResponse`类的实例
+
+## 2. JSON数据响应
+
+返回`lazy\Response\JSONResponse`类的实例即可
+
+构造函数: `public function __construct($content = '', $code = 200)`
+
+示例：
+
+```php
+use function lazy\Response\JSONResponser;
+public function json() {
+    $content = array(
+        "name" => 'essay',
+        "age" => 23
+    );
+    return JSONResponser($content); // 或者 return new JSONResponse($content);
+}
+```
+
+其中`JSONResponser`是一个助手函数，用来快速创建一个`JSONResponse`类的实例
+
+## 3. XML数据响应
+
+返回`lazy\Response\XMLResponse`类的实例即可
+
+构造函数: `public function __construct($content = '', $code = 200)`
+
+示例:
+
+```php
+use function lazy\Response\XMLResponser;
+public function xml() {
+    $content = <<<EOD
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<note>
+<to>Tove</to>
+<from>Jani</from>
+<heading>Reminder</heading>
+<body>Don't forget me this weekend!</body>
+</note>
+EOD;
+    return XMLResponser($content);	// 或者 return new XMLResponse($content);
+}
+```
+
+其中`XMLResponser`是一个助手函数，用来快速创建一个`XMLResponse`类的实例
+
+## 4. 文件下载响应
+
+返回`lazy\Response\XMLResponse`类的实例即可
+
+构造函数: `public function __construct($filename, $content)`
+
+示例:
+
+```php
+public function file() {
+    $content = "hello world";
+    $name = "test.txt";
+    return FILEResponser($name, $content); // 或者 return new FILEResponse($name, $content);
+}
+```
+
+其中`FILEResponser`是一个助手函数，用来快速创建一个`FILEResponse`类的实例
+
+这样访问该控制器方法浏览器则会把这当作一个文件进行下载
+
+## 5. 自定义响应类
+
+自定义响应类可以直接继承已有的`lazy\Response\LAZYResponse`类
+
+或者可以继承其子类``lazy\Response\HTMLResponse``,``lazy\Response\XMLResponse``,``lazy\Response\JSONResponse``,``lazy\Response\FILEResponse``
+
+但是无论如何都必须实现`lazy\Response\BaseResponse`接口
+
+# 七. 数据库
 
 框架内置了`lazy\DB\MysqlDB`类，提供了简单的对MySQL数据库的增删改查操作，支持用户自定义语句、模板语句执行，内置的增删改查主要通过预处理模板方式，以防止SQL注入。
 
@@ -698,7 +833,7 @@ $DB->prepareAndExecute('SELECT * FROM demo WHERE id=?', ['id' => 1]);
 
 使用`lazy\DB\MysqlDB->getPrimaryKey()` 获得指定表的主键。
 
-# 七. 模型
+# 八. 模型
 
 ## 1. 模型定义
 
@@ -745,7 +880,7 @@ $model = new \app\index\model\Index();
 
 > 在模型实例化的时候会自动加载数据库配置文件，以及模块独立配置文件
 
-# 八. 视图
+# 九. 视图
 
 视图功能由`lazy\Controller`重载的`lazy\View`类提供，提供了对HTML 模板的渲染功能。模板文件必须在`project\app\模块名\view`下。模板的具体语法在下一节说明。
 
@@ -814,7 +949,7 @@ $LazyRequest = [
 
 > **修改此项需要删除所有的缓存文件才可生效。**
 
-# 九. 模板
+# 十. 模板
 
 模板功能由`lazy\View`类提供，其与上面的视图的区别是上面的模板类时被`Controller`  重载了模板定位等函数以适配框架中视图功能。以下模板部分文档是上面的一个功能补充。
 
@@ -1077,7 +1212,7 @@ echo $this->fetch();
 
 这样`{$test}`就不会被渲染。
 
-# 十. 日志
+# 十一. 日志
 
 框架提供自带的日志记录类，每次框架运行的时候会自动记录日志，日志默认保存3个月。
 
@@ -1156,7 +1291,7 @@ echo $this->fetch();
 
 框架提供的`lazy\DB\MysqlDB`类中使用`project\main\load\common.php`中的`lazy\logMethod`提供的日志接口`sqlLog`记录日志。默认记录通过`MysqlDB`类执行的所有SQL语句。
 
-# 十一．扩展
+# 十二．扩展
 
 ## 1. 用户扩展函数
 
@@ -1214,7 +1349,7 @@ $demo = new \demo\demo(1, 2);
 echo $demo->say_hello();
 ```
 
-# 十二. 其他内置功能
+# 十三. 其他内置功能
 
 ## 1. 验证器
 
