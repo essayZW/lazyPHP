@@ -2,42 +2,45 @@
 namespace lazy\Response;
 
 use Exception;
-use lazy\LAZYConfig;
 
 class LAZYResponse implements BaseResponse {
     protected $code = 200;
     protected $content = '';
-    protected $type = 'text/html';
-    public function __construct($content = '', $code = 200, $type = "text/html") {
-        $this->content = $content;
+    protected $type = self::HTML_TYPE;
+    protected $headers = [];
+    public function __construct($content = '', $code = 200, $type = self::HTML_TYPE, $headers = []) {
+        if(!is_array($headers)) throw new Exception("headers must be a key-value array");
+        $this->headers = $headers;
+        $this->setContent($content);
+        $this->setCode($code);
+        $this->setContentType($type);
+    }
+    public function setCode($code) {
         if(!is_numeric($code)) throw new Exception("http code must be a integer");
         $this->code = $code;
-        $this->type = $type;
     }
     public function getCode() {
         return $this->code;
     }
-    public function getType() {
+    public function setContentType($value) {
+        $this->type = $value;
+        $this->setHeader("Content-Type", $value);
+    }
+    public function getContentType() {
         return $this->type;
+    }
+    public function setContent($content) {
+        $this->content = $content;
     }
     public function getContent() {
         return $this->content;
     }
-
     public function setHeader($name, $value) {
-        header($name . ':' . $value);
+        if(!is_string($name)) throw new Exception("header name must be a string");
+        $this->headers[$name] = $value;
     }
-    public function setContentType($value) {
-        $this->setHeader("Content-Type", $value);
-    }
-    public function showPage() {
-        $this->setContentType($this->type);
-        http_response_code($this->code);
-        $returnPrintMethod = LAZYConfig::get('method_return_print');
-        if(!function_exists($returnPrintMethod)) {
-            $returnPrintMethod = 'print_r';
-        }
-        call_user_func($returnPrintMethod, $this->content);
+    public function getHeaders() {
+        return $this->headers;
     }
 
     /**

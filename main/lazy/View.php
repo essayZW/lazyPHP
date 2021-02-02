@@ -99,7 +99,8 @@ class View{
         //开始引入文件
         require($filename);
         //得到结果
-        $code = ob_get_clean();
+        $code = ob_get_contents();
+        ob_end_clean();
         //如果不使用缓存，则删除缓存
         if(!$this->useCache){
             unlink($filename);

@@ -147,27 +147,27 @@ namespace lazy\Response {
     /**
      * 助手函数，生成一个JSONResponse对象
      */
-    function JSONResponser($content, $code = 200) {
-        return new JSONResponse($content, $code);
+    function JSONResponseBuilder($content, $code = 200, $headers = []) {
+        return new JSONResponse($content, $code, $headers);
     }
     /**
      * 助手函数，生成一个XMLResponse对象
      */
-    function XMLResponser($content, $code = 200) {
-        return new XMLResponse($content, $code);
+    function XMLResponseBuilder($content, $code = 200, $headers = []) {
+        return new XMLResponse($content, $code, $headers);
     }
 
     /**
      * 助手函数，生成一个FILEResponse对象
      */
-    function FILEResponser($filename, $content) {
-        return new FILEResponse($filename, $content);
+    function FILEResponseBuilder($filename, $content, $headers = []) {
+        return new FILEResponse($filename, $content, $headers);
     }
 
     /**
      * 助手函数，生成一个HTMLResponse对象
      */
-    function HTMLResponser($content, $code = 200) {
-        return new HTMLResponse($content, $code);
+    function HTMLResponseBuilder($content, $code = 200, $headers = []) {
+        return new HTMLResponse($content, $code, $headers);
     }
 }

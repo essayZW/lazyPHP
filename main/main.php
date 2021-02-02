@@ -101,6 +101,7 @@ if(\file_exists($path)){
 }
 // 第一次保存日志，防止之后运行中出现崩溃日志丢失
 Log::save();
+ob_start();
 // 调用对应的控制器方法并将结果输出
 $response = Controller::callMethod($module, $controller, $method);
 if(!is_object($response)) {
@@ -109,5 +110,16 @@ if(!is_object($response)) {
 if(! $response instanceof Response\LAZYResponse) {
     throw new \Exception("Response content must is a instance of lazy\\Response\\LAZYResponse");
 }
-$response->showPage();
+// 防止在此之前有输出，将输出缓冲区内容取出并清空
+$beforeConetent = ob_get_contents();
+ob_end_clean();
+$contentType = $response->getContentType();
+$response->setHeader("Content-Type", $contentType);
+$headers = $response->getHeaders();
+foreach($headers as $key => $value) {
+    header($key . ':' . $value);
+}
+http_response_code($response->getCode());
+echo $beforeConetent;
+echo $response->getContent();
 Log::save();

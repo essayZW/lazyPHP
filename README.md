@@ -203,7 +203,7 @@ Request::$rmethod = $method;
 
 控制器方法需要返回实现了`lazy\Response\BaseResponse`接口的类的实例，若返回其他对象将会抛出一个异常
 
-若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`print_r`输出值，可通过配置文件指定该输出函数
+若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`echo`输出值
 
 ### 10. 日志保存
 

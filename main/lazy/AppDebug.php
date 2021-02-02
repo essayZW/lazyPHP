@@ -34,10 +34,10 @@ class AppDebug{
 
             $defaultExceptionName = LAZYConfig::get("default_exception_class");
             if(class_exists($defaultExceptionName) && method_exists($defaultExceptionName, 'BuildFromPHPException')) {
-                $exception = new $defaultExceptionName($error_msg, 500);
+                $exception = new $defaultExceptionName($error_msg);
             }
             else {
-                $exception = new LAZYException($error_msg, 500);
+                $exception = new LAZYException($error_msg);
             }
             $errorPage = $exception->getErrorPage(self::$debug);
             if($errorPage != null) {
@@ -54,7 +54,7 @@ class AppDebug{
                         ->setErrorLine($error_line)
                         ->setErrorEnv(get_defined_vars())
                         ->setErrorTrace($exception->getTraceAsString());
-                    $this->throwError($this->build(), $exception->getCode(), $exception->getResponseType());
+                    $this->throwError($this->build(), 500, $exception->getResponseType());
                 }
             }
             return true;
@@ -89,7 +89,7 @@ class AppDebug{
                         ->setErrorMsg($exception->getMessage())
                         ->setErrorTrace($exception->getTraceAsString())
                         ->build();
-                    $this->throwError($errorPage, $exception->getCode(), $exception->getResponseType());
+                    $this->throwError($errorPage, 500, $exception->getResponseType());
                 }
             }
             return true;
@@ -234,7 +234,6 @@ class AppDebug{
         http_response_code($code);        //设置HTTP状态值
         header("Content-Type:" . $type);
         if(self::$errorRun){
-            ob_get_clean();
             echo $info;
         }
         else {
