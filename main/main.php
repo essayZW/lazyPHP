@@ -1,8 +1,8 @@
 <?php
 namespace lazy;
 use Exception;
-use FFI\Exception as FFIException;
 
+ob_start();
 define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
 require_once(__MAIN_PATH__ . "/base.php");                  //引入基础变量加载，环境设置文件
 Log::init(LAZYConfig::get('log_file_path'), LAZYConfig::get('log_file_autoclear'), LAZYConfig::get('log_max_time'));
@@ -90,9 +90,9 @@ define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器�
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
 // 跨模块调用时可能会覆盖当前的模块控制器方法信息，需要保留最初始的信息
-Request::$rmodule = $module;
-Request::$rcontroller = $controller;
-Request::$rmethod = $method;
+Request::$rmodule = Request::$module = $module;
+Request::$rcontroller = Request::$controller = $controller;
+Request::$rmethod = Request::$method = $method;
 // 查找是否有模块额外配置文件并导入
 $path = changeFilePath(__MODULE_PATH__. '/config.php');
 if(\file_exists($path)){
@@ -101,14 +101,20 @@ if(\file_exists($path)){
 }
 // 第一次保存日志，防止之后运行中出现崩溃日志丢失
 Log::save();
-ob_start();
 // 调用对应的控制器方法并将结果输出
 $response = Controller::callMethod($module, $controller, $method);
 if(!is_object($response)) {
     $response = Response\LAZYResponse::BuildFromVariable($response);
 }
 if(! $response instanceof Response\LAZYResponse) {
-    throw new \Exception("Response content must is a instance of lazy\\Response\\LAZYResponse");
+    throw new Exception("Response object must is a instance of lazy\\Response\\LAZYResponse");
+}
+$callbackTable = Response\BeforeResponse::getRegistedHandler(Request::module(), Request::controller(), Request::method());
+foreach($callbackTable as $value) {
+    $response = call_user_func($value, $response);
+    if(! $response instanceof Response\BaseResponse) {
+        throw new Exception("before response handler must return a object that is a instance of lazy\\Response\\LAZYResponse");
+    }
 }
 // 防止在此之前有输出，将输出缓冲区内容取出并清空
 $beforeConetent = ob_get_contents();

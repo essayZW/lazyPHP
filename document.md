@@ -645,6 +645,55 @@ public function file() {
 
 但是无论如何都必须实现`lazy\Response\BaseResponse`接口
 
+## 6. 响应前函数钩子注册
+
+可以使用`lazy\Response\BeforeResponse::regist`方法注册函数
+
+该函数原型如下
+
+```php
+    /**
+     * 注册响应发出前的钩子函数
+     * @param function $callback 回调函数，函数参数为控制器方法返回的对象,并将新的对象返回
+     * @param string $module 生效的模块范围
+     * @param string $controller 生效的控制器范围
+     * @param string $method 生效的控制器操作范围
+     */
+    public static function regist($callback, $module = '*', $controller = '*', $method = '*');
+```
+
+其中`callback`参数可以是一个函数的名称，也可以是一个匿名函数
+
+示例:
+
+```php
+BeforeResponse::regist(function($rep) {
+    $content = $rep->getContent();
+    $rep->setContent("123" . $content);
+    return $rep;
+}, 'debug', 'Index');
+```
+
+其为debug模块下的Index控制器的所有方法注册了该响应前回调
+
+该回调函数在控制器方法返回后调用，参数为控制器方法的返回值(即继承了`BaseResponse`接口的对象)，返回值必须也是同类型的对象
+
+>若控制器返回值为普通的变量比如字符串，数组等，会被先包装为`LAZYResponse`类的实例，之后再执行回调函数
+
+可以使用`lazy\Response\BeforeResponse::unRegist`函数注销对应的回调
+
+其函数原型：
+
+```php
+    /**
+     * 取消某个handler
+     * @param string $module 生效的模块范围
+     * @param string $controller 生效的控制器范围
+     * @param string $method 生效的控制器操作范围
+     */
+    public static function unRegist($module = '.', $controller = '.', $method = '.')；
+```
+
 # 七. 数据库
 
 框架内置了`lazy\DB\MysqlDB`类，提供了简单的对MySQL数据库的增删改查操作，支持用户自定义语句、模板语句执行，内置的增删改查主要通过预处理模板方式，以防止SQL注入。
