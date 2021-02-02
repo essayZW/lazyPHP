@@ -234,7 +234,6 @@ class AppDebug{
         http_response_code($code);        //设置HTTP状态值
         header("Content-Type:" . $type);
         if(self::$errorRun){
-            ob_get_clean();
             echo $info;
         }
         else {
