@@ -6,9 +6,9 @@ use Exception;
 class LAZYResponse implements BaseResponse {
     protected $code = 200;
     protected $content = '';
-    protected $type = 'text/html';
+    protected $type = self::HTML_TYPE;
     protected $headers = [];
-    public function __construct($content = '', $code = 200, $type = "text/html", $headers = []) {
+    public function __construct($content = '', $code = 200, $type = self::HTML_TYPE, $headers = []) {
         if(!is_array($headers)) throw new Exception("headers must be a key-value array");
         $this->headers = $headers;
         $this->setContent($content);

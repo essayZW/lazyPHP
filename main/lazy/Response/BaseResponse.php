@@ -38,4 +38,22 @@ interface BaseResponse {
      * 设置响应头
      */
     public function setHeader($name, $value);
+
+    /**
+     * 常见响应头中Content-type值常量定义
+     */
+    const HTML_TYPE = "text/html";
+    const JSON_TYPE = "application/json";
+    const XML_TYPE = "text/xml";
+    const PLAIN_TYPE = "text/plain";
+    const GIF_IMAGE_TYPE = "image/gif";
+    const JPG_IMAGE_TYPE = "image/jpeg";
+    const PNG_IMAGE_TYPE = "image/png";
+    const PDF_TYPE = "application/pdf";
+    const MSWORD_TYPE = "application/msword";
+    const OCTET_TYPE = "application/octet-stream";
+    const WAV_AUDIO_TYPE = "audio/x-wav";
+    const MP3_TYPE = "audio/mp3";
+    const MP4_TYPE = "video/mpeg4";
+    const AVI_TYPE = "video/avi";
 }
