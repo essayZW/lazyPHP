@@ -211,7 +211,7 @@ Request::$rmethod = $method;
 
 控制器方法需要返回实现了`lazy\Response\BaseResponse`接口的类的实例，若返回其他对象将会抛出一个异常
 
-若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`print_r`输出值，可通过配置文件指定该输出函数
+若返回的值是一个非对象的变量，则会被包装为`lazy\Response\LAZYResponse`类的实例，该类中默认以`echo`输出值
 
 ### 10. 日志保存
 
@@ -468,7 +468,7 @@ class Error{
 
 对于普通变量，其会被包装为`lazyResponse\LAZYResponse`对象
 
-该对象默认使用`print_r`输出，该函数可以在配置文件中的`method_return_print`定义
+>框架推荐所有的输出通过控制其返回值形式进行输出
 
 # 五. 请求
 
@@ -532,81 +532,74 @@ Request Method Name: index
 
 框架中的任何输出到浏览器的内容都由`lazy\Response\LAZYResponse`类及其子类控制，该类实现了`lazy\Response\BaseResponse`接口
 
-具体由其中的`lazy\Response\BaseResponse::showPage`接口设置
+框架通过`getContentType`接口获取响应类型，之后通过`setHeader`设置到响应头中，通过`getHeaders`统一设置响应头
 
-在该方法中，设置响应头，HTTP状态码以及输出内容
+之后通过`getCode`获取HTTP状态码并设置
 
-框架`lazy\Response\LAZYResponse::showPage`的实现如下
+通过`getContent`获取相应内容并用`echo`输出
 
 ```php
-public function showPage() {
-    $this->setContentType($this->type);
-    http_response_code($this->code);
-    $returnPrintMethod = LAZYConfig::get('method_return_print');
-    if(!function_exists($returnPrintMethod)) {
-        $returnPrintMethod = 'print_r';
-    }
-    call_user_func($returnPrintMethod, $this->content);
+$contentType = $response->getContentType();
+$response->setHeader("Content-Type", $contentType);
+$headers = $response->getHeaders();
+foreach($headers as $key => $value) {
+    header($key . ':' . $value);
 }
+http_response_code($response->getCode());
+echo $response->getContent();
 ```
-
-其默认以`print_r`函数输出内容，但是该函数可以由配置文件中的`method_return_print`这一项控制
-
-其构造函数`public function __construct($content = '', $code = 200, $type = "text/html")`
-
-默认以`html`页面形式输出
 
 ## 1. HTML页面响应
 
 返回`lazy\Response\HTMLResponse`类的实例即可
 
-构造函数: `public function __construct($content = '', $code = 200)`
+构造函数: `public function __construct($content = '', $code = 200, $headers = [])`
 
 示例:
 
 ```php
-use function lazy\Response\HTMLResponser;
+use function lazy\Response\HTMLResponseBuilder;
 public function index(){
     $captcha = new Captcha(80, 30);
     $img = $captcha->set($captcha->str(5));
     $this->assign('imageSrc', $img);
-    return HTMLResponser($this->fetch()); // 或者 return new HTMLResponse($this->fetch());
+    return HTMLResponseBuilder($this->fetch()); // 或者 return new HTMLResponse($this->fetch());
 }
 ```
 
-其中`HTMLResponser`是一个助手函数，用来快速创建一个`HTMLResponse`类的实例
+其中`HTMLResponseBuilder`是一个助手函数，用来快速创建一个`HTMLResponse`类的实例
 
 ## 2. JSON数据响应
 
 返回`lazy\Response\JSONResponse`类的实例即可
 
-构造函数: `public function __construct($content = '', $code = 200)`
+构造函数: `public function __construct($content = '', $code = 200, $headers = [])`
 
 示例：
 
 ```php
-use function lazy\Response\JSONResponser;
+use function lazy\Response\JSONResponseBuilder;
 public function json() {
     $content = array(
         "name" => 'essay',
         "age" => 23
     );
-    return JSONResponser($content); // 或者 return new JSONResponse($content);
+    return JSONResponseBuilder($content); // 或者 return new JSONResponse($content);
 }
 ```
 
-其中`JSONResponser`是一个助手函数，用来快速创建一个`JSONResponse`类的实例
+其中`JSONResponseBuilder`是一个助手函数，用来快速创建一个`JSONResponse`类的实例
 
 ## 3. XML数据响应
 
 返回`lazy\Response\XMLResponse`类的实例即可
 
-构造函数: `public function __construct($content = '', $code = 200)`
+构造函数: `public function __construct($content = '', $code = 200, $headers = [])`
 
 示例:
 
 ```php
-use function lazy\Response\XMLResponser;
+use function lazy\Response\XMLResponseBuilder;
 public function xml() {
     $content = <<<EOD
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -617,29 +610,30 @@ public function xml() {
 <body>Don't forget me this weekend!</body>
 </note>
 EOD;
-    return XMLResponser($content);	// 或者 return new XMLResponse($content);
+    return XMLResponseBuilder($content);	// 或者 return new XMLResponse($content);
 }
 ```
 
-其中`XMLResponser`是一个助手函数，用来快速创建一个`XMLResponse`类的实例
+其中`XMLResponseBuilder`是一个助手函数，用来快速创建一个`XMLResponse`类的实例
 
 ## 4. 文件下载响应
 
 返回`lazy\Response\XMLResponse`类的实例即可
 
-构造函数: `public function __construct($filename, $content)`
+构造函数: `public function __construct($filename, $content, $headers = [])`
 
 示例:
 
 ```php
+use function lazy\Response\FILEResponseBuilder;
 public function file() {
     $content = "hello world";
     $name = "test.txt";
-    return FILEResponser($name, $content); // 或者 return new FILEResponse($name, $content);
+    return FILEResponseBuilder($name, $content); // 或者 return new FILEResponse($name, $content);
 }
 ```
 
-其中`FILEResponser`是一个助手函数，用来快速创建一个`FILEResponse`类的实例
+其中`FILEResponseBuilder`是一个助手函数，用来快速创建一个`FILEResponse`类的实例
 
 这样访问该控制器方法浏览器则会把这当作一个文件进行下载
 
