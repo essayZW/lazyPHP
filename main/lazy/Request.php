@@ -8,37 +8,18 @@ class Request{
     public static $controller;
     public static $method;
 
-    public static $rmodule;
-    public static $rcontroller;
-    public static $rmethod;
+    public static $rModule;
+    public static $rController;
+    public static $rMethod;
     /**
      * 返回本次请求的请求方法
      * @return string 请求方法，若没有则返回null
      */
-    public static function getMethod(){
-        if(isset($_SERVER['REQUEST_METHOD'])){
-            return $_SERVER['REQUEST_METHOD'];
-        }
-        return null;
+    public static function method(){
+        return $_SERVER['REQUEST_METHOD'];
     }
 
 
-    /**
-     * 判断请求方法是否在支持列表中
-     * @param  string  $method 请求方法
-     * @param  mixed  $list   支持的列表
-     * @return boolean
-     */
-    public static function isExists($method, $list = 'ALL'){
-        if(gettype($list) == gettype('')){
-            $list = [$list];
-        }
-        if(in_array('ALL', $list)){
-            //支持所有的方法
-            return true;
-        }
-        return in_array(strtoupper($method), $list);
-    }
 
     /**
      * 得到所有的get数据
@@ -190,25 +171,7 @@ class Request{
     public static function wwwroot(){
         return $_SERVER['DOCUMENT_ROOT'];
     }
-    /**
-     * 本次请求的模块
-     *
-     * @return void
-     */
-    public static function module($flag = true){
-        if(!$flag) return self::$rmodule;
-        return self::$module;
-    }
 
-
-    public static function controller($flag = true){
-        if(!$flag) return self::$rcontroller;
-        return self::$controller;
-    }
-    public static function method($flag = true){
-        if(!$flag) return self::$rmethod;
-        return self::$method;
-    }
     /**
      * 得到请求头
      * @return array 含有请求头的信息

@@ -6,6 +6,22 @@ class Router{
     static private $list = [];     //路由列表
 
     /**
+     * 判断请求方法是否在支持列表中
+     * @param  string  $method 请求方法
+     * @param  mixed  $list   支持的列表
+     * @return boolean
+     */
+    public static function isExists($method, $list = ['*']){
+        if(is_string($list)) {
+            $list = [$list];
+        }
+        if(in_array('*', $list)){
+            //支持所有的方法
+            return true;
+        }
+        return in_array(strtoupper($method), $list);
+    }
+    /**
      * 导入新的路由列表
      * @param  array  $arr 新的路由列表的数组
      * @return integer     新的列表的条目数目
@@ -129,16 +145,16 @@ class Router{
 
     /**
      * 返回列表
-     * @return [type] [description]
+     * @return array
      */
-    public static function showList(){
+    public static function getList(){
         return self::$list;
     }
 
     /**
      * 得到制定的一条路由规则的值
-     * @param  [type] $name [description]
-     * @return [type]       [description]
+     * @param  string $name
+     * @return string
      */
     private static function getListValue($name){
         if(!array_key_exists($name, self::$list)) return false;
@@ -151,68 +167,46 @@ class Router{
     /**
      * 返回对应key的路由规则
      * @param  string 路由规则名
-     * @return [type] [description]
+     * @return string
      */
     public static function getRule($key = ''){
-        $flag = 0;
-        foreach (self::$list as $k => $v) {
+        $res = array(
+            'url' => null,
+            'method' => '*'
+        );
+        foreach (self::$list as $k => $_) {
             if(preg_match('/^\/(.+)\/$/', $k)){
                 // 正则表达式模式
                 if(preg_match($k, $key)){
-                    $res = preg_replace($k, self::getListValue($k), $key);
-                    $flag = 1;
+                    $res['url'] = preg_replace($k, self::getListValue($k), $key);
+                    $res['method'] = self::getMethod($k);
                     break;
                 }
             }
             else{
                 // 普通匹配模式
                 if($k == $key){
-                    $res = self::getListValue($k);
-                    $flag = 1;
+                    $res['url'] =  self::getListValue($k);
+                    $res['method'] = self::getMethod($k);
                     break;
                 }
             }
-            
+
         }
-        if($flag){
-            return $res;
-        }
-        else{
-            return false;
-        }
+        return $res;
     }
 
     /**
      * 返回对应key规则支持的请求方法
-     * @param  string $key [description]
-     * @return [type]      [description]
+     * @param  string $key
+     * @return mixed
      */
     public static function getMethod($key = ''){
-        $flag = 0;
-        foreach (self::$list as $k => $v) {
-            if(preg_match('/^\/(.+)\/$/', $k)){
-                if(preg_match($k, $key)){
-                    $flag = 1;
-                    $key = $k;
-                    break;
-                }
-            }
-            else{
-                if($k == $key){
-                    $flag = 1;
-                    $key = $k;
-                    break;
-                }
-            }
-        }
-        if(!$flag){
-            return false;
-        }
-        if(gettype(self::$list[$key]) == gettype('')){
-            return 'ALL';
+        if(is_string(self::$list[$key])) {
+            return array('*');
         }
         $res = [];
-        for($i = 1; $i < count(self::$list[$key]); $i ++){
+        for($i = 1; $i < count(self::$list[$key]); $i ++) {
             array_push($res, strtoupper(self::$list[$key][$i]));
         }
         return $res;

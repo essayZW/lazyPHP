@@ -29,90 +29,6 @@ class Controller extends View{
         ];
         $this->specialChar(\lazy\LAZYConfig::get('fetch_specialchars'));
     }
-    /**
-     * 调用一个其余模块的控制器的方法
-     * @param  string $module     模块名
-     * @param  string $controller 控制器
-     * @param  string $method     方法名
-     * @return mixed              执行结果
-     */
-    public static function callMethod($module, $controller, $method){
-        $controller = ucfirst($controller);
-        $trace = debug_backtrace();
-        if(!isset($trace[0]['file'])) {
-            // 调用自身
-            return;
-        }
-        //尝试访问对应的模块的类的方法
-        $module_path = __APP_PATH__ . $module;
-        $controller_path = $module_path . '/controller/';
-        if(!file_exists($module_path)){
-            $blankModule = \lazy\LAZYConfig::get('error_default_module');
-            if(!file_exists(__APP_PATH__ . $blankModule . '/controller/')){
-                //模块不存在
-                throw new Exception("Module $module Not Exists!");
-            }
-            $module = $blankModule;
-            $controller_path = __APP_PATH__ . $module . '/controller/';
-        }
-
-        $controllerPath = $controller_path . $controller . '.php';
-        // 空控制器
-        $blankController = \lazy\LAZYConfig::get('error_default_controller');
-        if(!file_exists($controllerPath)){
-            if(!file_exists($controller_path . $blankController . '.php')){
-                throw new Exception("Controller $controller Not Exists!");
-            }else{
-                $controllerPath = $controller_path . $blankController . '.php';
-            }
-        }
-
-        //引入控制器文件
-        //开始执行对应的模块，控制器以及方法
-        $controller = 'app\\' . $module . '\controller\\' . $controller;
-        if(!class_exists($controller)){
-            if(!class_exists('app\\' . $module . '\controller\\' . $blankController)){
-                throw new Exception("Controller $controller Not Exists!");
-            }
-            else{
-                $controller = 'app\\' . $module . '\controller\\' . $blankController;
-            }
-        }
-
-        //实例化一个控制器
-        $appController = new $controller;
-        if(!method_exists($appController, $method)){
-            // 当请求方法不存在时，尝试调用默认方法
-            $blankMethod = \lazy\LAZYConfig::get('error_default_method');
-            if(!method_exists($appController, $blankMethod)){
-                throw new Exception("Method $method Not Exists!");
-            }
-            else{
-                $method = $blankMethod;
-            }
-        }
-        // 备份信息
-        $oldmodule = \lazy\Request::module();
-        $oldcontroller = \lazy\Request::controller();
-        $oldmethod = \lazy\Request::method();
-        //保存当前使用的模型，控制器，方法信息
-        \lazy\Request::$module = $module;
-        \lazy\Request::$controller = (new \ReflectionClass($controller))->getShortName();
-        \lazy\Request::$method = $method;
-        // 记录日志
-        \lazy\Log::log('Use module: '. $module);
-        \lazy\Log::log('Use controller: '. \lazy\Request::controller());
-        \lazy\Log::log('Use method: '. $method);
-        //得到表单参数列表
-        $LAZYCode = new \lazy\PHPCodeMethod($appController, $method);
-        //调用并将结果返回
-        $res = $LAZYCode->callMethod(\lazy\Request::params(), $appController);
-        // 恢复信息
-        \lazy\Request::$module = $oldmodule;
-        \lazy\Request::$controller = $oldcontroller;
-        \lazy\Request::$method = $oldmethod;
-        return $res;
-    }
 
     /**
      * 显示一个操作成功的页面
@@ -161,14 +77,14 @@ class Controller extends View{
      */
     protected function model($name = ''){
         if(!$name){
-            $name = \lazy\Request::controller();
+            $name = \lazy\Request::$controller;
         }
         if(!file_exists(__MODEL__PATH_ . $name . '.php')){
             //模型不存在
             throw new Exception("Model $name Not Exists!");
         }
         \lazy\Log::log('Use model: '. __MODEL__PATH_ . $name . '.php');
-        $model = 'app\\' . \lazy\Request::module() . '\model\\' . $name;
+        $model = 'app\\' . \lazy\Request::$module . '\model\\' . $name;
         $res = new $model;
         return $res;
     }
@@ -180,7 +96,7 @@ class Controller extends View{
      * @return [type]       [description]
      */
     protected function getTempFileName($path){
-        return __TEMP_PATH__ . md5(Request::module() . Request::controller(). $path) . '.php';
+        return __TEMP_PATH__ . md5(Request::$module . Request::$controller. $path) . '.php';
     }
 
     /**
@@ -189,14 +105,14 @@ class Controller extends View{
      * @return string           模板源代码
      */
     protected function load($filename){
-        $path = \lazy\changeFilePath( __APP_PATH__ . '/' .\lazy\Request::module() . '/view/' . $filename);
+        $path = \lazy\changeFilePath( __APP_PATH__ . '/' .\lazy\Request::$module . '/view/' . $filename);
         return parent::load($path);
     }
 
     public function fetch($path = false){
         if($path == false && gettype($path) != gettype('')){
             //参数错误,采用默认参数
-            $path = Request::controller();
+            $path = Request::$controller;
         }
         return parent::fetch($path);
     }
@@ -215,7 +131,7 @@ class Controller extends View{
      */
     protected function build($code, $path, $key){
         //生成文件名
-        $filename = md5(Request::module() . Request::controller(). $path) . '.php';
+        $filename = md5(Request::$module . Request::$controller. $path) . '.php';
         //生成头文件信息
         $code = "<?php /*@MD5:" . $key . "@*/ ?>\r\n" . $code;
         file_put_contents(__TEMP_PATH__ . $filename, $code);
