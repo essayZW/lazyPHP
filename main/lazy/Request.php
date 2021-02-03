@@ -19,6 +19,22 @@ class Request{
         return $_SERVER['REQUEST_METHOD'];
     }
 
+    /**
+     * 解析path info 信息
+     * @param string $pathinfo
+     * @return array
+     */
+    public static function parsePathInfo($pathinfo) {
+        $pathArr = array_filter(explode('/', $pathinfo));
+        $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::get('default_module'));
+        $controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
+        $method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
+        return array(
+            "module" => $module,
+            "controller" => $controller,
+            "method" => $method
+        );
+    }
 
 
     /**
@@ -229,6 +245,9 @@ class Request{
         }
         else{
             $pathInfo = '/';
+        }
+        if($pathInfo[0] != '/') {
+            $pathInfo = '/' . $pathInfo;
         }
         return $pathInfo;
     }

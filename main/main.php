@@ -1,7 +1,6 @@
 <?php
 namespace lazy;
 use Exception;
-use Error;
 
 ob_start();
 define("__MAIN_PATH__", __ROOT_PATH__ . '/main/');          //核心文件目录
@@ -17,9 +16,6 @@ Log::info('Request Method: '. Request::method());
 Log::info('Referer: '. (Request::referer() ? Request::referer() : 'None'));
 //解析url
 $pathinfo = Request::path();
-if($pathinfo[0] != '/') {
-    $pathinfo = '/' . $pathinfo;
-}
 Log::info('PathInfo: '. $pathinfo);
 //默认支持所有请求
 $errorPath = __APP_PATH__.  '/'.LAZYConfig::get('error_default_module').'/controller/'. LAZYConfig::get('error_default_controller'). '.php';
@@ -40,7 +36,9 @@ if(LAZYConfig::get('url_route_on')){
             $pathinfo = '/'.LAZYConfig::get('error_default_module').'/'. LAZYConfig::get('error_default_controller');
         }
         else{
-            throw new Error('Route not found');
+            // 因为该错误不可逆，因此应该抛出后停止运行
+            LAZYConfig::set('app_error_run', false);
+            throw new Exception('Route not found');
         }
     }
     //检查请求方法是否允许
@@ -50,15 +48,16 @@ if(LAZYConfig::get('url_route_on')){
             $pathinfo = '/'.LAZYConfig::get('error_default_module').'/'. LAZYConfig::get('error_default_controller');
         }
         else{
-            throw new Error("Forbidden!");
+            LAZYConfig::set('app_error_run', false);
+            throw new Exception("Forbidden!");
         }
     }
 }
 //解析URL
-$pathArr = array_filter(explode('/', $pathinfo));
-$module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::get('default_module'));
-$controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
-$method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
+$pathArr = Request::parsePathInfo($pathinfo);
+$module = $pathArr['module'];
+$controller = $pathArr['controller'];
+$method = $pathArr['method'];
 Log::info('Request module: '. $module);
 Log::info('Request controller: '. $controller);
 Log::info('Request method: ' . $method);

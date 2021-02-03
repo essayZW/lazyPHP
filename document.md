@@ -185,10 +185,6 @@ ini_set('display_errors', lazy\LAZYConfig::get('app_debug'));
 
 对请求的URL进行解析，得到请求的模块、控制器、方法，检测请求方法是否合法，并输出结果
 
-```php
-Controller::callMethod($module, $controller, $method);
-```
-
 同时定义新的变量
 
 ```php
@@ -198,9 +194,9 @@ define("__CONTROLLER_PATH__", __MODULE_PATH__ . '/controller/');    //控制器�
 define("__MODEL__PATH_", __MODULE_PATH__ . '/model/');              //模型目录
 define("__VIEW_PATH__", __MODULE_PATH__ . '/view/');                //模板目录
 // 保存请求的模块、控制器、方法信息
-Request::$rmodule = $module;
-Request::$rcontroller = $controller;
-Request::$rmethod = $method;
+Request::$rModule = $module;
+Request::$rController = $controller;
+Request::$rMethod = $method;
 ```
 
 ### 8. 配置项二次加载
@@ -247,7 +243,7 @@ Request::$rmethod = $method;
 
 ## 1. 路由模式
 
-该框架的路由可以开启或者关闭
+该框架的路由功能可以开启或者关闭
 
 配置项名为`url_route_on`，默认为`true`，开启之后应用解析URL之前先在路由列表中匹配并将匹配结果作为新的请求URL， 当该值设为`false`之后直接进行URL解析。
 
@@ -479,7 +475,7 @@ class Error{
 ```php
 $request = new \lazy\Request();
 // 获得本次的请求方法
-echo 'Request method: '. $request->getMethod(). '<br>';
+echo 'Request method: '. $request->method(). '<br>';
 // 得到名为test的GET表单值
 echo 'Get param test value: ' . $request->get('test') . '<br>';
 // 得到请求的URL
@@ -497,19 +493,32 @@ echo 'HTTP Referer: ' . $request->referer() . '<br>';
 // 得到请求着的IP地址
 echo 'Requester ip address: '. $request->ip() . '<br>';
 // 得到当前所运行的模块名
-echo 'Request Module Name: '. $request->module() . '<br>';
+echo 'Request Module Name: '. $request->$module . '<br>';
 // 得到当前所运行的控制器名
-echo 'Request Controller Name : ' . $request->controller() . '<br>';
+echo 'Request Controller Name : ' . $request->$controller . '<br>';
 // 得到当前所运行的控制器方法名
-echo 'Request Method Name: '. $request->method() . '<br>';
+echo 'Request Method Name: '. $request->$method . '<br>';
 
 ```
 
-> 因为框架允许跨模块、跨控制器调用。
->
-> 所以需要获得最初请求的模块、控制器、方法则加一个参数`false`,否则获得的是当前调用该函数所处的模块、控制器、方法名
+因为可能用户实际请求的模块、控制器、方法不存在，框架会转到设置好的空模块、空控制器、空操作中进行处理
 
-这样使用`Postman`访问`http://serverName/index/index/index/test/123`得到以下输出
+此时`Request::$module`、`Request::$controller`、`Request::$method` 存储的是当前访问的模块控制器操作信息
+
+因此需要使用`Request::$rModule`、`Request::$rController`、`Request::$rMethod`获取最初请求的模块控制器信息
+
+> 注意：所保存的最初的请求信息是在路由匹配之后的请求信息
+>
+> 若需要最原始的请求信息
+>
+> ```php
+> $pathInfo = Request::path();
+> $res = Request::parsePathInfo($pathInfo);
+> ```
+>
+> 
+
+使用`Postman`访问`http://serverName/index/index/index/test/123`得到以下输出
 
 ```
 Request method: GET
@@ -525,8 +534,6 @@ Request Module Name: index
 Request Controller Name : index
 Request Method Name: index
 ```
-
-> 目前`Request`类就提供这些有限的功能，后期将会继续添加内容
 
 # 六. 响应
 
