@@ -117,6 +117,7 @@ if(!file_exists($controllerPath)){
         throw new Exception("Controller $controller Not Exists!");
     }else{
         $controllerPath = $controller_path . $blankController . '.php';
+        $controller = $blankController;
     }
 }
 
@@ -149,25 +150,40 @@ if(!method_exists($appController, $method)){
 Request::$module = $module;
 Request::$controller = $controller;
 Request::$method = $method;
-// 将表单参数作为方法参数传进去，需要获取调用方法的参数列表
-$LAZYCode = new \lazy\PHPCodeMethod($appController, $method);
-$response = $LAZYCode->callMethod(\lazy\Request::params(), $appController);
+$callbackTable = Request\AfterRequest::getRegistedHandler(Request::$module, Request::$controller);
+$responseFlag = false;
+foreach($callbackTable as $value) {
+    $res = call_user_func($value);
+    if($res !== null) {
+        // AfterRequest 回调函数返回了一个可以响应的对象，则阻断请求，直接响应
+        $response = $res;
+        $responseFlag = true;
+        break;
+    }
+}
+if(! $responseFlag) {
+    // 将表单参数作为方法参数传进去，需要获取调用方法的参数列表
+    $LAZYCode = new \lazy\PHPCodeMethod($appController, $method);
+    $response = $LAZYCode->callMethod(\lazy\Request::params(), $appController);
+}
 if(!is_object($response)) {
     $response = Response\LAZYResponse::BuildFromVariable($response);
 }
-if(! $response instanceof Response\LAZYResponse) {
-    throw new Exception("Response object must is a instance of lazy\\Response\\LAZYResponse");
-}
-$callbackTable = Response\BeforeResponse::getRegistedHandler(Request::$module, Request::$controller, Request::$method);
-foreach($callbackTable as $value) {
-    $response = call_user_func($value, $response);
-    if(! $response instanceof Response\BaseResponse) {
-        throw new Exception("before response handler must return a object that is a instance of lazy\\Response\\LAZYResponse");
-    }
+if(! $response instanceof Response\BaseResponse) {
+    throw new Exception("Response object must is a instance of lazy\\Response\\BaseResponse");
 }
 // 防止在此之前有输出，将输出缓冲区内容取出并清空
 $beforeConetent = ob_get_contents();
 ob_end_clean();
+$nowContent = $response->getContent();
+$response->setContent($beforeConetent. $nowContent);
+$callbackTable = Response\BeforeResponse::getRegistedHandler(Request::$module, Request::$controller);
+foreach($callbackTable as $value) {
+    $response = call_user_func($value, $response);
+    if(! $response instanceof Response\BaseResponse) {
+        throw new Exception("before response handler must return a object that is a instance of lazy\\Response\BaseResponse");
+    }
+}
 $contentType = $response->getContentType();
 $response->setHeader("Content-Type", $contentType);
 $headers = $response->getHeaders();
@@ -175,6 +191,5 @@ foreach($headers as $key => $value) {
     header($key . ':' . $value);
 }
 http_response_code($response->getCode());
-echo $beforeConetent;
 echo $response->getContent();
 Log::save();

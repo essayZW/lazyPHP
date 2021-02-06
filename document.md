@@ -535,6 +535,51 @@ Request Controller Name : index
 Request Method Name: index
 ```
 
+## 1. 请求后钩子函数注册
+
+可以使用`lazy\Request\AfterRequest::regist`方法注册函数
+
+该函数原型如下
+
+```php
+    /**
+     * 注册响应发出前的钩子函数
+     * @param function $callback 回调函数，函数参数为控制器方法返回的对象,并将新的对象返回
+     * @param string $module 生效的模块范围
+     * @param string $controller 生效的控制器范围
+     */
+    public static function regist($callback, $module = '*', $controller = '*');
+```
+
+其中`callback`参数可以是一个函数的名称，也可以是一个匿名函数
+
+示例:
+
+```php
+AfterRequest::regist(function() {
+    // some code
+}, 'debug', 'Index');
+```
+
+其为debug模块下的Index控制器的所有方法注册了该请求后回调
+
+该回调函数在实例化控制器调用操作前调用，无参数
+
+若返回`null`则正常实例化控制器，若为其他，则作为响应直接截断请求的进行
+
+可以使用`lazy\Response\AfterRequest::unRegist`函数注销对应的回调
+
+其函数原型：
+
+```php
+    /**
+     * 取消某个handler
+     * @param string $module 生效的模块范围
+     * @param string $controller 生效的控制器范围
+     */
+    public static function unRegist($module = '.', $controller = '.', $method = '.')；
+```
+
 # 六. 响应
 
 框架中的任何输出到浏览器的内容都由`lazy\Response\LAZYResponse`类及其子类控制，该类实现了`lazy\Response\BaseResponse`接口
@@ -664,9 +709,8 @@ public function file() {
      * @param function $callback 回调函数，函数参数为控制器方法返回的对象,并将新的对象返回
      * @param string $module 生效的模块范围
      * @param string $controller 生效的控制器范围
-     * @param string $method 生效的控制器操作范围
      */
-    public static function regist($callback, $module = '*', $controller = '*', $method = '*');
+    public static function regist($callback, $module = '*', $controller = '*');
 ```
 
 其中`callback`参数可以是一个函数的名称，也可以是一个匿名函数
@@ -696,7 +740,6 @@ BeforeResponse::regist(function($rep) {
      * 取消某个handler
      * @param string $module 生效的模块范围
      * @param string $controller 生效的控制器范围
-     * @param string $method 生效的控制器操作范围
      */
     public static function unRegist($module = '.', $controller = '.', $method = '.')；
 ```

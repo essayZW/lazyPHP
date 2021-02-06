@@ -1,7 +1,6 @@
 <?php
-namespace lazy\Response;
+namespace lazy\Request;
 use lazy\HookHandler;
-
-class BeforeResponse {
+class AfterRequest {
     use HookHandler;
 }
