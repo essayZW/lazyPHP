@@ -111,7 +111,7 @@ class Captcha{
         $str = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $res = '';
         for($i = 0; $i < $len; $i ++){
-            $res .= $str{rand(0, 61)};
+            $res .= $str[rand(0, 61)];
         }
         return $res;
     }
@@ -212,7 +212,7 @@ class Captcha{
         $len = strlen($str);
         for($i = 0; $i < $len; $i ++){
             $last = rand($last + 6, $last + (int)($this->imgWidth / $len));
-            imagestring($imgHandle, 28, $last, rand(0, (int)($this->imgHeight / 2) - 3), $str{$i}, $txtColor);
+            imagestring($imgHandle, 28, $last, rand(0, (int)($this->imgHeight / 2) - 3), $str[$i], $txtColor);
         }
         if($this->saveInFile){
             ob_start();

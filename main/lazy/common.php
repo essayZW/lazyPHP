@@ -12,10 +12,10 @@ namespace lazy{
         $b = \str_replace(':', '', $b);
         $a = \str_replace('//', '/', $a);
         $b = \str_replace('//', '/', $b);
-        if($a{0} != '/'){
+        if($a[0] != '/'){
             $a = '/' . $a;
         }
-        if($b{0} != '/'){
+        if($b[0] != '/'){
             $b = '/' . $b;
         }
         $a = explode('/', $a);
@@ -169,5 +169,23 @@ namespace lazy\Response {
      */
     function HTMLResponseBuilder($content, $code = 200, $headers = []) {
         return new HTMLResponse($content, $code, $headers);
+    }
+}
+namespace {
+    if(!interface_exists("Throwable")) {
+        /**
+         * 为兼容PHP7 以下版本无该接口的情况
+         */
+        interface Throwable {
+            /* Methods */
+            public function getMessage ( );
+            public function getCode ( );
+            public function getFile ( );
+            public function getLine ( );
+            public function getTrace ( );
+            public function getTraceAsString ( );
+            public function getPrevious ( );
+            public function __toString ( );
+        }
     }
 }
