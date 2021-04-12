@@ -17,42 +17,56 @@
 
 ```php
 project/
-├── app		# 应用目录
-│   ├── index			# 默认的index模块
-│   │   └── controller	# 模块中的控制器目录
-│   │       └── Index.php	# 模块中的Index控制器文件
-│   ├── common.php		# 用户扩展函数文件
-│   ├── config.php		# 整个应用配置文件
-│   ├── database.php	# 整个应用数据库配置文件
-│   └── router.php		# 应用路由注册文件
-├── extend				# 第三方扩展类库目录
-├── main				# 框架核心文件目录
-│   ├── lazy			# 框架核心类库目录
-│   │   ├── DB				# DB类目录
-│   │   │   └── MysqlDB.php	# MySQL类
-│   │   ├── AppDebug.php	# 应用异常、错误捕获处理类
-│   │   ├── Captcha.php		# 验证码类
-│   │   ├── Controller.php	# 控制器类
-│   │   ├── Cookie.php		# cookie类
-│   │   ├── LAZYConfig.php	# 框架配置类
-│   │   ├── Log.php			# 框架日志类
-│   │   ├── Model.php		# 框架模型类
-│   │   ├── Request.php		# 框架request类
-│   │   ├── Router.php		# 框架路由类
-│   │   ├── Session.php		# session类
-│   │   ├── Validate.php	# 验证器类
-│   │   ├── View.php		# 视图类
-│   │   └── common.php		# 杂项类以及方法
-│   ├── base.php		# 框架环境初始化文件
-│   └── main.php			# 解析URL以及路由调用控制器等
-├── runtime
-│   ├── log		# 框架日志文件目录
-│   └── temp	# 框架缓存以及临时文件目录
-├── static		# 静态资源目录
-├── index.php			# 入口文件
+├── app # 应用目录
+│   ├── index # 默认index模块目录
+│   │   └── controller # index模块控制器目录
+│   │       └── Index.php # index模块默认Index控制器
+│   ├── database.php # 应用数据库配置文件
+│   ├── common.php # 用户扩展函数文件
+│   ├── config.php # 应用配置文件
+│   ├── router.php # 应用路由规则定义文件
+├── main # 框架核心文件目录
+│   ├── base.php # 框架初始化、环境加载、全局变量定义文件
+│   ├── main.php # 框架主流程文件
+│   └── lazy # 框架核心类目录
+│       ├── Cookie.php # Cookie类
+│       ├── DB # DB类目录
+│       │   └── MysqlDB.php # MysqlDB类文件
+│       ├── LAZYConfig.php # LAZYConfig类文件，提供配置文件管理功能
+│       ├── Log.php # Log类文件，提供日志记录
+│       ├── Session.php # Session类文件
+│       ├── Validate.php # 验证器类文件
+│       ├── AppDebug.php # AppDebug类文件，提供对于未捕获异常的默认处理方法
+│       ├── View.php # 模板渲染类文件
+│       ├── Router.php # 路由管理类文件
+│       ├── Controller.php # 控制器基类文件
+│       ├── Request.php # 请求类文件，提供某次请求的基本信息
+│       ├── Response # 响应相关类目录
+│       │   ├── BaseResponse.php # 一个标准的响应应该实现的接口文件
+│       │   ├── FILEResponse.php # 文件类型响应类
+│       │   ├── HTMLResponse.php # HTML文件类型响应类
+│       │   ├── JSONResponse.php # JSON类型数据响应类
+│       │   ├── XMLResponse.php # XML类型相应类
+│       │   ├── LAZYResponse.php # 默认数据响应类
+│       │   └── BeforeResponse.php # 注册响应前回调方法
+│       ├── PathHandlerRegister.php # 工具类，对某个路由注册回调函数
+│       ├── HookHandler.php # 对指定的模块、控制器注册回调函数
+│       ├── Request # 请求类目录
+│       │   └── AfterRequest.php # 注册请求后回调
+│       ├── Captcha.php # 验证码类
+│       ├── Exception # 异常处理类目录
+│       │   ├── LAZYException.php # 默认异常处理类
+│       │   └── BaseException.php # 框架异常接口
+│       ├── common.php # 提供框架运行中的一些工具函数
+│       └── Model.php # 模型类
+├── extend # 扩展目录
+├── runtime # 存放运行时文件目录
+│   ├── log # 日志文件存放目录
+│   └── temp # 缓存、临时文件存放目录
+├── static # 静态资源目录
+├── favicon.ico # 默认站标
+├── index.php # 框架入口文件
 ├── README.md
-├── favicon.ico
-├── .htaccess	# URL重写文件，保护app, extend, main, runtime等目录不被访问
 └── document.md
 ```
 
