@@ -29,6 +29,20 @@ class Request{
         $module = strtolower(array_key_exists(1, $pathArr) ? $pathArr[1] : LAZYConfig::get('default_module'));
         $controller = ucwords(strtolower(array_key_exists(2, $pathArr) ? $pathArr[2] : LAZYConfig::get('default_controller')));
         $method = strtolower(array_key_exists(3, $pathArr) ? $pathArr[3] : LAZYConfig::get('default_method'));
+        if (count($pathArr) > 3) {
+            Log::log("Params On URL");
+            $pathParam = array_slice($pathArr, 3, count($pathArr) - 3);
+            // 默认以/name/value/name/value形式解析为get参数
+            $len = count($pathParam);
+            $getArr = [];
+            for($i = 1; $i < $len; $i += 2){
+                $getArr = array_merge($getArr, [$pathParam[$i - 1] => $pathParam[$i]]);
+            }
+            $_GET = array_merge($_GET, $getArr);
+            // 将pathinfo后面的信息传递给request，可以供用户自己解析
+            self::$pathParamStr = '/' . implode('/', $pathParam);
+            Log::info('Url Params: '. self::$pathParamStr);
+        }
         return array(
             "module" => $module,
             "controller" => $controller,
@@ -300,7 +314,7 @@ class Request{
                 'cldc',
                 'midp',
                 'wap'
-                );
+            );
             // 从HTTP_USER_AGENT中查找手机浏览器的关键字
             if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))){
                 return TRUE;
